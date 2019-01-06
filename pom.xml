@@ -39,5 +39,9 @@
   
 	<modules>
 		<module>merc.api</module>
+		<module>merc.tools</module>
+		<module>merc.core</module>
+		<module>merc.lang</module>
+		<module>merc.sandbox</module>
 	</modules>
 </project>

@@ -5,10 +5,10 @@
     <artifactId>merc.parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>merc.api</artifactId>
-
+  <artifactId>merc.sandbox</artifactId>
+  
      <build>
-       <finalName>merc.api.${project.parent.version}</finalName>
+       <finalName>merc.sandbox.${project.parent.version}</finalName>
        <plugins>
            <plugin>
                <groupId>org.apache.maven.plugins</groupId>
