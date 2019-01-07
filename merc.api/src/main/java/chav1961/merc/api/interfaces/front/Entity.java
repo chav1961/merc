@@ -50,7 +50,7 @@ public interface Entity<State extends Enum<State>> extends EntityStateDescriptor
 	 * <p>Get rpesious entity state</p>
 	 * @return previous entity state. Can be null
 	 */
-	Entity<State> getPreviousState();
+	EntityStateDescriptor<State> getPreviousState();
 	
 	/**
 	 * <p>Clear all modifications before the given timestamp</p>
@@ -119,4 +119,13 @@ public interface Entity<State extends Enum<State>> extends EntityStateDescriptor
 	 * @throws MercEnvironmentException
 	 */
 	ControlInterface<State> getControlInterface() throws MercEnvironmentException;
+
+	/**
+	 * <p>Fires listeners that entity state changed</p>  
+	 * @param previousState previous entity state. Can be null
+	 * @param changes type of changes (see {@linkplain StateChangedListener} constants)
+	 * @return self
+	 * @throws MercEnvironmentException
+	 */
+	Entity<State> fireStateChanged(EntityStateDescriptor<State> previousState, int changes) throws MercEnvironmentException;
 }

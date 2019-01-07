@@ -1,6 +1,6 @@
 package chav1961.merc.api.interfaces.front;
 
-import chav1961.merc.api.exceptions.MercEnvironmentException;
+import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.fsys.interfaces.FileSystemInterface;
 
@@ -11,7 +11,7 @@ import chav1961.purelib.fsys.interfaces.FileSystemInterface;
  * @since 0.0.1
  * @param <State> entity state
  */
-public interface ProgrammableEntity extends TickableEntity {
+public interface ProgrammableEntity extends TickableEntity, ProgramExecutor {
 	/**
 	 * <p>Get current program name</p>
 	 * @return "file" path in the file system with program loaded
@@ -20,33 +20,12 @@ public interface ProgrammableEntity extends TickableEntity {
 	
 	/**
 	 * <p>Load new program into entity</p>
+	 * @param world world to execute program in
 	 * @param library file system with programs
 	 * @param path path to program to load
 	 * @throws SyntaxException on any errors in the program text
+	 * @throws MercContentException on any other problems
 	 */
-	void loadProgram(FileSystemInterface library, String path) throws SyntaxException;
+	void loadProgram(World world, FileSystemInterface library, String path) throws MercContentException, SyntaxException;
 	
-	/**
-	 * <p>Start program execution</p>
-	 * @throws MercEnvironmentException program is not loaded or has errors
-	 */
-	void start() throws MercEnvironmentException;
-
-	/**
-	 * <p>Pause program execution</p>
-	 * @throws MercEnvironmentException program is not loaded or has errors
-	 */
-	void pause() throws MercEnvironmentException;
-
-	/**
-	 * <p>Resume program execution</p>
-	 * @throws MercEnvironmentException program is not loaded or has errors
-	 */
-	void resume() throws MercEnvironmentException;
-	
-	/**
-	 * <p>Stop program execution</p>
-	 * @throws MercEnvironmentException program is not loaded or has errors
-	 */
-	void stop() throws MercEnvironmentException;
 }

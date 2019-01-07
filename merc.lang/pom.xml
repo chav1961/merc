@@ -7,6 +7,14 @@
   </parent>
   <artifactId>merc.lang</artifactId>
 
+     <dependencies>
+     	<dependency>
+     		<groupId>com.github.chav1961</groupId>
+     		<artifactId>merc.api</artifactId>
+     		<version>${project.parent.version}</version>
+     	</dependency>
+     </dependencies>
+
      <build>
        <finalName>merc.lang.${project.parent.version}</finalName>
        <plugins>

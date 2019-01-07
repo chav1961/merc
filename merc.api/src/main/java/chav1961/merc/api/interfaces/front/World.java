@@ -12,7 +12,7 @@ import chav1961.merc.api.exceptions.MercEnvironmentException;
  * @author Alexander Chernomyrdin aka chav1961
  * @since 0.0.1
  */
-public interface World extends SerializableItem {
+public interface World extends DrawableEntity<WorldState> {
 	/**
 	 * <p>This interface describes locks in the world</p>
 	 * @see Mercury landing project
@@ -33,6 +33,19 @@ public interface World extends SerializableItem {
 		Track getLockedCells();
 		void close() throws MercContentException;
 	}
+
+	/**
+	 * <p>Get current timestamp of the world</p>
+	 * @return current timestamp
+	 */
+	long getWorldTimestamp();
+	
+	/**
+	 * <p>Set timestamp of the world</p>
+	 * @param timestamp timestamp of the world. Can't be negative
+	 * @return self
+	 */
+	World setWorldTimestamp(long timestamp); 
 	
 	/**
 	 * <p>Get level of the world</p>
@@ -161,6 +174,38 @@ public interface World extends SerializableItem {
 	Iterable<Entity<?>> content(int x, int y) throws MercContentException;
 
 	/**
+	 * <p>Get registered entity classes in the world</p>
+	 * @return registered classes. Can be empty but not null
+	 * @throws MercContentException
+	 */
+	Iterable<EntityClassDescription<?>> registered() throws MercContentException;
+
+	/**
+	 * <p>Get registered entity classes in the world</p>
+	 * @param entityClass entity types
+	 * @return registered classes. if missing, return null
+	 * @throws MercContentException
+	 */
+	Iterable<EntityClassDescription<?>> registered(EntityClass entityClass) throws MercContentException;
+
+	/**
+	 * <p>Get registered entity classes in the world</p>
+	 * @param entityClass entity types
+	 * @param entitySubclass subclass name.
+	 * @return registered class. If missing, return null
+	 * @throws MercContentException
+	 */
+	EntityClassDescription<?> registered(EntityClass entityClass, String entitySubclass) throws MercContentException;
+
+	/**
+	 * <p>Get registered entity classes in the world</p>
+	 * @param entityClassId entity class id
+	 * @return registered class. If missing, return null
+	 * @throws MercContentException
+	 */
+	EntityClassDescription<?> registered(UUID entityClassId) throws MercContentException;
+	
+	/**
 	 * <p>Get all entities in the world at the given area</p>
 	 * @param x x-coordinate of the bottom-left corner of the area examined
 	 * @param y y-coordinate of the bottom-left corner of the area examined
@@ -230,7 +275,7 @@ public interface World extends SerializableItem {
 	 * <p>Remove entity by it's id</p>
 	 * @param entityId entity id to remove
 	 * @return entity removed
-	 * @throws MercContentException
+	 * @throws MercContentException if entity doesn't exist
 	 */
 	<State extends Enum<State>> Entity<State> removeEntity(UUID entityId) throws MercContentException;
 	
@@ -341,4 +386,19 @@ public interface World extends SerializableItem {
 	 * @throws MercEnvironmentException if the world doesn't support the given environment
 	 */
 	<T> T getPresentationEnvironment(PresentationType type) throws MercEnvironmentException;
+	
+	/**
+	 * <p>Get total serializer/deserializer for the world</p>
+	 * @return total serializer/deserializer. Can't be null
+	 * @throws MercEnvironmentException
+	 */
+	SerializableItem total() throws MercEnvironmentException;
+	
+	/**
+	 * <p>Get updates serializer/deserializer for the world</p>
+	 * @param timestamp timestamp for changes
+	 * @return updates serializer/deserializer. Can't be null
+	 * @throws MercEnvironmentException
+	 */
+	SerializableItem updates(long timestamp) throws MercEnvironmentException;
 }

@@ -12,9 +12,21 @@ import java.util.Arrays;
 
 public class Track {
 	private static final int[]	EMPTY_ARRAY = new int[0];
+
+	/**
+	 * <p>This interface describes walk callback for the class</p> 
+	 * @see Mercury landing project
+	 * @author Alexander Chernomyrdin aka chav1961
+	 * @since 0.0.1
+	 */
+	@FunctionalInterface
+	public interface TrackWalkCallback {
+		boolean process(int x, int y);
+	}
 	
 	private final int[]	points;
 
+	
 	/**
 	 * <p>Constructor of the object (track with the only point)</p>
 	 * @param x x-coordinate of the point 
@@ -205,6 +217,26 @@ public class Track {
 		return points.clone();
 	}
 
+	/**
+	 * <p>Walk on all the points in the track</p>
+	 * @param callback callback to process all the points
+	 * @throws NullPointerException
+	 */
+	public void walk(final TrackWalkCallback callback) throws NullPointerException {
+		if (callback == null) {
+			throw new NullPointerException("Callback can't be null"); 
+		}
+		else {
+			final int[]	p = points;
+			
+			for (int index = 0, maxIndex = p.length; index < maxIndex; index += 2) {
+				if (!callback.process(p[index],p[index+1])) {
+					break;
+				}
+			}
+		}
+	}
+	
 	/**
 	 * <p>Get track points without cloning them.</p>
 	 * @param track track instance to get points from

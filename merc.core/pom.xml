@@ -6,6 +6,14 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>merc.core</artifactId>
+
+     <dependencies>
+     	<dependency>
+     		<groupId>com.github.chav1961</groupId>
+     		<artifactId>merc.api</artifactId>
+     		<version>${project.parent.version}</version>
+     	</dependency>
+     </dependencies>
   
      <build>
        <finalName>merc.core.${project.parent.version}</finalName>

@@ -6,6 +6,24 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>merc.sandbox</artifactId>
+
+     <dependencies>
+     	<dependency>
+     		<groupId>com.github.chav1961</groupId>
+     		<artifactId>merc.api</artifactId>
+     		<version>${project.parent.version}</version>
+     	</dependency>
+     	<dependency>
+     		<groupId>com.github.chav1961</groupId>
+     		<artifactId>merc.core</artifactId>
+     		<version>${project.parent.version}</version>
+     	</dependency>
+     	<dependency>
+     		<groupId>com.github.chav1961</groupId>
+     		<artifactId>merc.lang</artifactId>
+     		<version>${project.parent.version}</version>
+     	</dependency>
+     </dependencies>
   
      <build>
        <finalName>merc.sandbox.${project.parent.version}</finalName>

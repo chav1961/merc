@@ -1,5 +1,6 @@
 package chav1961.merc.api.interfaces.front;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import chav1961.merc.api.exceptions.MercEnvironmentException;
@@ -15,7 +16,7 @@ import chav1961.purelib.i18n.interfaces.Localizer;
  * @since 0.0.1
  * @param <State> entity state
  */
-public interface EntityClassDescription<State extends Enum<State>> {
+public interface EntityClassDescription<State extends Enum<State>> extends DrawableEntity<State> {
 	/**
 	 * <p>Get entity class id.
 	 * @return Any valid UUID. Must be the same UUID for all the life of the given entity, because it will be used in the serialization/deserialization mechanism
@@ -34,13 +35,6 @@ public interface EntityClassDescription<State extends Enum<State>> {
 	 */
 	String getEntitySubclass();
 	
-	/**
-	 * <p>Get presentation to support drawing of the class in the different environment</p>
-	 * @param type presentation type (see {@linkplain PresentationType})
-	 * @return presentation to draw
-	 * @throws MercEnvironmentException if the class doesn't support presentation of the given type
-	 */
-	PresentationCallback<State> getPresentation(PresentationType type) throws MercEnvironmentException;
 	
 	/**
 	 * <p>Get file system root associated with the given class.</p>
@@ -54,8 +48,9 @@ public interface EntityClassDescription<State extends Enum<State>> {
 	 * @return localizer associated. If the class is a component of any owner, it's owner localizer must be returned instead. 
 	 * Owner must have common localizer for all it's components and itself
 	 * @throws LocalizationException
+	 * @throws IOException
 	 */
-	Localizer getLocalizerAssociated() throws LocalizationException;
+	Localizer getLocalizerAssociated() throws LocalizationException, IOException;
 	
 	/**
 	 * <p>Get identifier of the class name to use with the localizer</p>
@@ -186,6 +181,7 @@ public interface EntityClassDescription<State extends Enum<State>> {
 	 * <p>Remove class instance</p> 
 	 * @param world world to remove instance from
 	 * @param instance instance to remove
+	 * @throws MercEnvironmentException
 	 */
-	void removeInstance(World world, Entity<State> instance);
+	void removeInstance(World world, Entity<State> instance) throws MercEnvironmentException;
 }
