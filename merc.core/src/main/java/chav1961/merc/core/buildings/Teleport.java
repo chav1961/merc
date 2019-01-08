@@ -3,7 +3,12 @@ package chav1961.merc.core.buildings;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.RadialGradientPaint;
 import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.UUID;
@@ -188,15 +193,40 @@ public class Teleport implements EntityClassDescription<TeleportState> {
 	private static class Swing2DPresentation implements PresentationCallback<TeleportState> {
 		@Override
 		public boolean draw(World world, Entity<TeleportState> entity, EntityStateDescriptor<TeleportState> previousState, EntityClassDescription<TeleportState> desc) throws MercContentException, MercEnvironmentException {
-			final Graphics2D	g2d = world.getPresentationEnvironment(null);
-			final Color			oldColor = g2d.getColor();
-			final Stroke		oldStroke = g2d.getStroke();
+			final Graphics2D			g2d = world.getPresentationEnvironment(PresentationType.Swing2D);
+			final Color					oldColor = g2d.getColor();
+			final Stroke				oldStroke = g2d.getStroke();
+			final Paint					oldPaint = g2d.getPaint();
+			final RoundRectangle2D.Double	innerBlock = new RoundRectangle2D.Double(entity.getX()+0.75,entity.getY()+0.75,entity.getWidth()-1.5,entity.getHeight()-1.5,0.3,0.3); 
+			final Rectangle2D.Double	tambour = new Rectangle2D.Double(entity.getX()+2.25,entity.getY()+1,0.5,1);
+			final Ellipse2D.Double		signal1 = new Ellipse2D.Double(entity.getX()+0.5*entity.getWidth()-0.15,entity.getY()+0.35*entity.getHeight()-0.15,0.3,0.3);
+			final Ellipse2D.Double		signal2 = new Ellipse2D.Double(entity.getX()+0.5*entity.getWidth()-0.15,entity.getY()+0.5*entity.getHeight()-0.15,0.3,0.3);
+			final Ellipse2D.Double		signal3 = new Ellipse2D.Double(entity.getX()+0.5*entity.getWidth()-0.15,entity.getY()+0.65*entity.getHeight()-0.15,0.3,0.3);
+			final float					wave = 0.008f * Math.abs(entity.getRedrawCount() % 75 - 37) + 0.5f;
 			
-			g2d.setColor(Color.RED);
-			g2d.fillRect(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight());
-			g2d.setColor(Color.YELLOW);
+			g2d.setPaint(new RadialGradientPaint((float)(entity.getX()+0.5*entity.getWidth())
+										, (float)(entity.getY()+0.5*entity.getHeight())
+										, (float)(1.5*entity.getWidth())
+										, new float[]{0.0f, 1.0f}
+										, new Color[]{new Color(0,wave,wave), Color.BLACK}));
+			g2d.fill(new Rectangle2D.Double(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight()));
+			g2d.setPaint(oldPaint);
+			g2d.setColor(Color.ORANGE);
+			g2d.fill(innerBlock);
+			g2d.fill(tambour);
+			g2d.setColor(((TeleportInstance)entity).mode1 ? Color.RED : Color.GRAY);
+			g2d.fill(signal1);
+			g2d.setColor(((TeleportInstance)entity).mode2 ? Color.BLUE : Color.GRAY);
+			g2d.fill(signal2);
+			g2d.setColor(((TeleportInstance)entity).mode3 ? Color.GREEN : Color.GRAY);
+			g2d.fill(signal3);
+			g2d.setColor(Color.BLACK);
 			g2d.setStroke(new BasicStroke(0.05f));
-			g2d.drawRect(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight());
+			g2d.draw(innerBlock);
+			g2d.draw(tambour);
+			g2d.draw(signal1);		
+			g2d.draw(signal2);		
+			g2d.draw(signal3);		
 			
 			g2d.setColor(oldColor);
 			g2d.setStroke(oldStroke);

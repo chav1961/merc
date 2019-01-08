@@ -27,6 +27,7 @@ public abstract class AbstractEntity<State extends Enum<State>> implements Entit
 	protected static final String				STATE_FIELD = "state";
 	
 	protected long								timestamp = 0;	
+	protected volatile long						redrawCount = 0;	
 	protected int								x = 0, y = 0, width = 1, height = 1;
 
 	private final LightWeightListenerList<StateChangedListener>	listeners = new LightWeightListenerList<StateChangedListener>(StateChangedListener.class);
@@ -322,6 +323,16 @@ public abstract class AbstractEntity<State extends Enum<State>> implements Entit
 				return this;
 			}
 		}
+	}
+
+	@Override
+	public void redraw() {
+		redrawCount++;
+	}
+
+	@Override
+	public long getRedrawCount() {
+		return redrawCount;
 	}
 	
 	@Override

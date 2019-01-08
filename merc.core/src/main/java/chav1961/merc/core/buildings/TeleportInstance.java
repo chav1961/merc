@@ -20,6 +20,7 @@ public class TeleportInstance extends AbstractEntity<TeleportState> implements T
 															@Override public Iterator<Entity<?>> iterator() {return NULL_ITERATOR;}
 														};
 	
+    boolean							mode1 = false, mode2 = false, mode3 = true;
 	private final TeleportControl	control = new TeleportControl(this);
 	private final String			name = "teleport";
 	

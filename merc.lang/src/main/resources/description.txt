@@ -1,0 +1,34 @@
+Language syntax:
+
+<program>::=<main_block>[{<function>|<brick>}...]
+<mainBlock>::={<declaration>|<operators>}...
+<declaration>::={'var' <name> ':' <type> ['(' <initial> ')']',' ... |'type' <name> ':' <Java class ref>','...}
+<operators>::=<operator>';'...
+<operator>::={<assignment>|<if>|<loops>|<pipes>|<return>|<break>|<continue>|<lock>|<sequence>}
+<assignment>::=<leftPart>':='<rightPart>;
+<if>::= 'if' <condition> 'then' <operator> 'else' <operator>
+<loops>::={'for' <variable> [: <type>] 'in' <list> <operator>|'while' <condition> 'do' <operator>|'do' <operator> 'while' <condition>}
+<list>::={<listrange>|<listvalue>}','
+<listrange>::=<expression>..<expression>
+<listvalue>::=<expression>
+<pipes>::=<expression>'->'<pipes>
+<return>::='return'
+<break>::='break'[<number>]
+<continue>::='continue'[<number>]
+<lock>::='lock' <list> ':' <operator>
+<sequence>::='{'<operator>';'...'}'
+<type>::={<primitive>|<builtin>|<dynamic>}[<dimensions>]
+<dimensions>::='['[<number>]','...']'
+<primitive>::={'int'|'real'|'bool'|'str'}
+<builtin>::={'point'|'area'|'track'|'brick'}
+<dynamic>::=<any_name_known>
+<initial>::=<expression>
+<function>::='func'<name>'('<parameter>[','...]')'<body>
+<brick>::='brick'<name>'('<parameter>[','...]')'<body>
+<body>::={<declaration>|<operators>}...
+<parameter>::=['var']<name> ':' <type> ['='] ['(' <default> ')']
+
+var	x : point(10,20);
+	y : float(100);
+	
+	point

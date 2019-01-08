@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.util.Timer;
 
 import chav1961.merc.api.Constants;
 import chav1961.merc.api.Track;
@@ -15,13 +16,15 @@ import chav1961.merc.api.interfaces.front.EntityClassDescription;
 import chav1961.merc.api.interfaces.front.EntityStateDescriptor;
 import chav1961.merc.api.interfaces.front.PresentationCallback;
 import chav1961.merc.api.interfaces.front.PresentationType;
-import chav1961.merc.api.interfaces.front.RuntimeInterface;
 import chav1961.merc.api.interfaces.front.SerializableItem;
 import chav1961.merc.api.interfaces.front.World;
 import chav1961.merc.api.interfaces.front.WorldState;
 import chav1961.merc.core.AbstractWorld;
 import chav1961.merc.core.buildings.Teleport;
 import chav1961.merc.core.buildings.TeleportInstance;
+import chav1961.merc.core.landing.Basement;
+import chav1961.merc.core.landing.BasementInstance;
+import chav1961.merc.core.landing.BasementState;
 import chav1961.merc.core.landing.LandingPad;
 import chav1961.merc.core.landing.LandingPadInstance;
 import chav1961.merc.core.robots.UniversalRobot;
@@ -37,13 +40,16 @@ public class SwingWorld extends AbstractWorld {
 		final Teleport					teleport = (Teleport) registered(Constants.TELEPORT_CLASS_UUID);
 		final LandingPad				landingPad = (LandingPad) registered(Constants.LANDINGPAD_CLASS_UUID);
 		final UniversalRobot			universalRobot = (UniversalRobot) registered(Constants.ROBO_CLASS_UUID);
+		final Basement					basement = (Basement) registered(EntityClass.Land,Basement.class.getSimpleName());
 		final TeleportInstance			teleportInstance = (TeleportInstance) teleport.newInstance(this);
 		final LandingPadInstance		landingPadInstance = (LandingPadInstance) landingPad.newInstance(this);
 		final UniversalRobotInstance	universalRobotInstance = (UniversalRobotInstance) universalRobot.newInstance(this);
+		final BasementInstance			basementInstance = (BasementInstance) basement.newInstance(this);
 		
 		internalPlace(teleportInstance,new Track(teleportInstance.getX(),teleportInstance.getY(),teleportInstance.getWidth(),teleportInstance.getHeight()));
 		internalPlace(landingPadInstance,new Track(landingPadInstance.getX(),landingPadInstance.getY(),landingPadInstance.getWidth(),landingPadInstance.getHeight()));
 		internalPlace(universalRobotInstance,new Track(universalRobotInstance.getX(),universalRobotInstance.getY(),universalRobotInstance.getWidth(),universalRobotInstance.getHeight()));
+		internalPlace(basementInstance.setX(10).setY(10).setState(BasementState.Building),new Track(basementInstance.getX(),basementInstance.getY(),basementInstance.getWidth(),basementInstance.getHeight()));
 	}
 
 	void setCurrentG2D(final Graphics2D g2d) {
@@ -68,6 +74,15 @@ public class SwingWorld extends AbstractWorld {
 	@Override
 	public PresentationCallback<WorldState> getPresentation(final PresentationType type) throws MercEnvironmentException {
 		return swing2d;
+	}
+
+	public void redraw() {
+		try{for (Entity<?> item : content()) {
+				item.redraw();
+			}
+		} catch (MercContentException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private static class Swing2DPresentation implements PresentationCallback<WorldState> {

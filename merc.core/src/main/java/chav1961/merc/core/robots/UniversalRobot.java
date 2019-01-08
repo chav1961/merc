@@ -187,14 +187,14 @@ public class UniversalRobot  implements EntityClassDescription<UniversalRobotSta
 	private static class Swing2DPresentation implements PresentationCallback<UniversalRobotState> {
 		@Override
 		public boolean draw(World world, Entity<UniversalRobotState> entity, EntityStateDescriptor<UniversalRobotState> previousState, EntityClassDescription<UniversalRobotState> desc) throws MercContentException, MercEnvironmentException {
-			final Graphics2D	g2d = world.getPresentationEnvironment(null);
+			final Graphics2D	g2d = world.getPresentationEnvironment(PresentationType.Swing2D);
 			final Color			oldColor = g2d.getColor();
 			final Stroke		oldStroke = g2d.getStroke();
 			
 			g2d.setColor(Color.WHITE);
 			g2d.fillOval(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight());
-			g2d.setColor(Color.CYAN);
-			g2d.setStroke(new BasicStroke(0.05f));
+			g2d.setColor(Color.MAGENTA);
+			g2d.setStroke(new BasicStroke(0.1f));
 			g2d.drawOval(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight());
 			
 			g2d.setColor(oldColor);

@@ -128,4 +128,15 @@ public interface Entity<State extends Enum<State>> extends EntityStateDescriptor
 	 * @throws MercEnvironmentException
 	 */
 	Entity<State> fireStateChanged(EntityStateDescriptor<State> previousState, int changes) throws MercEnvironmentException;
+	
+	/**
+	 * <p>Mark entity to redraw. Can be used to animate entity</p>
+	 */
+	void redraw();
+	
+	/**
+	 * <p>Get redraw count for the given entity. </p>
+	 * @return
+	 */
+	long getRedrawCount();
 }

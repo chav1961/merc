@@ -365,7 +365,20 @@ public abstract class AbstractWorld implements World {
 		else if (!entitiesByClass.containsKey(entityClass)) {
 			return NULL_COMPONENTS;
 		}
-		else if (subclassPattern.indexOf('*') == -1 || subclassPattern.equals("*")) {
+		else if (subclassPattern.equals("*")) {
+			final List<Iterator<Entity<?>>>	collection = new ArrayList<>();
+			
+			for (Entry<String, List<Entity<?>>> item : entitiesByClass.get(entityClass).entrySet()) {
+				collection.add(item.getValue().iterator());
+			}
+			return new Iterable<Entity<?>>() {
+				@Override
+				public Iterator<Entity<?>> iterator() {
+					return new SequenceIterator<>(collection.toArray(new Iterator[collection.size()]));
+				}
+			};
+		}
+		else if (subclassPattern.indexOf('*') == -1) {
 			if (!entitiesByClass.get(entityClass).containsKey(subclassPattern)) {
 				return NULL_COMPONENTS;
 			}

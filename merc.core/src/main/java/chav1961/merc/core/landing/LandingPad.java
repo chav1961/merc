@@ -5,6 +5,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.UUID;
@@ -188,15 +190,26 @@ public class LandingPad implements EntityClassDescription<LandingPadState> {
 	private static class Swing2DPresentation implements PresentationCallback<LandingPadState> {
 		@Override
 		public boolean draw(World world, Entity<LandingPadState> entity, EntityStateDescriptor<LandingPadState> previousState, EntityClassDescription<LandingPadState> desc) throws MercContentException, MercEnvironmentException {
-			final Graphics2D	g2d = world.getPresentationEnvironment(null);
+			final Graphics2D	g2d = world.getPresentationEnvironment(PresentationType.Swing2D);
 			final Color			oldColor = g2d.getColor();
 			final Stroke		oldStroke = g2d.getStroke();
 			
-			g2d.setColor(Color.GREEN);
+			g2d.setColor(Color.GRAY);
 			g2d.fillRect(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight());
-			g2d.setColor(Color.YELLOW);
-			g2d.setStroke(new BasicStroke(0.05f));
-			g2d.drawRect(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight());
+
+			g2d.setColor(Color.ORANGE);
+			g2d.setStroke(new BasicStroke(0.075f));
+			for (int index = 0; index < 10; index++) {
+				g2d.draw(new Line2D.Double(entity.getX()+0.5,entity.getY()+1+0.3*index,entity.getX()+1.5,entity.getY()+1+0.3*index));
+			}
+			g2d.draw(new Line2D.Double(entity.getX()+2,entity.getY()+4,entity.getX()+3.5,entity.getY()+4));
+			g2d.draw(new Line2D.Double(entity.getX()+2.5,entity.getY()+3,entity.getX()+2.5,entity.getY()+4.5));
+			g2d.draw(new Ellipse2D.Double(entity.getX()+3,entity.getY()+2,1.5,1.5));
+
+			g2d.setColor(Color.WHITE);
+			for (int index = 0; index < 10; index++) {
+				g2d.draw(new Line2D.Double(entity.getX()+2.5+0.2*index,entity.getY()+0.8,entity.getX()+2.5+0.2*index,entity.getY()+1.5));
+			}
 			
 			g2d.setColor(oldColor);
 			g2d.setStroke(oldStroke);

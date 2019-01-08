@@ -1,6 +1,16 @@
 package chav1961.merc.core.landing;
 
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.MultipleGradientPaint.CycleMethod;
+import java.awt.Paint;
+import java.awt.RadialGradientPaint;
+import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.UUID;
@@ -184,7 +194,40 @@ public class Basement implements EntityClassDescription<BasementState> {
 	private static class Swing2DPresentation implements PresentationCallback<BasementState> {
 		@Override
 		public boolean draw(World world, Entity<BasementState> entity, EntityStateDescriptor<BasementState> previousState, EntityClassDescription<BasementState> desc) throws MercContentException, MercEnvironmentException {
-			return false;
+			final Graphics2D	g2d = world.getPresentationEnvironment(PresentationType.Swing2D);
+			final Color			oldColor = g2d.getColor();
+			final Stroke		oldStroke = g2d.getStroke();
+			final Paint			oldPaint = g2d.getPaint();
+			
+			switch (entity.getState()) {
+				case Building	:
+					final float 	wave = 0.01f * (Math.abs(entity.getRedrawCount() % 50 - 25)) + 0.2f;
+					
+					g2d.setPaint(new RadialGradientPaint((float)(entity.getX()+0.5*entity.getWidth()), (float)(entity.getY()+0.5*entity.getHeight()),0.5f*wave, new float[]{0.0f, 1.0f}, new Color[]{Color.LIGHT_GRAY, Color.DARK_GRAY}, CycleMethod.REFLECT));
+					g2d.fill(new Rectangle2D.Double(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight()));
+					g2d.setPaint(oldPaint);
+					break;
+				case Hidden		:
+					break;
+				case Ready		:
+					g2d.setColor(Color.GRAY);
+					g2d.fillRect(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight());
+
+					g2d.setStroke(new BasicStroke(0.05f));
+					g2d.setColor(Color.WHITE);
+					g2d.draw(new Line2D.Double(entity.getX(),entity.getY(),entity.getX(),entity.getY()+entity.getHeight()));
+					g2d.draw(new Line2D.Double(entity.getX(),entity.getY()+entity.getHeight(),entity.getX()+entity.getWidth(),entity.getY()+entity.getHeight()));
+					g2d.setColor(Color.DARK_GRAY);
+					g2d.draw(new Line2D.Double(entity.getX()+entity.getWidth(),entity.getY(),entity.getX()+entity.getWidth(),entity.getY()+entity.getHeight()));
+					g2d.draw(new Line2D.Double(entity.getX(),entity.getY(),entity.getX()+entity.getWidth(),entity.getY()));
+					break;
+				default	:
+					break;
+			}
+			
+			g2d.setColor(oldColor);
+			g2d.setStroke(oldStroke);
+			return true;
 		}
 	}
 }
