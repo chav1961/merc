@@ -1,4 +1,4 @@
-Language syntax:
+MerLan syntax:
 
 <program>::=<main_block>[{<function>|<brick>}...]
 <mainBlock>::={<declaration>|<operators>}...
