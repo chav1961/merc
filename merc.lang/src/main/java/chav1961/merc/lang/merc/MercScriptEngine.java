@@ -44,8 +44,9 @@ class MercScriptEngine extends AbstractScriptEngine {
 		Undefined
 	}
 
-	static final int	PRTY_NEGATION = 1;
-	static final int	PRTY_INCDEC = 2;
+	static final int	PRTY_TERM = 0;
+	static final int	PRTY_INCDEC = 1;
+	static final int	PRTY_NEGATION = 2;
 	static final int	PRTY_BITINV = 3;
 	static final int	PRTY_BITAND = 4;
 	static final int	PRTY_BITORXOR = 5;
@@ -57,6 +58,7 @@ class MercScriptEngine extends AbstractScriptEngine {
 	static final int	PRTY_AND = 11;
 	static final int	PRTY_OR = 12;
 	static final int	PRTY_ASSIGN = 13;
+	static final int	PRTY_PIPE = 14;
 
 	static {
 		KEYWORDS.placeName("if",new Lexema(0,0,LexemaType.If));
