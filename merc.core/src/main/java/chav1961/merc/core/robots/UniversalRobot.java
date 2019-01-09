@@ -4,6 +4,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.UUID;
@@ -171,7 +174,12 @@ public class UniversalRobot  implements EntityClassDescription<UniversalRobotSta
 
 	@Override
 	public Entity<UniversalRobotState> newInstance(final World world) throws MercEnvironmentException {
-		return new UniversalRobotInstance(Constants.ROBO_INSTANCE_UUID,this,UniversalRobotState.Sleep);
+		if (world == null) {
+			throw new NullPointerException("World can't be null");
+		}
+		else {
+			return new UniversalRobotInstance(world,Constants.ROBO_INSTANCE_UUID,this,UniversalRobotState.Sleep);
+		}
 	}
 
 	@Override
@@ -187,15 +195,38 @@ public class UniversalRobot  implements EntityClassDescription<UniversalRobotSta
 	private static class Swing2DPresentation implements PresentationCallback<UniversalRobotState> {
 		@Override
 		public boolean draw(World world, Entity<UniversalRobotState> entity, EntityStateDescriptor<UniversalRobotState> previousState, EntityClassDescription<UniversalRobotState> desc) throws MercContentException, MercEnvironmentException {
-			final Graphics2D	g2d = world.getPresentationEnvironment(PresentationType.Swing2D);
-			final Color			oldColor = g2d.getColor();
-			final Stroke		oldStroke = g2d.getStroke();
-			
-			g2d.setColor(Color.WHITE);
-			g2d.fillOval(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight());
-			g2d.setColor(Color.MAGENTA);
-			g2d.setStroke(new BasicStroke(0.1f));
-			g2d.drawOval(entity.getX(),entity.getY(),entity.getWidth(),entity.getHeight());
+			final Graphics2D			g2d = world.getPresentationEnvironment(PresentationType.Swing2D);
+			final Color					oldColor = g2d.getColor();
+			final Stroke				oldStroke = g2d.getStroke();
+			final Rectangle2D.Double	leftTrack = new Rectangle2D.Double(entity.getX()+0.1,entity.getY()+0.1,0.15,0.8); 
+			final Rectangle2D.Double	rightTrack = new Rectangle2D.Double(entity.getX()+0.75,entity.getY()+0.1,0.15,0.8);
+			final Ellipse2D.Double		body = new Ellipse2D.Double(entity.getX()+0.1,entity.getY()+0.1,0.8,0.8);
+			final Ellipse2D.Double		tower = new Ellipse2D.Double(entity.getX()+0.25,entity.getY()+0.35,0.3,0.3);
+			final Line2D.Double			bound = new Line2D.Double(entity.getX()+0.65,entity.getY()+0.17,entity.getX()+0.65,entity.getY()+0.83);
+			final Rectangle2D.Double	block = new Rectangle2D.Double(entity.getX()+0.65,entity.getY()+0.4,0.2,0.2);
+			final Rectangle2D.Double	hand = new Rectangle2D.Double(entity.getX()+0.7,entity.getY()+0.6,0.1,0.35);
+
+			g2d.setColor(Color.BLACK);
+			g2d.fill(leftTrack);
+			g2d.fill(rightTrack);
+			g2d.setStroke(new BasicStroke(0.05f));
+			g2d.setColor(Color.BLACK);
+			g2d.draw(leftTrack);
+			g2d.draw(rightTrack);
+			g2d.setColor(Color.GREEN);
+			g2d.fill(body);
+			g2d.setColor(Color.CYAN);
+			g2d.fill(tower);
+			g2d.setColor(Color.BLACK);
+			g2d.draw(body);
+			g2d.draw(tower);
+			g2d.draw(bound);
+			g2d.setColor(Color.ORANGE);
+			g2d.fill(block);
+			g2d.fill(hand);
+			g2d.setColor(Color.BLACK);
+			g2d.draw(block);
+			g2d.draw(hand);
 			
 			g2d.setColor(oldColor);
 			g2d.setStroke(oldStroke);

@@ -4,11 +4,15 @@ package chav1961.merc.core.buildings;
 import java.util.Iterator;
 
 import chav1961.merc.api.Constants;
+import chav1961.merc.api.Point;
 import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.merc.api.exceptions.MercEnvironmentException;
 import chav1961.merc.api.interfaces.front.ControlInterface;
 import chav1961.merc.api.interfaces.front.Entity;
+import chav1961.merc.api.interfaces.front.ResourceClass;
+import chav1961.merc.api.interfaces.front.ResourceDescription;
 import chav1961.merc.api.interfaces.front.TickableEntity;
+import chav1961.merc.api.interfaces.world.ResourceDescriptorInterface;
 import chav1961.merc.core.AbstractEntity;
 
 public class TeleportInstance extends AbstractEntity<TeleportState> implements TickableEntity {
@@ -25,7 +29,7 @@ public class TeleportInstance extends AbstractEntity<TeleportState> implements T
 	private final String			name = "teleport";
 	
 	TeleportInstance(final Teleport description) {
-		super(Constants.TELEPORT_INSTANCE_UUID,description,TeleportState.Exists);
+		super(Constants.TELEPORT_INSTANCE_UUID,description,TeleportState.Ready);
 	}
 
 	@Override
@@ -76,5 +80,27 @@ public class TeleportInstance extends AbstractEntity<TeleportState> implements T
 	@Override
 	public void tick() throws MercContentException {
 		control.tick();
+	}
+	
+	public ResourceDescriptorInterface getResourceForPoint(final Point point) {
+		return new ResourceDescriptorInterface() {
+			@Override
+			public ResourceClass getResourceType() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public String getMillType() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public float getApproxAmount() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+		};
 	}
 }

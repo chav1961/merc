@@ -13,6 +13,11 @@
      		<artifactId>merc.api</artifactId>
      		<version>${project.parent.version}</version>
      	</dependency>
+     	<dependency>
+     		<groupId>com.github.chav1961</groupId>
+     		<artifactId>merc.tools</artifactId>
+     		<version>${project.parent.version}</version>
+     	</dependency>
      </dependencies>
   
      <build>

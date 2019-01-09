@@ -1,0 +1,2 @@
+1. Написать JUnit-тест к AbstractEntity
+2. Написать JUnit-тест к AbstractWorld

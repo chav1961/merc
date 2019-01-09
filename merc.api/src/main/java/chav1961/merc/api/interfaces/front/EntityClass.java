@@ -13,6 +13,7 @@ public enum EntityClass {
 	Buildings,
 	Land,
 	Life,
+	Mills,
 	Pipes,
 	Resources,
 	Robots,

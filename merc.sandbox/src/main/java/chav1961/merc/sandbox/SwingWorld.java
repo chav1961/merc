@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.io.IOException;
 import java.util.Timer;
 
 import chav1961.merc.api.Constants;
@@ -14,12 +15,14 @@ import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.api.interfaces.front.EntityClass;
 import chav1961.merc.api.interfaces.front.EntityClassDescription;
 import chav1961.merc.api.interfaces.front.EntityStateDescriptor;
+import chav1961.merc.api.interfaces.front.PaymentPanel;
 import chav1961.merc.api.interfaces.front.PresentationCallback;
 import chav1961.merc.api.interfaces.front.PresentationType;
 import chav1961.merc.api.interfaces.front.SerializableItem;
 import chav1961.merc.api.interfaces.front.World;
 import chav1961.merc.api.interfaces.front.WorldState;
 import chav1961.merc.core.AbstractWorld;
+import chav1961.merc.core.CoreConstants;
 import chav1961.merc.core.buildings.Teleport;
 import chav1961.merc.core.buildings.TeleportInstance;
 import chav1961.merc.core.landing.Basement;
@@ -29,6 +32,9 @@ import chav1961.merc.core.landing.LandingPad;
 import chav1961.merc.core.landing.LandingPadInstance;
 import chav1961.merc.core.robots.UniversalRobot;
 import chav1961.merc.core.robots.UniversalRobotInstance;
+import chav1961.purelib.basic.exceptions.LocalizationException;
+import chav1961.purelib.i18n.LocalizerFactory;
+import chav1961.purelib.i18n.interfaces.Localizer;
 
 public class SwingWorld extends AbstractWorld {
 	private static Swing2DPresentation	swing2d = new Swing2DPresentation();
@@ -76,6 +82,11 @@ public class SwingWorld extends AbstractWorld {
 		return swing2d;
 	}
 
+	@Override
+	public Localizer getLocalizerAssociated() throws IOException, LocalizationException {
+		return LocalizerFactory.getLocalizer(CoreConstants.CORE_LOCALIZER_URI);
+	}
+	
 	public void redraw() {
 		try{for (Entity<?> item : content()) {
 				item.redraw();
@@ -110,5 +121,23 @@ public class SwingWorld extends AbstractWorld {
 			g2d.setStroke(oldStroke);
 			return true;
 		}
+	}
+
+	@Override
+	public void delayGameTime(final long delay) throws MercEnvironmentException {
+		try{Thread.sleep(delay);
+		} catch (InterruptedException e) {
+			throw new MercEnvironmentException(e);
+		}
+	}
+
+	@Override
+	public PaymentPanel getPaymentPanel() throws MercEnvironmentException {
+		return new PaymentPanel() {
+			@Override
+			public PaymentPanel operationPayment(float sub) throws MercContentException {
+				return this;
+			}
+		};
 	}
 }

@@ -1,5 +1,6 @@
 package chav1961.merc.core;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,6 +27,8 @@ import chav1961.merc.api.interfaces.front.TickableEntity;
 import chav1961.merc.api.interfaces.front.World;
 import chav1961.purelib.basic.SequenceIterator;
 import chav1961.purelib.basic.Utils;
+import chav1961.purelib.basic.exceptions.LocalizationException;
+import chav1961.purelib.i18n.interfaces.Localizer;
 
 public abstract class AbstractWorld implements World {
 	private static final Iterator<Entity<?>>		NULL_ITERATOR = new Iterator<Entity<?>>() {
@@ -76,6 +79,7 @@ public abstract class AbstractWorld implements World {
 		}
 	}
 
+	@Override public abstract Localizer getLocalizerAssociated() throws IOException, LocalizationException;
 	@Override public abstract <T> T getPresentationEnvironment(PresentationType type) throws MercEnvironmentException;
 	@Override public abstract SerializableItem total() throws MercEnvironmentException;
 	@Override public abstract SerializableItem updates(long timestamp) throws MercEnvironmentException;
@@ -218,7 +222,6 @@ public abstract class AbstractWorld implements World {
 		}
 	}
 
-	
 	@Override
 	public Iterable<EntityClassDescription<?>> registered() throws MercContentException {
 		final List<EntityClassDescription<?>>	result = new ArrayList<>();
@@ -430,12 +433,12 @@ public abstract class AbstractWorld implements World {
 	}
 
 	@Override
-	public <State extends Enum<State>> Entity<State> getEntity(final UUID entity) throws MercContentException {
+	public Entity<?> getEntity(final UUID entity) throws MercContentException {
 		if (entity == null) {
 			throw new NullPointerException("Entity id can't be null"); 
 		}
 		else {
-			return (Entity<State>) entitiesByUUID.get(entity); 
+			return (Entity<?>) entitiesByUUID.get(entity); 
 		}
 	}
 

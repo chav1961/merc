@@ -1,0 +1,3 @@
+1. Написать полную функциональность классов Point, Area, Size, Track.
+2. Написать JUnit-тесты к классам Point, Area, Size, Track.
+  

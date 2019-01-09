@@ -36,13 +36,19 @@ public class UniversalRobotInstance extends AbstractEntity<UniversalRobotState> 
 
 	private final UniversalRobotControl		control = new UniversalRobotControl(this);
 	private final String 					name = "robo";
+	private final World						world;
 	private String 							programName = null;
 	private ProgramExecutor					executor = null;
 	
-	UniversalRobotInstance(UUID entityId, EntityClassDescription<UniversalRobotState> classDescription, UniversalRobotState initialState) throws NullPointerException {
+	UniversalRobotInstance(final World world, final UUID entityId, final EntityClassDescription<UniversalRobotState> classDescription, final UniversalRobotState initialState) throws NullPointerException {
 		super(entityId, classDescription, initialState);
+		this.world = world;
 	}
-														
+							
+	World getWorld() {
+		return world;
+	}
+	
 	@Override
 	public Entity<?> getOwner() throws MercEnvironmentException {
 		return null;

@@ -1,10 +1,13 @@
 package chav1961.merc.api.interfaces.front;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import chav1961.merc.api.Track;
 import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.merc.api.exceptions.MercEnvironmentException;
+import chav1961.purelib.basic.exceptions.LocalizationException;
+import chav1961.purelib.i18n.interfaces.Localizer;
 
 /**
  * <p>This interface is used to describe world.</p>
@@ -158,6 +161,14 @@ public interface World extends DrawableEntity<WorldState> {
 	World setStationHeight(int height) throws MercContentException;
 	
 	/**
+	 * <p>Get localizer associated with the world</p>
+	 * @return localizer associated. Can't be null
+	 * @throws IOException
+	 * @throws LocalizationException
+	 */
+	Localizer getLocalizerAssociated() throws IOException, LocalizationException;
+	
+	/**
 	 * <p>Get all entities in the world</p>
 	 * @return all entities in the world. Can be empty but not null
 	 * @throws MercContentException
@@ -254,7 +265,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return entity found. If missing, null returns
 	 * @throws MercContentException
 	 */
-	<State extends Enum<State>> Entity<State> getEntity(UUID entity) throws MercContentException;
+	Entity<?> getEntity(UUID entity) throws MercContentException;
 	
 	/**
 	 * <p>Is named entity exists</p> 
@@ -401,4 +412,18 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @throws MercEnvironmentException
 	 */
 	SerializableItem updates(long timestamp) throws MercEnvironmentException;
+
+	/**
+	 * <p>Process game time delay for any program</p>
+	 * @param delay 
+	 * @throws MercEnvironmentException
+	 */
+	void delayGameTime(long delay) throws MercEnvironmentException;
+	
+	/**
+	 * <p>Get payment panel to support online payments</p>
+	 * @return payment panel. Can't be null
+	 * @throws MercEnvironmentException
+	 */
+	PaymentPanel getPaymentPanel() throws MercEnvironmentException;
 }
