@@ -66,7 +66,7 @@ public class UniversalRobotControl implements ControlInterface<UniversalRobotSta
 	public UniversalRobotInterface mill(final Point point, final String millType, final String millName) throws MercContentException, MercEnvironmentException {
 		validateLevelAndState(0,UniversalRobotState.Free);
 		
-		try(WorldLocker	locker = instance.getWorld().lock(getEntity().getId(),point.x,point.y)) {
+		try(WorldLocker	locker = instance.getWorld().lock(getEntity().getId(),point.getX(),point.getY())) {
 			Tools.validatePointIsFree(instance.getWorld(),point);
 			
 			final EntityClassDescription<MillState> desc = (EntityClassDescription<MillState>) instance.getWorld().registered(EntityClass.Mills,millType);
@@ -77,7 +77,7 @@ public class UniversalRobotControl implements ControlInterface<UniversalRobotSta
 				final Entity<MillState>	mill = desc.newInstance(instance.getWorld());
 				
 				instance.setState(UniversalRobotState.Builds);
-				instance.getWorld().placeEntity(mill.setX(point.x).setY(point.y).setState(MillState.Building));
+				instance.getWorld().placeEntity(mill.setX(point.getY()).setY(point.getY()).setState(MillState.Building));
 				instance.getWorld().delayGameTime(2000);
 				((TickableEntity)mill.setState(MillState.Producing)).setName(millName);
 				instance.setState(UniversalRobotState.Free);
@@ -335,13 +335,13 @@ public class UniversalRobotControl implements ControlInterface<UniversalRobotSta
 		validateLevelAndState(1,UniversalRobotState.Free);
 		Tools.validatePointIsLegal(instance.getWorld(),point);
 		
-		try(final WorldLocker		locker = instance.getWorld().lock(instance.getId(),point.x,point.y)) {
+		try(final WorldLocker		locker = instance.getWorld().lock(instance.getId(),point.getX(),point.getY())) {
 			final Basement			basement = (Basement) instance.getWorld().registered(EntityClass.Land,Basement.class.getSimpleName());
 			
 			Tools.validatePointIsFree(instance.getWorld(),point);
 			final BasementInstance	inst = (BasementInstance) basement.newInstance(instance.getWorld());
 			
-			instance.getWorld().placeEntity(inst.setX(point.x).setY(point.y).setState(BasementState.Building));
+			instance.getWorld().placeEntity(inst.setX(point.getX()).setY(point.getY()).setState(BasementState.Building));
 			anyThing = point;
 			instance.setState(UniversalRobotState.Builds);
 			instance.getWorld().delayGameTime(2000);
