@@ -11,21 +11,12 @@ import javax.script.ScriptEngineFactory;
 
 import chav1961.purelib.basic.AbstractScriptEngine;
 import chav1961.purelib.basic.AndOrTree;
-import chav1961.purelib.basic.CharUtils;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 
 class MercScriptEngine extends AbstractScriptEngine {
-	enum LexemaType {
-		If, Then, Else, For, In, Do, While, Var, Func, Brick, Break, Continue, Return, Print, Type, TypeDef, Lock,
-		Name, PredefinedName, IntConst, RealConst, StrConst, BoolConst, NullConst, RefConst, 
-		Open, Close, OpenB, CloseB, OpenF, CloseF, Dot, Colon, Semicolon, Period, Div, Pipe, 
-		Operator, 
-		EOF
-	}
-	
 	enum LexemaSubtype {
-		Int, Real, Str, Bool, Point, Area, Track,
+		Int, Real, Str, Bool, Point, Area, Track, Size,
 		// prty=1 - negation
 		Inc, Dec,	// prty=2
 		BitInv,		// prty=3
@@ -43,7 +34,6 @@ class MercScriptEngine extends AbstractScriptEngine {
 	}
 
 	private final List<Lexema>		lexemas = new ArrayList<>();
-	private final long[]			tempCell = new long[2];
 	private SyntaxTreeInterface<?>	names;
 	
 	MercScriptEngine(final ScriptEngineFactory factory) {
@@ -59,11 +49,12 @@ class MercScriptEngine extends AbstractScriptEngine {
 
 	@Override
 	protected void processLineInternal(final int lineNo, final char[] data, final int from, final int length) throws IOException, SyntaxException {
+		MercCompiler.processLine(lineNo, data, from, length, false, names, lexemas);
 	}
 
 	@Override
 	protected void afterCompile(final Reader reader, final OutputStream os) throws IOException {
-		try{lexemas.add(new Lexema(0,0,LexemaType.EOF));
+		try{lexemas.add(new Lexema(0,0,0,LexemaType.EOF));
 			MercCompiler.compile(lexemas.toArray(new Lexema[lexemas.size()]),names,os);
 		} catch (SyntaxException e) {
 			throw new IOException(e);
@@ -75,7 +66,7 @@ class MercScriptEngine extends AbstractScriptEngine {
 	}
 
 	static class Lexema {
-		final int			row, col;
+		final int			row, col, len;
 		final LexemaType	type;
 		final LexemaSubtype	subtype;
 		final int			prty;
@@ -85,9 +76,10 @@ class MercScriptEngine extends AbstractScriptEngine {
 		final char[]		strval;
 		final Object		refval;
 		
-		Lexema(int row, int col, boolean boolval) {
+		Lexema(final int row, final int col, final int len, boolean boolval) {
 			this.row = row;
 			this.col = col;
+			this.len = len;
 			this.type = LexemaType.BoolConst;
 			this.subtype = LexemaSubtype.Undefined;
 			this.prty = 0;
@@ -98,9 +90,10 @@ class MercScriptEngine extends AbstractScriptEngine {
 			this.refval = null;
 		}
 
-		Lexema(int row, int col, long intval) {
+		Lexema(final int row, final int col, final int len, final long intval) {
 			this.row = row;
 			this.col = col;
+			this.len = len;
 			this.type = LexemaType.IntConst;
 			this.subtype = LexemaSubtype.Undefined;
 			this.prty = 0;
@@ -111,9 +104,10 @@ class MercScriptEngine extends AbstractScriptEngine {
 			this.refval = null;
 		}
 
-		Lexema(int row, int col, double realval) {
+		Lexema(final int row, final int col, final int len, double realval) {
 			this.row = row;
 			this.col = col;
+			this.len = len;
 			this.type = LexemaType.RealConst;
 			this.subtype = LexemaSubtype.Undefined;
 			this.prty = 0;
@@ -124,9 +118,10 @@ class MercScriptEngine extends AbstractScriptEngine {
 			this.refval = null;
 		}
 
-		Lexema(int row, int col, char[] strval, int from, int to) {
+		Lexema(final int row, final int col, final int len, char[] strval, int from, int to) {
 			this.row = row;
 			this.col = col;
+			this.len = len;
 			this.type = LexemaType.StrConst;
 			this.subtype = LexemaSubtype.Undefined;
 			this.prty = 0;
@@ -137,9 +132,10 @@ class MercScriptEngine extends AbstractScriptEngine {
 			this.refval = null;
 		}
 
-		Lexema(int row, int col, Object refval) {
+		Lexema(final int row, final int col, final int len, Object refval) {
 			this.row = row;
 			this.col = col;
+			this.len = len;
 			this.type = LexemaType.RefConst;
 			this.subtype = LexemaSubtype.Undefined;
 			this.prty = 0;
@@ -149,10 +145,11 @@ class MercScriptEngine extends AbstractScriptEngine {
 			this.strval = null;
 			this.refval = refval;
 		}
-
-		Lexema(int row, int col, LexemaType type) {
+		
+		Lexema(final int row, final int col, final int len, LexemaType type) {
 			this.row = row;
 			this.col = col;
+			this.len = len;
 			this.type = type;
 			this.subtype = LexemaSubtype.Undefined;
 			this.prty = 0;
@@ -163,9 +160,10 @@ class MercScriptEngine extends AbstractScriptEngine {
 			this.refval = null;
 		}
 
-		Lexema(int row, int col, LexemaType type, LexemaSubtype subtype) {
+		Lexema(final int row, final int col, final int len, LexemaType type, LexemaSubtype subtype) {
 			this.row = row;
 			this.col = col;
+			this.len = len;
 			this.type = type;
 			this.subtype = subtype;
 			this.prty = 0;
@@ -176,9 +174,10 @@ class MercScriptEngine extends AbstractScriptEngine {
 			this.refval = null;
 		}
 
-		Lexema(int row, int col, LexemaType type, LexemaSubtype subtype, int prty) {
+		Lexema(final int row, final int col, final int len, LexemaType type, LexemaSubtype subtype, int prty) {
 			this.row = row;
 			this.col = col;
+			this.len = len;
 			this.type = type;
 			this.subtype = subtype;
 			this.prty = prty;
@@ -189,9 +188,10 @@ class MercScriptEngine extends AbstractScriptEngine {
 			this.refval = null;
 		}
 
-		Lexema(int row, int col, LexemaSubtype subtype, long intval) {
+		Lexema(final int row, final int col, final int len, LexemaSubtype subtype, long intval) {
 			this.row = row;
 			this.col = col;
+			this.len = len;
 			this.type = LexemaType.Name;
 			this.subtype = subtype;
 			this.prty = 0;
@@ -202,9 +202,10 @@ class MercScriptEngine extends AbstractScriptEngine {
 			this.refval = null;
 		}
 
-		Lexema(int row, int col, Lexema another) {
+		Lexema(final int row, final int col, final int len, Lexema another) {
 			this.row = row;
 			this.col = col;
+			this.len = len;
 			this.type = another.type;
 			this.subtype = another.subtype;
 			this.prty = another.prty;
@@ -213,6 +214,34 @@ class MercScriptEngine extends AbstractScriptEngine {
 			this.realval = another.realval;
 			this.strval = another.strval;
 			this.refval = another.refval;
+		}
+
+		Lexema(final int row, final int col, final int len, char error) {
+			this.row = row;
+			this.col = col;
+			this.len = len;
+			this.type = LexemaType.Unknown;
+			this.subtype = LexemaSubtype.Undefined;
+			this.prty = 0;
+			this.boolval = false;
+			this.intval = 0;
+			this.realval = 0;
+			this.strval = new char[] {error};
+			this.refval = null;
+		}
+		
+		Lexema(final int row, final int col, final int len) {
+			this.row = row;
+			this.col = col;
+			this.len = len;
+			this.type = LexemaType.Comment;
+			this.subtype = LexemaSubtype.Undefined;
+			this.prty = 0;
+			this.boolval = false;
+			this.intval = 0;
+			this.realval = 0;
+			this.strval = null;
+			this.refval = null;
 		}
 
 		@Override

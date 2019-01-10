@@ -2,6 +2,7 @@ package chav1961.merc.api;
 
 import java.util.Arrays;
 
+import chav1961.merc.api.interfaces.front.Immutable;
 import chav1961.merc.api.interfaces.front.Printable;
 import chav1961.purelib.basic.exceptions.PrintingException;
 
@@ -13,7 +14,7 @@ import chav1961.purelib.basic.exceptions.PrintingException;
  * @since 0.0.1
  */
 
-class BaseTrack implements Printable, Cloneable {
+class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 	private static final int[]	EMPTY_ARRAY = new int[0];
 
 	protected int[]	points;
@@ -49,10 +50,10 @@ class BaseTrack implements Printable, Cloneable {
 	 * @throws IllegalArgumentException width or height is not positive
 	 */
 	public BaseTrack(final int x, final int y, final int width, final int height) throws IllegalArgumentException {
-		if (width <= 0) {
+		if (width < 0) {
 			throw new IllegalArgumentException("Width ["+width+"] must be greater then 0");
 		}
-		else if (height <= 0) {
+		else if (height < 0) {
 			throw new IllegalArgumentException("Height ["+height+"] must be greater then 0");
 		}
 		else {
@@ -414,6 +415,11 @@ class BaseTrack implements Printable, Cloneable {
 	public BaseTrack clone() throws CloneNotSupportedException {
 		return (BaseTrack) super.clone();
 	}
+
+	@Override
+	public BaseTrack immutable() {
+		return new ImmutableTrack(this);
+	}
 	
 	@Override
 	public String toString() {
@@ -439,7 +445,7 @@ class BaseTrack implements Printable, Cloneable {
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
+		if (!(obj instanceof BaseTrack)) return false;
 		BaseTrack other = (BaseTrack) obj;
 		if (!Arrays.equals(points, other.points)) return false;
 		return true;

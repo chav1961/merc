@@ -9,10 +9,6 @@ public final class Track extends BaseTrack {
 		super(x, y);
 	}
 
-	public Track() {
-		super();
-	}
-
 	public Track(Area area) throws NullPointerException {
 		super(area);
 	}

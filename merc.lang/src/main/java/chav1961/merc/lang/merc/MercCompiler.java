@@ -3,12 +3,12 @@ package chav1961.merc.lang.merc;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import chav1961.merc.lang.merc.MercCompiler.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.MercScriptEngine.Lexema;
 import chav1961.merc.lang.merc.MercScriptEngine.LexemaSubtype;
-import chav1961.merc.lang.merc.MercScriptEngine.LexemaType;
 import chav1961.purelib.basic.AndOrTree;
 import chav1961.purelib.basic.CharUtils;
 import chav1961.purelib.basic.exceptions.SyntaxException;
@@ -32,51 +32,51 @@ class MercCompiler {
 	static final int	PRTY_ASSIGN = 13;
 	static final int	PRTY_PIPE = 14;
 
-	private static final SyntaxTreeInterface<Object>	KEYWORDS = new AndOrTree<>();
+	private static final SyntaxTreeInterface<Lexema>	KEYWORDS = new AndOrTree<>();
 	
 	static {
-		KEYWORDS.placeName("if",new Lexema(0,0,LexemaType.If));
-		KEYWORDS.placeName("then",new Lexema(0,0,LexemaType.Then));
-		KEYWORDS.placeName("else",new Lexema(0,0,LexemaType.Else));
-		KEYWORDS.placeName("for",new Lexema(0,0,LexemaType.For));
-		KEYWORDS.placeName("in",new Lexema(0,0,LexemaType.In));
-		KEYWORDS.placeName("do",new Lexema(0,0,LexemaType.Do));
-		KEYWORDS.placeName("while",new Lexema(0,0,LexemaType.While));
-		KEYWORDS.placeName("var",new Lexema(0,0,LexemaType.Var));
-		KEYWORDS.placeName("type",new Lexema(0,0,LexemaType.TypeDef));
-		KEYWORDS.placeName("func",new Lexema(0,0,LexemaType.Func));
-		KEYWORDS.placeName("brick",new Lexema(0,0,LexemaType.Brick));
-		KEYWORDS.placeName("break",new Lexema(0,0,LexemaType.Break));
-		KEYWORDS.placeName("continue",new Lexema(0,0,LexemaType.Continue));
-		KEYWORDS.placeName("return",new Lexema(0,0,LexemaType.Return));
-		KEYWORDS.placeName("print",new Lexema(0,0,LexemaType.Print));
-		KEYWORDS.placeName("lock",new Lexema(0,0,LexemaType.Lock));
+		KEYWORDS.placeName("if",new Lexema(0,0,0,LexemaType.If));
+		KEYWORDS.placeName("then",new Lexema(0,0,0,LexemaType.Then));
+		KEYWORDS.placeName("else",new Lexema(0,0,0,LexemaType.Else));
+		KEYWORDS.placeName("for",new Lexema(0,0,0,LexemaType.For));
+		KEYWORDS.placeName("in",new Lexema(0,0,0,LexemaType.In));
+		KEYWORDS.placeName("do",new Lexema(0,0,0,LexemaType.Do));
+		KEYWORDS.placeName("while",new Lexema(0,0,0,LexemaType.While));
+		KEYWORDS.placeName("var",new Lexema(0,0,0,LexemaType.Var));
+		KEYWORDS.placeName("type",new Lexema(0,0,0,LexemaType.TypeDef));
+		KEYWORDS.placeName("func",new Lexema(0,0,0,LexemaType.Func));
+		KEYWORDS.placeName("brick",new Lexema(0,0,0,LexemaType.Brick));
+		KEYWORDS.placeName("break",new Lexema(0,0,0,LexemaType.Break));
+		KEYWORDS.placeName("continue",new Lexema(0,0,0,LexemaType.Continue));
+		KEYWORDS.placeName("return",new Lexema(0,0,0,LexemaType.Return));
+		KEYWORDS.placeName("print",new Lexema(0,0,0,LexemaType.Print));
+		KEYWORDS.placeName("lock",new Lexema(0,0,0,LexemaType.Lock));
 		
-		KEYWORDS.placeName("is",new Lexema(0,0,LexemaType.Operator,LexemaSubtype.IS,PRTY_COMPARISON));
-		KEYWORDS.placeName("like",new Lexema(0,0,LexemaType.Operator,LexemaSubtype.LIKE,PRTY_COMPARISON));
+		KEYWORDS.placeName("is",new Lexema(0,0,0,LexemaType.Operator,LexemaSubtype.IS,PRTY_COMPARISON));
+		KEYWORDS.placeName("like",new Lexema(0,0,0,LexemaType.Operator,LexemaSubtype.LIKE,PRTY_COMPARISON));
 		
-		KEYWORDS.placeName("int",new Lexema(0,0,LexemaType.Type,LexemaSubtype.Int));
-		KEYWORDS.placeName("real",new Lexema(0,0,LexemaType.Type,LexemaSubtype.Real));
-		KEYWORDS.placeName("str",new Lexema(0,0,LexemaType.Type,LexemaSubtype.Str));
-		KEYWORDS.placeName("bool",new Lexema(0,0,LexemaType.Type,LexemaSubtype.Bool));
-		KEYWORDS.placeName("point",new Lexema(0,0,LexemaType.Type,LexemaSubtype.Point));
-		KEYWORDS.placeName("area",new Lexema(0,0,LexemaType.Type,LexemaSubtype.Area));
-		KEYWORDS.placeName("track",new Lexema(0,0,LexemaType.Type,LexemaSubtype.Track));
+		KEYWORDS.placeName("int",new Lexema(0,0,0,LexemaType.Type,LexemaSubtype.Int));
+		KEYWORDS.placeName("real",new Lexema(0,0,0,LexemaType.Type,LexemaSubtype.Real));
+		KEYWORDS.placeName("str",new Lexema(0,0,0,LexemaType.Type,LexemaSubtype.Str));
+		KEYWORDS.placeName("bool",new Lexema(0,0,0,LexemaType.Type,LexemaSubtype.Bool));
+		KEYWORDS.placeName("point",new Lexema(0,0,0,LexemaType.Type,LexemaSubtype.Point));
+		KEYWORDS.placeName("area",new Lexema(0,0,0,LexemaType.Type,LexemaSubtype.Area));
+		KEYWORDS.placeName("track",new Lexema(0,0,0,LexemaType.Type,LexemaSubtype.Track));
+		KEYWORDS.placeName("size",new Lexema(0,0,0,LexemaType.Type,LexemaSubtype.Size));
 
-		KEYWORDS.placeName("true",new Lexema(0,0,true));
-		KEYWORDS.placeName("false",new Lexema(0,0,false));
-		KEYWORDS.placeName("null",new Lexema(0,0,LexemaType.NullConst));
+		KEYWORDS.placeName("true",new Lexema(0,0,0,true));
+		KEYWORDS.placeName("false",new Lexema(0,0,0,false));
+		KEYWORDS.placeName("null",new Lexema(0,0,0,LexemaType.NullConst));
 
-		KEYWORDS.placeName("robo",new Lexema(0,0,LexemaType.PredefinedName));
-		KEYWORDS.placeName("world",new Lexema(0,0,LexemaType.PredefinedName));
-		KEYWORDS.placeName("rt",new Lexema(0,0,LexemaType.PredefinedName));
-		KEYWORDS.placeName("market",new Lexema(0,0,LexemaType.PredefinedName));
-		KEYWORDS.placeName("teleport",new Lexema(0,0,LexemaType.PredefinedName));
+		KEYWORDS.placeName("robo",new Lexema(0,0,0,LexemaType.PredefinedName));
+		KEYWORDS.placeName("world",new Lexema(0,0,0,LexemaType.PredefinedName));
+		KEYWORDS.placeName("rt",new Lexema(0,0,0,LexemaType.PredefinedName));
+		KEYWORDS.placeName("market",new Lexema(0,0,0,LexemaType.PredefinedName));
+		KEYWORDS.placeName("teleport",new Lexema(0,0,0,LexemaType.PredefinedName));
 	}
 	
-
-	static void processLine(final int lineNo, final char[] data, final int from, final int length, final SyntaxTreeInterface<?> names, final List<Lexema> lexemas) throws IOException, SyntaxException {
-		final int 	to = from + length;
+	static void processLine(final int lineNo, final char[] data, final int from, final int length, final boolean parseForHighlight, final SyntaxTreeInterface<?> names, final List<Lexema> lexemas) throws IOException, SyntaxException {
+		final int 	to = from + length, tempResult[] = new int[2];
 		long		keywordId, tempCell[] = new long[2];
 		int			pos = from, end;
 		
@@ -88,178 +88,210 @@ class MercCompiler {
 					case '\n' : case '\r' :
 						return;
 					case ','	:
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Div)); 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Div)); 
 						pos++;
 						break;
 					case ':'	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Colon)); 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Colon)); 
 						pos++;
 						break;
 					case ';'	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Semicolon)); 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Semicolon)); 
 						pos++;
 						break;
 					case '('	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Open)); 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Open)); 
 						pos++;
 						break;
 					case '['	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.OpenB)); 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.OpenB)); 
 						pos++;
 						break;
 					case '{'	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.OpenF)); 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.OpenF)); 
 						pos++;
 						break;
 					case ')'	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Close)); 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Close)); 
 						pos++;
 						break;
 					case ']'	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.CloseB)); 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.CloseB)); 
 						pos++;
 						break;
 					case '}'	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.CloseF)); 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.CloseF)); 
 						pos++;
 						break;
 					case '~'	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.BitInv,PRTY_MUL));
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.BitInv,PRTY_MUL));
+						pos++;
+						break;
+					case '^'	: 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.BitXor,PRTY_SHIFT));
 						pos++;
 						break;
 					case '.'	:
 						if (data[pos+1] == '.') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Period));
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Period));
 							pos+=2;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Dot)); 
+							lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Dot)); 
 							pos++;
 						}
 						break;
 					case '+'	: 
 						if (data[pos+1] == '+') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Inc,PRTY_INCDEC));
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Operator,LexemaSubtype.Inc,PRTY_INCDEC));
 							pos+=2;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Add,PRTY_ADD)); 
+							lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.Add,PRTY_ADD)); 
 							pos++;
 						}
 						break;
 					case '-'	: 
 						if (data[pos+1] == '-') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Dec,PRTY_INCDEC)); 
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Operator,LexemaSubtype.Dec,PRTY_INCDEC)); 
 							pos+=2;
 						}
 						else if (data[pos+1] == '>') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Pipe)); 
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Pipe)); 
 							pos+=2;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Sub,PRTY_ADD)); 
+							lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.Sub,PRTY_ADD)); 
 							pos++;
 						}
 						break;
 					case '*'	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Mul,PRTY_MUL));
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.Mul,PRTY_MUL));
 						pos++;
 						break;
 					case '/'	:
 						if (data[pos+1] == '/') {	// Comment
+							if (parseForHighlight) {
+								lexemas.add(new Lexema(lineNo,pos-from,to-pos));
+							}
 							return;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Div,PRTY_MUL));
+							lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.Div,PRTY_MUL));
 							pos++;
 						}
 						break;
 					case '%'	: 
-						lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Rem,PRTY_MUL)); 
+						lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.Rem,PRTY_MUL)); 
 						pos++; 
 						break;
 					case '>'	: 
 						if (data[pos+1] == '>') {
 							if (data[pos+2] == '>') {
-								lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Shra,PRTY_SHIFT)); 
+								lexemas.add(new Lexema(lineNo,pos-from,3,LexemaType.Operator,LexemaSubtype.Shra,PRTY_SHIFT)); 
 								pos+=3;
 							}
 							else {
-								lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Shr,PRTY_SHIFT)); 
+								lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Operator,LexemaSubtype.Shr,PRTY_SHIFT)); 
 								pos+=2;
 							}
 						}
 						else if (data[pos+1] == '=') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.GE,PRTY_COMPARISON)); 
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Operator,LexemaSubtype.GE,PRTY_COMPARISON)); 
 							pos+=2;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.GT,PRTY_COMPARISON));
+							lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.GT,PRTY_COMPARISON));
 							pos++;
 						}
 						break;
 					case '<'	: 
 						if (data[pos+1] == '<') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Shl,PRTY_SHIFT));
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Operator,LexemaSubtype.Shl,PRTY_SHIFT));
 							pos+=2;
 						}
 						else if (data[pos+1] == '=') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.LE,PRTY_COMPARISON));
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Operator,LexemaSubtype.LE,PRTY_COMPARISON));
 							pos+=2;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.LT,PRTY_COMPARISON)); 
+							lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.LT,PRTY_COMPARISON)); 
 							pos++;
 						}
 						break;
 					case '='	: 
 						if (data[pos+1] == '=') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.EQ,PRTY_COMPARISON)); 
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Operator,LexemaSubtype.EQ,PRTY_COMPARISON)); 
 							pos+=2;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Assign,PRTY_ASSIGN)); 
+							lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.Assign,PRTY_ASSIGN)); 
 							pos++;
 						}
 						break;
 					case '!'	: 
 						if (data[pos+1] == '=') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.NE,PRTY_COMPARISON)); 
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Operator,LexemaSubtype.NE,PRTY_COMPARISON)); 
 							pos+=2;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Not,PRTY_NOT)); 
+							lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.Not,PRTY_NOT)); 
 							pos++;
 						}
 						break;
 					case '&'	: 
 						if (data[pos+1] == '&') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.And,PRTY_AND)); 
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Operator,LexemaSubtype.And,PRTY_AND)); 
 							pos+=2;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.BitAnd,PRTY_BITAND)); 
+							lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.BitAnd,PRTY_BITAND)); 
 							pos++;
 						}
 						break;
 					case '|'	: 
 						if (data[pos+1] == '|') {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.Or,PRTY_OR)); 
+							lexemas.add(new Lexema(lineNo,pos-from,2,LexemaType.Operator,LexemaSubtype.Or,PRTY_OR)); 
 							pos+=2;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaType.Operator,LexemaSubtype.BitOr,PRTY_BITORXOR)); 
+							lexemas.add(new Lexema(lineNo,pos-from,1,LexemaType.Operator,LexemaSubtype.BitOr,PRTY_BITORXOR)); 
 							pos++;
 						}
 						break;
 					case '0' : case '1' : case '2' : case '3' : case '4' : case '5' : case '6' : case '7' : case '8' : case '9' :
-						pos = CharUtils.parseNumber(data,pos,tempCell,CharUtils.PREF_ANY,false);
+						final int	numberStart = pos;
+						
+						try {pos = CharUtils.parseNumber(data,pos,tempCell,CharUtils.PREF_ANY,false);
+						} catch (IllegalArgumentException exc) {
+							if (parseForHighlight) {
+								pos = numberStart+1;
+								tempCell[1] = CharUtils.PREF_INT;
+							}
+							else {
+								throw exc;
+							}
+						}
 						if ((tempCell[1] & (CharUtils.PREF_INT | CharUtils.PREF_LONG)) != 0) {
-							lexemas.add(new Lexema(lineNo,pos-from,tempCell[0]));
+							lexemas.add(new Lexema(lineNo,numberStart-from,pos-numberStart,tempCell[0]));
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,Double.longBitsToDouble(tempCell[0])));
+							lexemas.add(new Lexema(lineNo,numberStart-from,pos-numberStart,Double.longBitsToDouble(tempCell[0])));
 						}
+						break;
+					case '\"'	:
+						final int	charConstStart = pos;
+						
+						try{pos = CharUtils.parseUnescapedString(data,charConstStart+1,'\"',true,tempResult);
+						} catch (IllegalArgumentException exc) {
+							if (parseForHighlight) {
+								pos = to;
+							}
+							else {
+								throw exc;
+							}
+						}
+						lexemas.add(new Lexema(lineNo,charConstStart-from,pos-charConstStart,data,charConstStart,pos-1));
 						break;
 					default :
 						end = pos;
@@ -267,14 +299,19 @@ class MercCompiler {
 							end++;
 						}
 						if (end == pos) {
-							throw new SyntaxException(lineNo, pos-from, "Unknown symbol ["+data[pos]+"]");
+							if (parseForHighlight) {
+								lexemas.add(new Lexema(lineNo,pos-from,1,data[pos++]));
+							}
+							else {
+								throw new SyntaxException(lineNo, pos-from, "Unknown symbol ["+data[pos]+"]");
+							}
 						}
 						else if ((keywordId = KEYWORDS.seekName(data,pos,end)) >= 0) {
-							lexemas.add(new Lexema(lineNo,pos-from,KEYWORDS.getCargo(keywordId)));
+							lexemas.add(new Lexema(lineNo,pos-from,end-pos,KEYWORDS.getCargo(keywordId)));
 							pos = end;
 						}
 						else {
-							lexemas.add(new Lexema(lineNo,pos-from,LexemaSubtype.Undefined,names.placeOrChangeName(data,pos,end,null)));
+							lexemas.add(new Lexema(lineNo,pos-from,end-pos,LexemaSubtype.Undefined,names.placeOrChangeName(data,pos,end,null)));
 							pos = end;
 						}
 				}
@@ -285,7 +322,6 @@ class MercCompiler {
 			throw e;
 		}
 	}
-	
 	
 	static void compile(final Lexema[] lexemas, final SyntaxTreeInterface<?> names, final OutputStream target) throws SyntaxException {
 		final SyntaxTreeNode	root = new SyntaxTreeNode();

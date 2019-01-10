@@ -109,12 +109,12 @@ class BaseArea implements Printable, Cloneable, Immutable<BaseArea>, Comparable<
 		}
 	}
 
-	public BasePoint getPoint() {
-		return new BasePoint(x,y);
+	public Point getPoint() {
+		return new Point(x,y);
 	}
 
-	public BaseSize getSize() {
-		return new BaseSize(width,height);
+	public Size getSize() {
+		return new Size(width,height);
 	}
 	
 	public boolean isInside(final BasePoint point) throws NullPointerException {
