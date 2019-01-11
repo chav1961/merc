@@ -17,7 +17,8 @@ import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 class MercScriptEngine extends AbstractScriptEngine {
 	enum LexemaSubtype {
 		Int, Real, Str, Bool, Point, Area, Track, Size,
-		// prty=1 - negation
+		Robo, World, Rt, Market, Teleport,		
+		Neg, // prty=1 - negation
 		Inc, Dec,	// prty=2
 		BitInv,		// prty=3
 		BitAnd, 	// prty=4
