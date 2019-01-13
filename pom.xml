@@ -50,5 +50,6 @@
 		<module>merc.lang</module>
 		<module>merc.sandbox</module>
 		<module>merc.math</module>
+		<module>merc.static</module>
 	</modules>
 </project>
