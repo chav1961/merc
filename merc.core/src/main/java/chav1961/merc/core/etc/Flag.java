@@ -106,6 +106,11 @@ public class Flag implements EntityClassDescription<FlagState> {
 	}
 
 	@Override
+	public String getSingletonName() {
+		return null;
+	}
+	
+	@Override
 	public boolean isPersistent() {
 		return true;
 	}

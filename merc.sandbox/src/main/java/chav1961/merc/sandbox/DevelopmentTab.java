@@ -30,9 +30,9 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
-import chav1961.merc.lang.merc.LexemaType;
 import chav1961.merc.lang.merc.MercHighlighter;
 import chav1961.merc.lang.merc.MercHighlighter.HighlightItem;
+import chav1961.merc.lang.merc.interfaces.LexemaType;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 

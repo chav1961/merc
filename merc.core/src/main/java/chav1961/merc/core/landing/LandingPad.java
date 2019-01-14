@@ -106,6 +106,11 @@ public class LandingPad implements EntityClassDescription<LandingPadState> {
 	public boolean isSingleton() {
 		return true;
 	}
+
+	@Override
+	public String getSingletonName() {
+		return getEntitySubclass();
+	}
 	
 	@Override
 	public boolean isPersistent() {

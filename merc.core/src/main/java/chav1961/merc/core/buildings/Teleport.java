@@ -30,6 +30,8 @@ import chav1961.purelib.i18n.LocalizerFactory;
 import chav1961.purelib.i18n.interfaces.Localizer;
 
 public class Teleport implements EntityClassDescription<TeleportState> {
+	static final String					name = "teleport";
+	
 	private static final Iterator<EntityClassDescription<?>>	NULL_ITERATOR = new Iterator<EntityClassDescription<?>>() {
 																	@Override public boolean hasNext() {return false;}
 																	@Override public EntityClassDescription<?> next() {return null;}
@@ -110,6 +112,11 @@ public class Teleport implements EntityClassDescription<TeleportState> {
 		return true;
 	}
 
+	@Override
+	public String getSingletonName() {
+		return name;
+	}
+	
 	@Override
 	public boolean isPersistent() {
 		return true;

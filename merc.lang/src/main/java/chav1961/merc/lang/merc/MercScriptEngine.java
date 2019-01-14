@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.script.ScriptEngineFactory;
 
+import chav1961.merc.lang.merc.interfaces.LexemaType;
 import chav1961.purelib.basic.AbstractScriptEngine;
 import chav1961.purelib.basic.AndOrTree;
 import chav1961.purelib.basic.exceptions.SyntaxException;

@@ -107,9 +107,14 @@ public class Basement implements EntityClassDescription<BasementState> {
 
 	@Override
 	public boolean isSingleton() {
-		return false;
+		return true;
 	}
 
+	@Override
+	public String getSingletonName() {
+		return null;
+	}
+	
 	@Override
 	public boolean isPersistent() {
 		return true;
@@ -230,4 +235,5 @@ public class Basement implements EntityClassDescription<BasementState> {
 			return true;
 		}
 	}
+
 }

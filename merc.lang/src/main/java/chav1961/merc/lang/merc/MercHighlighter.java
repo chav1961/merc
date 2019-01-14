@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chav1961.merc.lang.merc.MercScriptEngine.Lexema;
+import chav1961.merc.lang.merc.interfaces.LexemaType;
 import chav1961.purelib.basic.LineByLineProcessor;
 import chav1961.purelib.basic.OrdinalSyntaxTree;
 import chav1961.purelib.basic.exceptions.SyntaxException;

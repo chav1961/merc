@@ -35,7 +35,6 @@ public class UniversalRobotInstance extends AbstractEntity<UniversalRobotState> 
 														};
 
 	private final UniversalRobotControl		control = new UniversalRobotControl(this);
-	private final String 					name = "robo";
 	private final World						world;
 	private String 							programName = null;
 	private ProgramExecutor					executor = null;
@@ -66,7 +65,7 @@ public class UniversalRobotInstance extends AbstractEntity<UniversalRobotState> 
 
 	@Override
 	public String getName() {
-		return name;
+		return UniversalRobot.name;
 	}
 
 	@Override

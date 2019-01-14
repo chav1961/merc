@@ -28,6 +28,8 @@ import chav1961.purelib.i18n.LocalizerFactory;
 import chav1961.purelib.i18n.interfaces.Localizer;
 
 public class UniversalRobot  implements EntityClassDescription<UniversalRobotState> {
+	static final String 				name = "robo";
+	
 	private static final Iterator<EntityClassDescription<?>>	NULL_ITERATOR = new Iterator<EntityClassDescription<?>>() {
 																	@Override public boolean hasNext() {return false;}
 																	@Override public EntityClassDescription<?> next() {return null;}
@@ -107,6 +109,11 @@ public class UniversalRobot  implements EntityClassDescription<UniversalRobotSta
 		return true;
 	}
 
+	@Override
+	public String getSingletonName() {
+		return name;
+	}
+	
 	@Override
 	public boolean isPersistent() {
 		return true;
@@ -233,5 +240,4 @@ public class UniversalRobot  implements EntityClassDescription<UniversalRobotSta
 			return true;
 		}
 	}
-
 }

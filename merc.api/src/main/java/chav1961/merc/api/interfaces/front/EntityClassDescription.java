@@ -83,6 +83,12 @@ public interface EntityClassDescription<State extends Enum<State>> extends Drawa
 	boolean isSingleton();
 	
 	/**
+	 * <p>Get name to access to singleton instance</p>
+	 * @return name to access. If entity is not a singleton, returns null;
+	 */
+	String getSingletonName();
+	
+	/**
 	 * <p>Is the entity persistent.</p>
 	 * @return true if yes. Landing elements and basements are usually non-persistent
 	 */

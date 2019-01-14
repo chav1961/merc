@@ -11,6 +11,7 @@ import java.util.Map;
 import chav1961.merc.lang.merc.MercScriptEngine.Lexema;
 import chav1961.merc.lang.merc.MercScriptEngine.LexemaSubtype;
 import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
+import chav1961.merc.lang.merc.interfaces.LexemaType;
 import chav1961.purelib.basic.AndOrTree;
 import chav1961.purelib.basic.CharUtils;
 import chav1961.purelib.basic.exceptions.SyntaxException;
@@ -373,6 +374,10 @@ class MercCompiler {
 		final List<SyntaxTreeNode>	bricks = new ArrayList<>();
 		
 		int	pos = buildMainBlockSyntaxTree(0,lexemas,current,names,main);
+		
+		while(lexemas[pos].type == LexemaType.Semicolon) {
+			pos++;
+		}
 		while (lexemas[pos].type == LexemaType.Func || lexemas[pos].type == LexemaType.Brick) {
 			final SyntaxTreeNode	temp = new SyntaxTreeNode();
 			
@@ -387,6 +392,9 @@ class MercCompiler {
 					break;
 				default	:
 					throw new UnsupportedOperationException("Lex type ["+lexemas[pos].type+"] is not supported yet");
+			}
+			while(lexemas[pos].type == LexemaType.Semicolon) {
+				pos++;
 			}
 		}
 		if (lexemas[pos].type != LexemaType.EOF) {
@@ -418,8 +426,13 @@ class MercCompiler {
 		int		pos = current;
 		
 		pos = buildHeadSyntaxTree(lexemas, pos+1, names, true, head);
-		pos = buildBodySyntaxTree(0, lexemas, pos, names, body);
-		node.assignFunc(head,body);
+		if (lexemas[pos].type == LexemaType.Semicolon) {
+			pos = buildBodySyntaxTree(0, lexemas, pos+1, names, body);
+			node.assignFunc(head,body);
+		}
+		else {
+			throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Missing (;)");
+		}
 		return pos;
 	}
 
@@ -428,24 +441,28 @@ class MercCompiler {
 		int		pos = current;
 		
 		pos = buildHeadSyntaxTree(lexemas, pos+1, names, false, head);
-		pos = buildBodySyntaxTree(0, lexemas, pos, names, body);
-		node.assignBrick(head,body);
+		if (lexemas[pos].type == LexemaType.Semicolon) {
+			pos = buildBodySyntaxTree(0, lexemas, pos+1, names, body);
+			node.assignBrick(head,body);
+		}
+		else {
+			throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Missing (;)");
+		}
 		return pos;
 	}
 
-	private static int buildHeadSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final boolean hasReturnedValue, final SyntaxTreeNode node) throws SyntaxException {
+	static int buildHeadSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final boolean hasReturnedValue, final SyntaxTreeNode node) throws SyntaxException {
 		int		pos = current;
 		
 		if (lexemas[pos].type == LexemaType.Name) {
+			final List<SyntaxTreeNode>	parms = new ArrayList<>();
 			final long	name = lexemas[pos++].intval;
 			
 			if (lexemas[pos].type == LexemaType.Open) {
-				if (lexemas[pos+2].type == LexemaType.Close) {
-					node.assignHeader(name);
+				if (lexemas[pos+1].type == LexemaType.Close) {
+					pos += 2;
 				}
 				else {
-					final List<SyntaxTreeNode>	parms = new ArrayList<>();
-					
 					do {pos++;
 						if (lexemas[pos].type == LexemaType.Var || lexemas[pos].type == LexemaType.Name) {
 							final SyntaxTreeNode	parm = new SyntaxTreeNode();
@@ -458,8 +475,6 @@ class MercCompiler {
 						}
 					} while(lexemas[pos].type == LexemaType.Div);
 					
-					node.assignHeader(name,parms.toArray(new SyntaxTreeNode[parms.size()]));
-					parms.clear();
 					if (lexemas[pos].type == LexemaType.Close) {
 						pos++;
 					}
@@ -467,6 +482,27 @@ class MercCompiler {
 						throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Missing ')'!");
 					}
 				}
+				if (hasReturnedValue) {
+					if (lexemas[pos].type == LexemaType.Colon) {
+						if (lexemas[pos+1].type == LexemaType.Type) {
+							final SyntaxTreeNode	forType = new SyntaxTreeNode();
+							
+							forType.assignType(lexemas[pos+1].subtype);
+							node.assignHeaderWithReturned(name,forType,parms.toArray(new SyntaxTreeNode[parms.size()]));
+							pos += 2;
+						}
+						else {
+							throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Missing returned value descriptor!");
+						}
+					}
+					else {
+						throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Missing (:)!");
+					}							
+				}
+				else {
+					node.assignHeader(name,parms.toArray(new SyntaxTreeNode[parms.size()]));
+				}
+				parms.clear();
 			}
 			return pos;
 		}
@@ -485,7 +521,7 @@ class MercCompiler {
 			isVar = true;
 			pos++;
 		}
-		if (lexemas[pos].type == LexemaType.Name) {
+		if (lexemas[pos].type == LexemaType.Name) { 
 			nameId = lexemas[pos].intval;
 			 if (lexemas[++pos].type == LexemaType.Colon) {
 				 if (lexemas[++pos].type == LexemaType.Type) {
@@ -524,7 +560,7 @@ class MercCompiler {
 			throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Missing name");
 		}
 		
-		return 0;
+		return pos;
 	}
 
 	static int buildBodySyntaxTree(final int depth, final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final SyntaxTreeNode node) throws SyntaxException {
@@ -552,7 +588,7 @@ class MercCompiler {
 				pos = buildExpressionSyntaxTree(PRTY_ASSIGN,lexemas,pos,names,node);
 				break;
 			case PredefinedName	:	// <name>.<method>
-				pos = buildCallSyntaxTree(lexemas,pos,names,node);
+				pos = buildNameSyntaxTree(lexemas,pos,names,node);
 				break;
 			case If			:	// 'if' <condition> 'then' <operator> ['else' <operator>]
 				final SyntaxTreeNode	ifCond = new SyntaxTreeNode();
@@ -674,12 +710,12 @@ class MercCompiler {
 				final SyntaxTreeNode	returnExpression = new SyntaxTreeNode();
 				int						oldPos = pos;
 				
-				pos = buildExpressionSyntaxTree(PRTY_ASSIGN,lexemas,pos+1,names,returnExpression);
-				if (pos > oldPos) {
+				try{pos = buildExpressionSyntaxTree(PRTY_ASSIGN,lexemas,pos+1,names,returnExpression);
 					node.assignReturn(returnExpression);
-				}
-				else {
+				} catch (SyntaxException exc) {
+					// TODO:
 					node.assignReturn();
+					pos++;
 				}
 				break;
 			case Print		:	// 'print' (<expression>)','...
@@ -722,7 +758,10 @@ class MercCompiler {
 					throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Missing '}'!");
 				}
 				break;
-			case Semicolon : case Func : case Brick : case EOF :
+			case Semicolon :
+				pos++;
+				break;
+			case Func : case Brick : case EOF :
 				break;
 			default :
 				throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Unwaited lexema!");
@@ -1050,10 +1089,6 @@ class MercCompiler {
 		node.assignList(collection.toArray(new SyntaxTreeNode[collection.size()]));
 		collection.clear();
 		return pos;
-	}
-	
-	static int buildCallSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final SyntaxTreeNode node) throws SyntaxException {
-		return 0;
 	}
 	
 	private static boolean testLeftPart(final SyntaxTreeNode node) {

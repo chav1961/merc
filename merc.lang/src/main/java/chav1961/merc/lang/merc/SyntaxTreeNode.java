@@ -1,7 +1,5 @@
 package chav1961.merc.lang.merc;
 
-import java.nio.channels.UnsupportedAddressTypeException;
-
 import chav1961.merc.lang.merc.MercCompiler.VarType;
 import chav1961.merc.lang.merc.MercScriptEngine.LexemaSubtype;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
@@ -13,7 +11,7 @@ class SyntaxTreeNode {
 		StandaloneName, PredefinedName, IndicedName,
 		Call,
 		InstanceField,
-		Header,
+		Header, HeaderWithReturned,
 		Function,
 		Brick,
 		Conversion,
@@ -30,9 +28,9 @@ class SyntaxTreeNode {
 		LeftPart,
 		InList,
 		LongIf, ShortIf, While, Until, Break, Continue, ShortReturn, LongReturn, Print, Lock, TypedFor, UntypedFor, Sequence,
-		Variable, Variables,
+		Variable, Variables, Vartype,
 		Null, IntConst, RealConst, StrConst, BoolConst, RefConst,  
-		List, Range,
+		List, Range, 
 		Unknown,
 		 
 	}
@@ -71,11 +69,18 @@ class SyntaxTreeNode {
 
 	public void assignHeader(final long name, final SyntaxTreeNode... parms) {
 		type = SyntaxTreeNodeType.Header;
-		value = -1;
+		value = name;
 		cargo = null;
 		children = parms.clone();
 	}
 
+	public void assignHeaderWithReturned(final long name, final SyntaxTreeNode returned, final SyntaxTreeNode... parms) {
+		type = SyntaxTreeNodeType.HeaderWithReturned;
+		value = name;
+		cargo = returned;
+		children = parms.clone();
+	}
+	
 	public void assignBrick(final SyntaxTreeNode head, final SyntaxTreeNode body) {
 		type = SyntaxTreeNodeType.Brick;
 		value = -1;
@@ -206,29 +211,29 @@ class SyntaxTreeNode {
 	void assignIf(final SyntaxTreeNode cond, final SyntaxTreeNode thenBody) {
 		type = SyntaxTreeNodeType.ShortIf;
 		value = -1;
-		cargo = null;
+		cargo = cond;
 		children = new SyntaxTreeNode[]{thenBody};
 	}
 
 	void assignIf(final SyntaxTreeNode cond, final SyntaxTreeNode thenBody, final SyntaxTreeNode elseBody) {
 		type = SyntaxTreeNodeType.LongIf;
 		value = -1;
-		cargo = null;
+		cargo = cond;
 		children = new SyntaxTreeNode[]{thenBody,elseBody};
 	}
 	
 	void assignWhile(final SyntaxTreeNode cond, final SyntaxTreeNode body) {
 		type = SyntaxTreeNodeType.While;
 		value = -1;
-		cargo = null;
-		children = new SyntaxTreeNode[]{cond,body};
+		cargo = cond;
+		children = new SyntaxTreeNode[]{body};
 	}
 	
 	void assignUntil(final SyntaxTreeNode cond, final SyntaxTreeNode body) {
 		type = SyntaxTreeNodeType.Until;
 		value = -1;
-		cargo = null;
-		children = new SyntaxTreeNode[]{cond,body};
+		cargo = cond;
+		children = new SyntaxTreeNode[]{body};
 	}
 
 	void assignBreak(final int depth) {
@@ -274,13 +279,15 @@ class SyntaxTreeNode {
 	void assignLock(final SyntaxTreeNode lockExpression, final SyntaxTreeNode lockBody) {
 		type = SyntaxTreeNodeType.Lock;
 		value = -1;
-		cargo = null;
-		children = new SyntaxTreeNode[]{lockExpression,lockBody};
+		cargo = lockExpression;
+		children = new SyntaxTreeNode[]{lockBody};
 	}
 
-	void assignType(final LexemaSubtype type) {
-		// TODO Auto-generated method stub
-		
+	void assignType(final LexemaSubtype varType) {
+		type = SyntaxTreeNodeType.Vartype;
+		value = -1;
+		cargo = varType;
+		children = new SyntaxTreeNode[0];
 	}
 
 	void assignFor(final SyntaxTreeNode forName, final SyntaxTreeNode forType, final SyntaxTreeNode forList, final SyntaxTreeNode forBody) {
@@ -381,9 +388,19 @@ class SyntaxTreeNode {
 				sb.append(prefix).append(value == 1 ? "true" : "false").append('\n');
 				break;
 			case Break		:
-				sb.append(prefix).append("break ").append(value == 0 ? "" : ""+value).append('\n');
+				sb.append(prefix).append("break").append(value == 0 ? "" : " "+value).append('\n');
 				break;
 			case Brick		:
+				sb.append(prefix).append("brick:\n");
+				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				if (children.length > 0) {
+					before = "body\n";
+					sb.append(prefix).append(before);
+					for (SyntaxTreeNode item : children) {
+						sb.append(item.toString(prefix+STAIRWAY_STEP,names));
+					}
+				}
+				sb.append(prefix).append("end brick\n");
 				break;
 			case Call		:
 				sb.append(prefix).append("Call\n");
@@ -399,7 +416,7 @@ class SyntaxTreeNode {
 				sb.append(prefix).append("end call\n");
 				break;
 			case Continue	:
-				sb.append(prefix).append("continue ").append(value == 0 ? "" : ""+value).append('\n');
+				sb.append(prefix).append("continue").append(value == 0 ? "" : " "+value).append('\n');
 				break;
 			case Conversion	:
 				sb.append(prefix).append("convert to ").append(cargo).append("\n");
@@ -411,8 +428,36 @@ class SyntaxTreeNode {
 				sb.append(prefix).append(")\n");
 				break;
 			case Function	:
+				sb.append(prefix).append("func:\n");
+				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				if (children.length > 0) {
+					before = "body\n";
+					sb.append(prefix).append(before);
+					for (SyntaxTreeNode item : children) {
+						sb.append(item.toString(prefix+STAIRWAY_STEP,names));
+					}
+				}
+				sb.append(prefix).append("end func\n");
 				break;
 			case Header		:
+				sb.append(prefix).append("header ").append(names.getName(value)).append(":\n");
+				before = "";
+				for (SyntaxTreeNode item : children) {
+					sb.append(before).append(item.toString(prefix+STAIRWAY_STEP,names));
+					before = prefix+",\n";
+				}
+				sb.append(prefix).append("end header\n");
+				break;
+			case HeaderWithReturned	:
+				sb.append(prefix).append("header ").append(names.getName(value)).append(":\n");
+				before = "";
+				for (SyntaxTreeNode item : children) {
+					sb.append(before).append(item.toString(prefix+STAIRWAY_STEP,names));
+					before = prefix+",\n";
+				}
+				sb.append(prefix).append("returned\n");
+				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("end header\n");
 				break;
 			case IndicedName:
 				sb.append(prefix).append(names.getName(value)).append("[\n");
@@ -444,17 +489,25 @@ class SyntaxTreeNode {
 				sb.append(prefix).append(")\n");
 				break;
 			case Lock		:
-				break;
-			case LongIf		:
-				sb.append(prefix).append("if\n");
+				sb.append(prefix).append("lock\n");
+				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("--->\n");
 				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("end lock\n");
+				break;
+			case LongIf		: 
+				sb.append(prefix).append("if\n");
+				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("then\n");
-				sb.append(children[1].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("else\n");
-				sb.append(children[2].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(children[1].toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("end if\n");
 				break;
 			case LongReturn	:
+				sb.append(prefix).append("return\n");
+				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("end return\n");
 				break;
 			case Negation	:
 				sb.append(prefix).append("- (\n");
@@ -519,7 +572,7 @@ class SyntaxTreeNode {
 				sb.append(prefix).append(")\n");
 				break;
 			case Print	:
-				sb.append(prefix).append("print \n");
+				sb.append(prefix).append("print\n");
 				for (SyntaxTreeNode item : children) {
 					sb.append(item.toString(prefix+STAIRWAY_STEP,names));
 				}
@@ -546,9 +599,9 @@ class SyntaxTreeNode {
 				break;
 			case ShortIf	:
 				sb.append(prefix).append("if\n");
-				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("then\n");
-				sb.append(children[1].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("end if\n");
 				break;
 			case ShortReturn:
@@ -561,10 +614,31 @@ class SyntaxTreeNode {
 				sb.append(prefix).append('\"').append(new String((char[])cargo)).append("\"\n");
 				break;
 			case TypedFor	:
+				sb.append(prefix).append("for\n");
+				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("typed\n");
+				sb.append(children[1].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("in\n");
+				sb.append(children[2].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("do\n");
+				sb.append(children[3].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("end for\n");
 				break;
 			case Until		:
+				sb.append(prefix).append("do\n");
+				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("until\n");
+				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("end until\n");
 				break;
 			case UntypedFor	:
+				sb.append(prefix).append("for\n");
+				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("in\n");
+				sb.append(children[1].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("do\n");
+				sb.append(children[2].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("end for\n");
 				break;
 			case Variables	:
 				for (SyntaxTreeNode item : children) {
@@ -582,7 +656,15 @@ class SyntaxTreeNode {
 					sb.append("\n");
 				}
 				break;
+			case Vartype	:
+				sb.append(prefix).append(cargo).append('\n');
+				break;
 			case While:
+				sb.append(prefix).append("while\n");
+				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("do\n");
+				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix).append("end while\n");
 				break;
 			default:
 				throw new UnsupportedOperationException("Type ["+getType()+"] is not supported yet");

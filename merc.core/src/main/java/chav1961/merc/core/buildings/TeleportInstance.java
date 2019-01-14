@@ -26,7 +26,6 @@ public class TeleportInstance extends AbstractEntity<TeleportState> implements T
 	
     boolean							mode1 = false, mode2 = false, mode3 = true;
 	private final TeleportControl	control = new TeleportControl(this);
-	private final String			name = "teleport";
 	
 	TeleportInstance(final Teleport description) {
 		super(Constants.TELEPORT_INSTANCE_UUID,description,TeleportState.Ready);
@@ -69,7 +68,7 @@ public class TeleportInstance extends AbstractEntity<TeleportState> implements T
 
 	@Override
 	public String getName() {
-		return name;
+		return Teleport.name;
 	}
 
 	@Override
