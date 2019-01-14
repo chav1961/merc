@@ -2,12 +2,15 @@ package chav1961.merc.lang.merc.keepers;
 
 import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.merc.api.interfaces.front.Entity;
+import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.lang.merc.interfaces.VarKeeper;
 
+@MerLan
 public class EntityKeeper<State extends  Enum<State>> implements Cloneable, VarKeeper {
 	boolean	assigned = false;
 	Entity<State>	value;
 
+	@MerLan
 	public Entity<State> getValue() throws MercContentException {
 		if (assigned) {
 			return value;
@@ -17,6 +20,7 @@ public class EntityKeeper<State extends  Enum<State>> implements Cloneable, VarK
 		}
 	}
 
+	@MerLan
 	public void setValue(final Entity<State> value) {
 		this.value = value;
 		assigned = true;
@@ -24,6 +28,7 @@ public class EntityKeeper<State extends  Enum<State>> implements Cloneable, VarK
 	
 	@SuppressWarnings("unchecked")
 	@Override
+	@MerLan
 	public EntityKeeper<State> clone() throws CloneNotSupportedException {
 		return (EntityKeeper<State>)super.clone();
 	}

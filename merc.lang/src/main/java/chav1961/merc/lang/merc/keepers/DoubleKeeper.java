@@ -1,12 +1,15 @@
 package chav1961.merc.lang.merc.keepers;
 
 import chav1961.merc.api.exceptions.MercContentException;
+import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.lang.merc.interfaces.VarKeeper;
 
+@MerLan
 public class DoubleKeeper implements Cloneable, VarKeeper {
 	boolean	assigned = false;
 	double	value;
 
+	@MerLan
 	public double getValue() throws MercContentException {
 		if (assigned) {
 			return value;
@@ -16,12 +19,14 @@ public class DoubleKeeper implements Cloneable, VarKeeper {
 		}
 	}
 
+	@MerLan
 	public void setValue(final double value) {
 		this.value = value;
 		assigned = true;
 	}
 	
 	@Override
+	@MerLan
 	public DoubleKeeper clone() throws CloneNotSupportedException {
 		return (DoubleKeeper)super.clone();
 	}

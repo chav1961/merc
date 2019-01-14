@@ -7,7 +7,7 @@ public class MercReposTest {
 
 	@Test
 	public void test() {
-		final MercClassRepo	repo = new MercClassRepo();
+		final MercClassRepo	repo = new MercClassRepo(0);
 		
 	}
 }

@@ -2,6 +2,7 @@ package chav1961.merc.api;
 
 import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.api.interfaces.front.Immutable;
+import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.api.interfaces.front.Printable;
 import chav1961.purelib.basic.exceptions.PrintingException;
 
@@ -67,26 +68,32 @@ class BaseArea implements Printable, Cloneable, Immutable<BaseArea>, Comparable<
 		}
 	}
 	
+	@MerLan
 	public int getX() {
 		return x;
 	}
 
+	@MerLan
 	public void setX(final int x) {
 		this.x = x;
 	}
 
+	@MerLan
 	public int getY() {
 		return y;
 	}
 
+	@MerLan
 	public void setY(final int y) {
 		this.y = y;
 	}
 
+	@MerLan
 	public int getWidth() {
 		return width;
 	}
 
+	@MerLan
 	public void setWidth(final int width) throws IllegalArgumentException {
 		if (width < 0) {
 			throw new IllegalArgumentException("Width ["+width+"] can't be negative"); 
@@ -96,10 +103,12 @@ class BaseArea implements Printable, Cloneable, Immutable<BaseArea>, Comparable<
 		}
 	}
 
+	@MerLan
 	public int getHeight() {
 		return height;
 	}
 
+	@MerLan
 	public void setHeight(final int height) {
 		if (height < 0) {
 			throw new IllegalArgumentException("Height ["+height+"] can't be negative"); 
@@ -109,14 +118,17 @@ class BaseArea implements Printable, Cloneable, Immutable<BaseArea>, Comparable<
 		}
 	}
 
+	@MerLan
 	public Point getPoint() {
 		return new Point(x,y);
 	}
 
+	@MerLan
 	public Size getSize() {
 		return new Size(width,height);
 	}
 	
+	@MerLan
 	public boolean isInside(final BasePoint point) throws NullPointerException {
 		if (point == null) {
 			throw new NullPointerException("Point can't be null");
@@ -126,6 +138,7 @@ class BaseArea implements Printable, Cloneable, Immutable<BaseArea>, Comparable<
 		}
 	}
 
+	@MerLan
 	public boolean isInside(final BaseArea area) throws NullPointerException {
 		if (area == null) {
 			throw new NullPointerException("Area can't be null");
@@ -135,6 +148,7 @@ class BaseArea implements Printable, Cloneable, Immutable<BaseArea>, Comparable<
 		}
 	}
 	
+	@MerLan
 	public boolean isIntersects(final BaseArea area) throws NullPointerException {
 		if (area == null) {
 			throw new NullPointerException("Area can't be null");
@@ -145,6 +159,7 @@ class BaseArea implements Printable, Cloneable, Immutable<BaseArea>, Comparable<
 		}		
 	}
 
+	@MerLan
 	public BaseArea intersect(final BaseArea area) throws NullPointerException, IllegalArgumentException {
 		if (area == null) {
 			throw new NullPointerException("Area can't be null");
@@ -162,22 +177,26 @@ class BaseArea implements Printable, Cloneable, Immutable<BaseArea>, Comparable<
 		}
 	}
 	
+	@MerLan
 	@Override
 	public BaseArea immutable() {
 		return new ImmutableArea(this);
 	}
 	
 	@Override
+	@MerLan
 	public String print() throws PrintingException {
 		return "area(point(" + x + "," + y + "),size(" + width + "," + height + "))";
 	}
 	
 	@Override
+	@MerLan
 	public BaseArea clone() throws CloneNotSupportedException {
 		return (BaseArea) super.clone();
 	}
 
 	@Override
+	@MerLan
 	public int compareTo(final BaseArea another) throws NullPointerException {
 		if (another == null) {
 			throw new NullPointerException("Another area can't be null"); 

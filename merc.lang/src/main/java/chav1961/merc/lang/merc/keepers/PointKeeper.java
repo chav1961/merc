@@ -2,12 +2,15 @@ package chav1961.merc.lang.merc.keepers;
 
 import chav1961.merc.api.Point;
 import chav1961.merc.api.exceptions.MercContentException;
+import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.lang.merc.interfaces.VarKeeper;
 
+@MerLan
 public class PointKeeper implements Cloneable, VarKeeper {
 	boolean	assigned = false;
 	Point	value;
 
+	@MerLan
 	public Point getValue() throws MercContentException {
 		if (assigned) {
 			return value;
@@ -17,12 +20,14 @@ public class PointKeeper implements Cloneable, VarKeeper {
 		}
 	}
 
+	@MerLan
 	public void setValue(final Point value) {
 		this.value = value;
 		assigned = true;
 	}
 	
 	@Override
+	@MerLan
 	public PointKeeper clone() throws CloneNotSupportedException {
 		return (PointKeeper)super.clone();
 	}

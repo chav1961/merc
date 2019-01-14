@@ -6,8 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -16,25 +14,18 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-import javax.swing.text.StyledDocument;
 
 import chav1961.merc.lang.merc.MercHighlighter;
-import chav1961.merc.lang.merc.MercHighlighter.HighlightItem;
 import chav1961.merc.lang.merc.interfaces.LexemaType;
 import chav1961.purelib.i18n.interfaces.Localizer;
+import chav1961.purelib.ui.HighlightItem;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
+import chav1961.purelib.ui.swing.useful.JTextPaneHighlighter;
 
 public class DevelopmentTab extends JPanel {
 	private static final long 		serialVersionUID = 8411656157804278365L;
@@ -51,135 +42,8 @@ public class DevelopmentTab extends JPanel {
 	private static final KeyStroke	KS_STEP_OVER = KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0);
 	private static final KeyStroke	KS_STEP_RETURN = KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0);
 
-	private static final Map<LexemaType,AttributeSet>	STYLES = new HashMap<>();
-	private static final SimpleAttributeSet				ORDINAL_STYLE = new SimpleAttributeSet();
-	
-	static {
-		SimpleAttributeSet	sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.MAGENTA);
-		StyleConstants.setBold(sas,true);
-		
-		STYLES.put(LexemaType.If,sas); 
-		STYLES.put(LexemaType.Then,sas); 
-		STYLES.put(LexemaType.Else,sas); 
-		STYLES.put(LexemaType.For,sas); 
-		STYLES.put(LexemaType.In,sas); 
-		STYLES.put(LexemaType.Do,sas); 
-		STYLES.put(LexemaType.While,sas); 
-		STYLES.put(LexemaType.Var,sas); 
-		STYLES.put(LexemaType.Func,sas); 
-		STYLES.put(LexemaType.Brick,sas); 
-		STYLES.put(LexemaType.Break,sas); 
-		STYLES.put(LexemaType.Continue,sas); 
-		STYLES.put(LexemaType.Return,sas); 
-		STYLES.put(LexemaType.Print,sas); 
-		STYLES.put(LexemaType.TypeDef,sas); 
-		STYLES.put(LexemaType.Lock,sas);
-
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.PINK);
-		StyleConstants.setBold(sas,true);
-		StyleConstants.setItalic(sas,true);
-		
-		STYLES.put(LexemaType.Type,sas); 
-		
-		
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.BLACK);
-		StyleConstants.setItalic(sas,true);
-		
-		STYLES.put(LexemaType.Name,sas);
-		
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.BLACK);
-		StyleConstants.setItalic(sas,true);
-		StyleConstants.setUnderline(sas,true);
-		
-		STYLES.put(LexemaType.PredefinedName,sas); 
-		
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.BLUE);
-		StyleConstants.setBold(sas,true);
-		
-		STYLES.put(LexemaType.IntConst,sas); 
-		STYLES.put(LexemaType.RealConst,sas);
-		
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.GREEN);
-
-		STYLES.put(LexemaType.StrConst,sas); 
-		
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.BLACK);
-		StyleConstants.setBold(sas,true);
-		
-		STYLES.put(LexemaType.BoolConst,sas); 
-		STYLES.put(LexemaType.NullConst,sas);
-		STYLES.put(LexemaType.RefConst,sas);
-		
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.BLACK);
-		
-		STYLES.put(LexemaType.Open,sas); 
-		STYLES.put(LexemaType.Close,sas); 
-		STYLES.put(LexemaType.OpenB,sas); 
-		STYLES.put(LexemaType.CloseB,sas); 
-		STYLES.put(LexemaType.OpenF,sas); 
-		STYLES.put(LexemaType.CloseF,sas); 
-		STYLES.put(LexemaType.Dot,sas); 
-		STYLES.put(LexemaType.Colon,sas); 
-		STYLES.put(LexemaType.Semicolon,sas); 
-		STYLES.put(LexemaType.Period,sas); 
-		STYLES.put(LexemaType.Div,sas); 
-		
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.BLACK);
-		StyleConstants.setBold(sas,true);
-		StyleConstants.setUnderline(sas,true);
-		
-		STYLES.put(LexemaType.Pipe,sas); 
-		
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.ORANGE);
-		
-		STYLES.put(LexemaType.Operator,sas); 
-		
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.RED);
-		StyleConstants.setBold(sas,true);
-		StyleConstants.setStrikeThrough(sas,true);
-		
-		STYLES.put(LexemaType.Unknown,sas);
-		
-		sas = new SimpleAttributeSet();
-		
-		StyleConstants.setForeground(sas,Color.LIGHT_GRAY);
-		StyleConstants.setItalic(sas,true);
-		
-		STYLES.put(LexemaType.EOF,sas); 
-		STYLES.put(LexemaType.Comment,sas);
-	}
-
 	private final JLabel			message = new JLabel();
-	private final StyleContext		content = new StyleContext();
-	private final StyledDocument	doc = new DefaultStyledDocument(content);
-	private final JTextPane			area = new JTextPane(doc);
-	private final DocumentListener	listener = new DocumentListener() {
-										@Override public void removeUpdate(final DocumentEvent e) {highlight(doc,area.getText());}
-										@Override public void insertUpdate(final DocumentEvent e) {highlight(doc,area.getText());}
-										@Override public void changedUpdate(final DocumentEvent e) {highlight(doc,area.getText());}
-									}; 
+	private final ProgramEditor		area = new ProgramEditor();
 	private final JButton			run = new SmartButton(RUN_ICON,true,(e)->{run();});
 	private final JButton			debug = new SmartButton(DEBUG_ICON,true,(e)->{debug();});
 	private final JButton			stop = new SmartButton(STOP_ICON,false,(e)->{stop();});
@@ -221,7 +85,6 @@ public class DevelopmentTab extends JPanel {
 			assignKeys(KS_STEP_OVER,(e)->{stepOver();});
 			assignKeys(KS_STEP_RETURN,(e)->{stepReturn();});
 			
-			doc.addDocumentListener(listener);
 			statePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 		
 			add(toolBar,BorderLayout.NORTH);
@@ -242,22 +105,6 @@ public class DevelopmentTab extends JPanel {
 		message.setText(String.format(format,parameters));
 	}
 	
-	private void highlight(final StyledDocument doc, final String text) {
-		SwingUtilities.invokeLater(()->{
-			int	lastEnd = 0;
-			
-			doc.removeDocumentListener(listener);
-			for (HighlightItem item : MercHighlighter.parseString(text.endsWith("\n") ? text : text+'\n')) {
-				if (item.from - lastEnd > 1) {
-					doc.setCharacterAttributes(lastEnd,item.from - lastEnd,ORDINAL_STYLE,true);
-				}
-				doc.setCharacterAttributes(item.from,item.length,STYLES.get(item.type),true);
-				lastEnd = item.from + item.length;
-			}
-			doc.addDocumentListener(listener);
-		});
-	}
-
 	private void assignKeys(final KeyStroke ks, final MyActionCall call) {
 		final String	action = "action"+(int)(100000*Math.random());
 		
@@ -325,6 +172,131 @@ public class DevelopmentTab extends JPanel {
 			super(icon);
 			setEnabled(initialState);
 			addActionListener((e)->{callback.call(e);});
+		}
+	}
+	
+	private static class ProgramEditor extends JTextPaneHighlighter<LexemaType> {
+		private static final long 	serialVersionUID = 6195635634177844711L;
+
+		{	SimpleAttributeSet	sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.MAGENTA);
+			StyleConstants.setBold(sas,true);
+			
+			styles.put(LexemaType.If,sas); 
+			styles.put(LexemaType.Then,sas); 
+			styles.put(LexemaType.Else,sas); 
+			styles.put(LexemaType.For,sas); 
+			styles.put(LexemaType.In,sas); 
+			styles.put(LexemaType.Do,sas); 
+			styles.put(LexemaType.While,sas); 
+			styles.put(LexemaType.Var,sas); 
+			styles.put(LexemaType.Func,sas); 
+			styles.put(LexemaType.Brick,sas); 
+			styles.put(LexemaType.Break,sas); 
+			styles.put(LexemaType.Continue,sas); 
+			styles.put(LexemaType.Return,sas); 
+			styles.put(LexemaType.Print,sas); 
+			styles.put(LexemaType.TypeDef,sas); 
+			styles.put(LexemaType.Lock,sas);
+
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.PINK);
+			StyleConstants.setBold(sas,true);
+			StyleConstants.setItalic(sas,true);
+			
+			styles.put(LexemaType.Type,sas); 
+			
+			
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.BLACK);
+			StyleConstants.setItalic(sas,true);
+			
+			styles.put(LexemaType.Name,sas);
+			
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.BLACK);
+			StyleConstants.setItalic(sas,true);
+			StyleConstants.setUnderline(sas,true);
+			
+			styles.put(LexemaType.PredefinedName,sas); 
+			
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.BLUE);
+			StyleConstants.setBold(sas,true);
+			
+			styles.put(LexemaType.IntConst,sas); 
+			styles.put(LexemaType.RealConst,sas);
+			
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.GREEN);
+
+			styles.put(LexemaType.StrConst,sas); 
+			
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.BLACK);
+			StyleConstants.setBold(sas,true);
+			
+			styles.put(LexemaType.BoolConst,sas); 
+			styles.put(LexemaType.NullConst,sas);
+			styles.put(LexemaType.RefConst,sas);
+			
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.BLACK);
+			
+			styles.put(LexemaType.Open,sas); 
+			styles.put(LexemaType.Close,sas); 
+			styles.put(LexemaType.OpenB,sas); 
+			styles.put(LexemaType.CloseB,sas); 
+			styles.put(LexemaType.OpenF,sas); 
+			styles.put(LexemaType.CloseF,sas); 
+			styles.put(LexemaType.Dot,sas); 
+			styles.put(LexemaType.Colon,sas); 
+			styles.put(LexemaType.Semicolon,sas); 
+			styles.put(LexemaType.Period,sas); 
+			styles.put(LexemaType.Div,sas); 
+			
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.BLACK);
+			StyleConstants.setBold(sas,true);
+			StyleConstants.setUnderline(sas,true);
+			
+			styles.put(LexemaType.Pipe,sas); 
+			
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.ORANGE);
+			
+			styles.put(LexemaType.Operator,sas); 
+			
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.RED);
+			StyleConstants.setBold(sas,true);
+			StyleConstants.setStrikeThrough(sas,true);
+			
+			styles.put(LexemaType.Unknown,sas);
+			
+			sas = new SimpleAttributeSet();
+			
+			StyleConstants.setForeground(sas,Color.LIGHT_GRAY);
+			StyleConstants.setItalic(sas,true);
+			
+			styles.put(LexemaType.EOF,sas); 
+			styles.put(LexemaType.Comment,sas);
+		}
+		
+		@Override
+		protected HighlightItem<LexemaType>[] parseString(final String program) {
+			return MercHighlighter.parseString(program.endsWith("\n") ? program : program+"\n");
 		}
 	}
 }

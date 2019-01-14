@@ -2,6 +2,7 @@ package chav1961.merc.api;
 
 import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.api.interfaces.front.Immutable;
+import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.api.interfaces.front.Printable;
 import chav1961.purelib.basic.exceptions.PrintingException;
 
@@ -34,10 +35,12 @@ class BaseSize implements Printable, Cloneable, Immutable<BaseSize>, Comparable<
 		}
 	}
 	
+	@MerLan
 	public int getWidth() {
 		return width;
 	}
 
+	@MerLan
 	public void setWidth(final int width) throws IllegalArgumentException {
 		if (width < 0) {
 			throw new IllegalArgumentException("Width ["+width+"] can't be negative"); 
@@ -47,10 +50,12 @@ class BaseSize implements Printable, Cloneable, Immutable<BaseSize>, Comparable<
 		}
 	}
 
+	@MerLan
 	public int getHeight() {
 		return height;
 	}
 
+	@MerLan
 	public void setHeight(final int height) throws IllegalArgumentException {
 		if (height < 0) {
 			throw new IllegalArgumentException("Height ["+height+"] can't be negative"); 
@@ -61,6 +66,7 @@ class BaseSize implements Printable, Cloneable, Immutable<BaseSize>, Comparable<
 	}
 
 	@Override
+	@MerLan
 	public int compareTo(final BaseSize another) throws NullPointerException {
 		if (another == null) {
 			throw new NullPointerException("Another size can't be null"); 
@@ -71,16 +77,19 @@ class BaseSize implements Printable, Cloneable, Immutable<BaseSize>, Comparable<
 	}
 	
 	@Override
+	@MerLan
 	public BaseSize immutable() {
 		return new ImmutableSize(this);
 	}
 	
 	@Override
+	@MerLan
 	public String print() throws PrintingException {
 		return "size(" + width + "," + height + ")";
 	}
 
 	@Override
+	@MerLan
 	public BaseSize clone() throws CloneNotSupportedException {
 		return (BaseSize) super.clone();
 	}

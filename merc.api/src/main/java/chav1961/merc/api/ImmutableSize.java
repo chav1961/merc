@@ -1,5 +1,8 @@
 package chav1961.merc.api;
 
+import chav1961.merc.api.interfaces.front.MerLan;
+
+@MerLan
 public final class ImmutableSize extends BaseSize {
 	ImmutableSize(final BaseSize size) {
 		this.width = size.width;

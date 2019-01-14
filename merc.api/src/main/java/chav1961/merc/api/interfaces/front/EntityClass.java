@@ -6,6 +6,7 @@ package chav1961.merc.api.interfaces.front;
  * @author Alexander Chernomyrdin aka chav1961
  * @since 0.0.1
  */
+@MerLan
 public enum EntityClass {
 	None,
 	Fake,

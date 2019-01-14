@@ -3,6 +3,7 @@ package chav1961.merc.api;
 import java.util.Arrays;
 
 import chav1961.merc.api.interfaces.front.Immutable;
+import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.api.interfaces.front.Printable;
 import chav1961.purelib.basic.exceptions.PrintingException;
 
@@ -86,6 +87,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		this.points = points;
 	}
 	
+	@MerLan
 	public int size() {
 		return points.length/2;
 	}
@@ -96,6 +98,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 	 * @param y y-coordinate of the point
 	 * @return true when inside
 	 */
+	@MerLan
 	public boolean isInside(final int x, final int y) {
 		for (int index = 0, maxIndex = points.length; index < maxIndex; index += 2) {
 			if (points[index] == x && points[index+1] == y) {
@@ -105,6 +108,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		return false;
 	}
 
+	@MerLan
 	public boolean isInside(final Point point) throws NullPointerException {
 		if (point == null) {
 			throw new NullPointerException("Point can't be null");
@@ -114,6 +118,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 	
+	@MerLan
 	public boolean isInside(final Area area) throws NullPointerException {
 		if (area == null) {
 			throw new NullPointerException("Area can't be null");
@@ -131,6 +136,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 	
+	@MerLan
 	public boolean isIntersects(final Area area) throws NullPointerException {
 		if (area == null) {
 			throw new NullPointerException("Area can't be null");
@@ -151,6 +157,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 
+	@MerLan
 	public boolean isInside(final Track track) throws NullPointerException {
 		if (track == null) {
 			throw new NullPointerException("Track can't be null");
@@ -168,6 +175,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 	
+	@MerLan
 	public boolean isIntersects(final Track track) throws NullPointerException {
 		if (track == null) {
 			throw new NullPointerException("track can't be null");
@@ -195,6 +203,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 	 * @return new united track instance
 	 * @throws NullPointerException when another track is null
 	 */
+	@MerLan
 	public BaseTrack union(final Track another) throws NullPointerException {
 		if (another == null) {
 			throw new NullPointerException("Track to union can't be null"); 
@@ -223,6 +232,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 
+	@MerLan
 	public BaseTrack union(final Area area) throws NullPointerException {
 		if (area == null) {
 			throw new NullPointerException("Area can't be null");
@@ -232,6 +242,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 
+	@MerLan
 	public BaseTrack union(final Point point) throws NullPointerException {
 		if (point == null) {
 			throw new NullPointerException("Point can't be null");
@@ -247,6 +258,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 	 * @return new intersected track instance
 	 * @throws NullPointerException when another track is null
 	 */
+	@MerLan
 	public BaseTrack intersect(final Track another) throws NullPointerException {
 		if (another == null) {
 			throw new NullPointerException("Track to union can't be null"); 
@@ -273,6 +285,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 
+	@MerLan
 	public BaseTrack intersect(final Area area) throws NullPointerException {
 		if (area == null) {
 			throw new NullPointerException("Area can't be null");
@@ -282,6 +295,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 
+	@MerLan
 	public BaseTrack intersect(final Point point) throws NullPointerException {
 		if (point == null) {
 			throw new NullPointerException("Point can't be null");
@@ -297,6 +311,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 	 * @return new minused track instance
 	 * @throws NullPointerException when another track is null
 	 */
+	@MerLan
 	public BaseTrack minus(final Track another) throws NullPointerException {
 		if (another == null) {
 			throw new NullPointerException("Track to union can't be null"); 
@@ -333,6 +348,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 
+	@MerLan
 	public BaseTrack minus(final Area area) throws NullPointerException {
 		if (area == null) {
 			throw new NullPointerException("Area can't be null");
@@ -342,6 +358,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 	
+	@MerLan
 	public BaseTrack minus(final Point point) throws NullPointerException {
 		if (point == null) {
 			throw new NullPointerException("Point can't be null");
@@ -399,6 +416,7 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		return temp;
 	}
 
+	@MerLan
 	@Override
 	public String print() throws PrintingException {
 		final StringBuilder	sb = new StringBuilder("track");
@@ -411,11 +429,13 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		return sb.append(')').toString();
 	}
 
+	@MerLan
 	@Override
 	public BaseTrack clone() throws CloneNotSupportedException {
 		return (BaseTrack) super.clone();
 	}
 
+	@MerLan
 	@Override
 	public BaseTrack immutable() {
 		return new ImmutableTrack(this);

@@ -1,5 +1,8 @@
 package chav1961.merc.api;
 
+import chav1961.merc.api.interfaces.front.MerLan;
+
+@MerLan
 public final class ImmutableArea extends BaseArea {
 	ImmutableArea(final BaseArea area) {
 		this.x = area.x;

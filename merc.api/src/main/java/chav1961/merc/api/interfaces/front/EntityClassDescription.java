@@ -21,18 +21,21 @@ public interface EntityClassDescription<State extends Enum<State>> extends Drawa
 	 * <p>Get entity class id.
 	 * @return Any valid UUID. Must be the same UUID for all the life of the given entity, because it will be used in the serialization/deserialization mechanism
 	 */
+	@MerLan
 	UUID getEntityClassId();
 	
 	/**
 	 * <p>Get entity class</p>
 	 * @return any valid {@linkplain EntityClass} constant. Can't be null
 	 */
+	@MerLan
 	EntityClass getEntityClass();
 	
 	/**
 	 * <p>Get entity subclass.</p>
 	 * @return any valid non-null and non-empty string. A good idea is to return simple class name of the {@linkplain EntityClassDescription} implementation
 	 */
+	@MerLan
 	String getEntitySubclass();
 	
 	
@@ -104,6 +107,7 @@ public interface EntityClassDescription<State extends Enum<State>> extends Drawa
 	 * <p>Is the class supports naming</p>
 	 * @return true if yes. Usually all the classes are implementing {@linkplain NotifiableEntity} or {@linkplain TickableEntity} must support naming 
 	 */
+	@MerLan
 	boolean canHaveName();
 	
 	/**
@@ -128,18 +132,21 @@ public interface EntityClassDescription<State extends Enum<State>> extends Drawa
 	 * <p>Get minimal gamer level, when he can use this entity</p> 
 	 * @return minimal level. Any positive number. 0 means free to use on any level
 	 */
+	@MerLan
 	int getMinimalLevel2Use();
 	
 	/**
 	 * <p>Get relative x-location of the class to it's owner right bottom corner</p>
 	 * @return relative x-location. -1 means float location 
 	 */
+	@MerLan
 	int getRelativeX();
 	
 	/**
 	 * <p>Get relative y-location of the class to it's owner right bottom corner</p>
 	 * @return relative y-location. -1 means float location 
 	 */
+	@MerLan
 	int getRelativeY();
 	
 	/**
@@ -158,12 +165,14 @@ public interface EntityClassDescription<State extends Enum<State>> extends Drawa
 	 * <p>Get description of the class owner (container).</p>
 	 * @return owner description. Can be null, if {@linkplain #hasOwner()} method returns false
 	 */
+	@MerLan
 	EntityClassDescription<?> getOwnerDescription();
 	
 	/**
 	 * <p>Get component list of the class</p>
 	 * @return component list. Can be empty but not null
 	 */
+	@MerLan
 	Iterable<EntityClassDescription<?>> components();
 	
 	/**

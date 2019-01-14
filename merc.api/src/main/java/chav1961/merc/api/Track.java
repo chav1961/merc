@@ -1,5 +1,8 @@
 package chav1961.merc.api;
 
+import chav1961.merc.api.interfaces.front.MerLan;
+
+@MerLan
 public final class Track extends BaseTrack {
 	public Track(int x, int y, int width, int height) throws IllegalArgumentException {
 		super(x, y, width, height);

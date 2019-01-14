@@ -10,9 +10,10 @@ import chav1961.purelib.basic.LineByLineProcessor;
 import chav1961.purelib.basic.OrdinalSyntaxTree;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
+import chav1961.purelib.ui.HighlightItem;
 
 public class MercHighlighter {
-	public static HighlightItem[] parseString(final String program) {
+	public static HighlightItem<LexemaType>[] parseString(final String program) {
 		if (program == null) {
 			throw new NullPointerException("Program can't be null");
 		}
@@ -28,8 +29,9 @@ public class MercHighlighter {
 			}
 			lexemas.add(new Lexema(0,0,0,LexemaType.EOF));
 			
-			final HighlightItem[]	result = new HighlightItem[lexemas.size()-1];
-			int						currentRow = 1, currentCol = 0, currentIndex = 0;
+			@SuppressWarnings("unchecked")
+			final HighlightItem<LexemaType>[]	result = new HighlightItem[lexemas.size()-1];
+			int			currentRow = 1, currentCol = 0, currentIndex = 0;
 			
 			for (int index = 0, maxIndex = result.length; index < maxIndex; index++) {
 				final Lexema	lex = lexemas.get(index);
@@ -47,27 +49,9 @@ public class MercHighlighter {
 				if (currentIndex >= content.length) {
 					break;
 				}
-				result[index] = new HighlightItem(currentIndex,lex.len,lex.type);
+				result[index] = new HighlightItem<LexemaType>(currentIndex,lex.len,lex.type);
 			}
 			return result;
-		}
-	}
-	
-
-	public static class HighlightItem {
-		public final int 		from;
-		public final int		length;
-		public final LexemaType	type;
-		
-		public HighlightItem(int from, int length, LexemaType type) {
-			this.from = from;
-			this.length = length;
-			this.type = type;
-		}
-
-		@Override
-		public String toString() {
-			return "HighlightItem [from=" + from + ", length=" + length + ", type=" + type + "]";
 		}
 	}
 }

@@ -11,6 +11,7 @@ import chav1961.merc.api.exceptions.MercContentException;
  * @since 0.0.1
  * @param <State> entity state
  */
+@MerLan
 public interface RuntimeInterface {
 	/**
 	 * <p>This interface describes cost of the associated item</p>
@@ -18,35 +19,41 @@ public interface RuntimeInterface {
 	 * @since 0.0.1
 	 * @param <Assoc> association with the cost interface
 	 */
+	@MerLan
 	public interface CostInterface<Assoc> {
 		/**
 		 * <p>Get item associated with the given cost interface</p>
 		 * @return item associated. Can't be null
 		 */
+		@MerLan
 		Assoc getItemAssociated();
 		
 		/**
 		 * <p>Is the item non-splitable</p>
 		 * @return true if item can be splitted to pieces
 		 */
+		@MerLan
 		boolean hasFloatUnits();
 		
 		/**
 		 * <p>Get buy cost for one unit of the associated item</p>
 		 * @return buy cost. Always positive
 		 */
+		@MerLan
 		float getBuyCost();
 		
 		/**
 		 * <p>Get sell cost for one unit of the associated item</p>
 		 * @return sell cost. Always positive
 		 */
+		@MerLan
 		float getSellCost();
 		
 		/**
 		 * <p>Get transaction delay</p>
 		 * @return transaction delay. Can't be negative. Must return delay for the same slow execution mode
 		 */
+		@MerLan
 		long getTranactionDelay();
 	}
 
@@ -55,11 +62,13 @@ public interface RuntimeInterface {
 	 * @author Alexander Chernomyrdin aka chav1961
 	 * @since 0.0.1
 	 */
+	@MerLan
 	public interface TeleportInterface {
 		/**
 		 * <p>Get resource cost</p>
 		 * @return all registered resource cost. Can be empty but not null
 		 */
+		@MerLan
 		Iterable<CostInterface<ResourceDescription>> getResourceCost();
 		
 		/**
@@ -67,6 +76,7 @@ public interface RuntimeInterface {
 		 * @param resourceClass resource class to get cost for. Can't be null
 		 * @return all registered resource cost with the given class. Can be empty but not null
 		 */
+		@MerLan
 		Iterable<CostInterface<ResourceDescription>> getResourceCost(ResourceClass resourceClass);
 		
 		/**
@@ -75,6 +85,7 @@ public interface RuntimeInterface {
 		 * @param resourceSubclass resource subclass to get cost for. Can't be nether null nor empty
 		 * @return resource cost. If missing, return null
 		 */
+		@MerLan
 		CostInterface<ResourceDescription> getResourceCost(ResourceClass resourceClass, String resourceSubclass);
 		
 		/**
@@ -84,6 +95,7 @@ public interface RuntimeInterface {
 		 * @return outcome sum
 		 * @throws MercContentException if used account doesn't have enough money to buy
 		 */
+		@MerLan
 		float buyResource(ResourceDescription resource, float quantity) throws MercContentException;
 		
 		/**
@@ -93,6 +105,7 @@ public interface RuntimeInterface {
 		 * @return income sum.
 		 * @throws MercContentException
 		 */
+		@MerLan
 		float sellResource(ResourceDescription resource, float quantity) throws MercContentException;
 	}
 	
@@ -101,11 +114,13 @@ public interface RuntimeInterface {
 	 * @author Alexander Chernomyrdin aka chav1961
 	 * @since 0.0.1
 	 */
+	@MerLan
 	public interface MarketInterface extends TeleportInterface {
 		/**
 		 * <p>Get entities cost</p>
 		 * @return all registered entities cost. Can be empty but not null
 		 */
+		@MerLan
 		Iterable<CostInterface<EntityClassDescription<?>>> getEntityCost();
 		
 		/**
@@ -113,6 +128,7 @@ public interface RuntimeInterface {
 		 * @param clazz entities class to get cost for. Can't be null
 		 * @return all registered entities cost with the given class. Can be empty but not null
 		 */
+		@MerLan
 		Iterable<CostInterface<EntityClassDescription<?>>> getEntityCost(EntityClass clazz);
 
 		/**
@@ -121,6 +137,7 @@ public interface RuntimeInterface {
 		 * @param subclazz entity subclass to get cost for. Can't be null or empty
 		 * @return entity cost. If missing, return null 
 		 */
+		@MerLan
 		CostInterface<EntityClassDescription<?>> getEntityCost(EntityClass clazz, String subclazz);
 		
 		/**
@@ -131,6 +148,7 @@ public interface RuntimeInterface {
 		 * @return outcome sum
 		 * @throws MercContentException if used account doesn't have enough money to byu
 		 */
+		@MerLan
 		float buyEntity(EntityClass entityClass, String entitySubclass, int quantity) throws MercContentException;
 		
 		/**
@@ -140,6 +158,7 @@ public interface RuntimeInterface {
 		 * @return income sum
 		 * @throws MercContentException
 		 */
+		@MerLan
 		float sellEntity(World world, UUID... entityIds) throws MercContentException;
 	}
 	
@@ -194,6 +213,7 @@ public interface RuntimeInterface {
 	 * <p>Get resources registered</p>
 	 * @return resources registered. Can be empty but not null.
 	 */
+	@MerLan
 	Iterable<ResourceDescription> resources();
 
 	/**
@@ -201,12 +221,14 @@ public interface RuntimeInterface {
 	 * @param clazz resource class to get list for. Can't be null
 	 * @return resources registered. Can be empty but not null.
 	 */
+	@MerLan
 	Iterable<ResourceDescription> resources(ResourceClass clazz);
 	
 	/**
 	 * <p>Get entities registered</p>
 	 * @return entities registered. Can be empty but not null
 	 */
+	@MerLan
 	Iterable<EntityClassDescription<?>> entities();
 
 	/**
@@ -214,6 +236,7 @@ public interface RuntimeInterface {
 	 * @param clazz entity class to get list for. Can't be null
 	 * @return entities registered. Can be empty but not null
 	 */
+	@MerLan
 	Iterable<EntityClassDescription<?>> entities(EntityClass clazz);
 	
 	/**
@@ -237,6 +260,7 @@ public interface RuntimeInterface {
 	 * <p>Get current cache</p>
 	 * @return current cache (see {@linkplain BankInterface#getCacheAmount()}
 	 */
+	@MerLan
 	float getCurrentCache();
 	
 	/**

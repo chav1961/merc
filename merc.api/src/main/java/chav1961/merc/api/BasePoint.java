@@ -2,6 +2,7 @@ package chav1961.merc.api;
 
 import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.api.interfaces.front.Immutable;
+import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.api.interfaces.front.Printable;
 import chav1961.purelib.basic.exceptions.PrintingException;
 
@@ -26,22 +27,27 @@ class BasePoint implements Printable, Cloneable, Immutable<BasePoint> {
 		}
 	}
 	
+	@MerLan
 	public int getX() {
 		return x;
 	}
 
+	@MerLan
 	public void setX(final int x) {
 		this.x = x;
 	}
 
+	@MerLan
 	public int getY() {
 		return y;
 	}
 
+	@MerLan
 	public void setY(final int y) {
 		this.y = y;
 	}
 
+	@MerLan
 	public float distance(final BasePoint another) throws NullPointerException {
 		if (another == null) {
 			throw new NullPointerException("Another point can't be null");
@@ -51,6 +57,7 @@ class BasePoint implements Printable, Cloneable, Immutable<BasePoint> {
 		}
 	}
 
+	@MerLan
 	public int squareDistance(final BasePoint another) throws NullPointerException {
 		if (another == null) {
 			throw new NullPointerException("Another point can't be null");
@@ -63,16 +70,19 @@ class BasePoint implements Printable, Cloneable, Immutable<BasePoint> {
 		}
 	}
 	
+	@MerLan
 	@Override
 	public BasePoint immutable() {
 		return new ImmutablePoint(this);
 	}
 
+	@MerLan
 	@Override
 	public String print() throws PrintingException {
 		return "point(" + x + "," + y + ")";
 	}
 
+	@MerLan
 	@Override
 	public BasePoint clone() throws CloneNotSupportedException {
 		return (BasePoint) super.clone();

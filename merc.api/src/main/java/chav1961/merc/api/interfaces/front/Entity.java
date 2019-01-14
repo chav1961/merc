@@ -12,17 +12,20 @@ import chav1961.merc.api.exceptions.MercEnvironmentException;
  * @param <State> entity state
  */
 
+@MerLan
 public interface Entity<State extends Enum<State>> extends EntityStateDescriptor<State>, SerializableItem {
 	/**
 	 * <p>Get entity Id</p>
 	 * @return entity Id. Can't be null
 	 */
+	@MerLan
 	UUID getId();
 
 	/**
 	 * <p>Get entity class description</p>
 	 * @return entity class description. Can't be null
 	 */
+	@MerLan
 	EntityClassDescription<State> getClassDescription();
 
 	/**
@@ -104,6 +107,7 @@ public interface Entity<State extends Enum<State>> extends EntityStateDescriptor
 	 * @return current item owner or null
 	 * @throws MercEnvironmentException
 	 */
+	@MerLan
 	Entity<?> getOwner() throws MercEnvironmentException;
 	
 	/**
@@ -111,6 +115,7 @@ public interface Entity<State extends Enum<State>> extends EntityStateDescriptor
 	 * @return current item components. Can be empty but not null. Item list can be shorter then {@linkplain EntityClassDescription#components()} returns
 	 * @throws MercEnvironmentException
 	 */
+	@MerLan
 	Iterable<Entity<?>> getComponents() throws MercEnvironmentException;
 	
 	/**
@@ -118,6 +123,7 @@ public interface Entity<State extends Enum<State>> extends EntityStateDescriptor
 	 * @return control interface. Can be null if the item is not controller programmatically
 	 * @throws MercEnvironmentException
 	 */
+	@MerLan
 	ControlInterface<State> getControlInterface() throws MercEnvironmentException;
 
 	/**

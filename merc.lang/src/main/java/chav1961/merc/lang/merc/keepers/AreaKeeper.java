@@ -2,12 +2,15 @@ package chav1961.merc.lang.merc.keepers;
 
 import chav1961.merc.api.Area;
 import chav1961.merc.api.exceptions.MercContentException;
+import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.lang.merc.interfaces.VarKeeper;
 
+@MerLan
 public class AreaKeeper implements Cloneable, VarKeeper {
 	boolean	assigned = false;
 	Area	value;
 
+	@MerLan
 	public Area getValue() throws MercContentException {
 		if (assigned) {
 			return value;
@@ -17,12 +20,14 @@ public class AreaKeeper implements Cloneable, VarKeeper {
 		}
 	}
 
+	@MerLan
 	public void setValue(final Area value) {
 		this.value = new Area(value.getX(),value.getY(),value.getWidth(),value.getHeight());
 		assigned = true;
 	}
 
 	@Override
+	@MerLan
 	public AreaKeeper clone() throws CloneNotSupportedException {
 		return (AreaKeeper)super.clone();
 	}

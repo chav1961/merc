@@ -15,6 +15,7 @@ import chav1961.purelib.i18n.interfaces.Localizer;
  * @author Alexander Chernomyrdin aka chav1961
  * @since 0.0.1
  */
+@MerLan
 public interface World extends DrawableEntity<WorldState> {
 	/**
 	 * <p>This interface describes locks in the world</p>
@@ -54,30 +55,35 @@ public interface World extends DrawableEntity<WorldState> {
 	 * <p>Get level of the world</p>
 	 * @return any positive integer
 	 */
+	@MerLan
 	int getWorldLevel();
 	
 	/**
 	 * <p>Get world bottom-left corner x-coordinate related to station bottom-left corner 
 	 * @return x-coordinate. Must be not greater than station x-coordinate
 	 */
+	@MerLan
 	int getWorldX();
 
 	/**
 	 * <p>Get world bottom-left corner y-coordinate related to station bottom-left corner 
 	 * @return y-coordinate. Must be not greater than station y-coordinate
 	 */
+	@MerLan
 	int getWorldY();
 	
 	/**
 	 * <p>Get world width</p>
 	 * @return world width. Must be greater than station width
 	 */
+	@MerLan
 	int getWorldWidth();
 
 	/**
 	 * <p>Get world height</p>
 	 * @return world height. Must be greater than station height
 	 */
+	@MerLan
 	int getWorldHeight();
 	
 	/**
@@ -124,24 +130,28 @@ public interface World extends DrawableEntity<WorldState> {
 	 * <p>Get station x-coordinate</p>
 	 * @return always return 0
 	 */
+	@MerLan
 	int getStationX();
 	
 	/**
 	 * <p>Get station y-coordinate</p>
 	 * @return always return 0
 	 */
+	@MerLan
 	int getStationY();
 	
 	/**
 	 * <p>Get station width</p>
 	 * @return station width. Always greater than 0
 	 */
+	@MerLan
 	int getStationWidth();
 	
 	/**
 	 * <p>Get station height</p>
 	 * @return station height. Always greater than 0
 	 */
+	@MerLan
 	int getStationHeight();
 
 	/**
@@ -173,6 +183,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return all entities in the world. Can be empty but not null
 	 * @throws MercContentException
 	 */
+	@MerLan
 	Iterable<Entity<?>> content() throws MercContentException;
 
 	/**
@@ -182,6 +193,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return all entities intersects with the given point. Can be empty but not null
 	 * @throws MercContentException
 	 */
+	@MerLan
 	Iterable<Entity<?>> content(int x, int y) throws MercContentException;
 
 	/**
@@ -189,6 +201,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return registered classes. Can be empty but not null
 	 * @throws MercContentException
 	 */
+	@MerLan
 	Iterable<EntityClassDescription<?>> registered() throws MercContentException;
 
 	/**
@@ -197,6 +210,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return registered classes. if missing, return null
 	 * @throws MercContentException
 	 */
+	@MerLan
 	Iterable<EntityClassDescription<?>> registered(EntityClass entityClass) throws MercContentException;
 
 	/**
@@ -206,6 +220,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return registered class. If missing, return null
 	 * @throws MercContentException
 	 */
+	@MerLan
 	EntityClassDescription<?> registered(EntityClass entityClass, String entitySubclass) throws MercContentException;
 
 	/**
@@ -214,6 +229,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return registered class. If missing, return null
 	 * @throws MercContentException
 	 */
+	@MerLan
 	EntityClassDescription<?> registered(UUID entityClassId) throws MercContentException;
 	
 	/**
@@ -225,6 +241,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return all entities intersects with the given area. Can be empty but not null
 	 * @throws MercContentException
 	 */
+	@MerLan
 	Iterable<Entity<?>> content(int x, int y, int width, int height) throws MercContentException;
 	
 	/**
@@ -233,6 +250,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return all entities with the given class. Can be empty but not null
 	 * @throws MercContentException
 	 */
+	@MerLan
 	Iterable<Entity<?>> content(EntityClass entityClass) throws MercContentException;
 	
 	/**
@@ -242,6 +260,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return all entities with the given class and subclass pattern. Can be empty but not null
 	 * @throws MercContentException
 	 */
+	@MerLan
 	Iterable<Entity<?>> content(EntityClass entityClass, String subclassPattern) throws MercContentException;
 	
 	/**
@@ -257,6 +276,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @param entity entity id to test
 	 * @return true if exists
 	 */
+	@MerLan
 	boolean isEntityExists(UUID entity);
 	
 	/**
@@ -265,6 +285,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return entity found. If missing, null returns
 	 * @throws MercContentException
 	 */
+	@MerLan
 	Entity<?> getEntity(UUID entity) throws MercContentException;
 	
 	/**
@@ -272,6 +293,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @param name entity name. Can't be null or empty
 	 * @return true if exists
 	 */
+	@MerLan
 	boolean isEntityExists(String name);
 	
 	/**
@@ -280,6 +302,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return entity found. If missing, null returns
 	 * @throws MercContentException
 	 */
+	@MerLan
 	<State extends Enum<State>> Entity<State> getEntity(String name) throws MercContentException;
 	
 	/**
@@ -359,6 +382,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return true if yes
 	 * @throws MercContentException
 	 */
+	@MerLan
 	boolean isAvailable(int x, int y) throws MercContentException;
 
 	/**
@@ -368,6 +392,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @return true if yes
 	 * @throws MercContentException
 	 */
+	@MerLan
 	boolean isFree(int x, int y) throws MercContentException;
 	
 	/**
@@ -388,6 +413,7 @@ public interface World extends DrawableEntity<WorldState> {
 	 * <p>Get runtime interface for the given world</p>
 	 * @return runtime interface. Can't be null
 	 */
+	@MerLan
 	RuntimeInterface getRuntime();
 	
 	/**

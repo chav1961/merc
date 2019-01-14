@@ -2,12 +2,15 @@ package chav1961.merc.lang.merc.keepers;
 
 import chav1961.merc.api.Track;
 import chav1961.merc.api.exceptions.MercContentException;
+import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.lang.merc.interfaces.VarKeeper;
 
+@MerLan
 public class TrackKeeper implements Cloneable, VarKeeper {
 	boolean	assigned = false;
 	Track	value;
 	
+	@MerLan
 	public Track getValue() throws MercContentException {
 		if (assigned) {
 			return value;
@@ -17,12 +20,14 @@ public class TrackKeeper implements Cloneable, VarKeeper {
 		}
 	}
 
+	@MerLan
 	public void setValue(final Track value) {
 		this.value = value;
 		assigned = true;
 	}
 	
 	@Override
+	@MerLan
 	public TrackKeeper clone() throws CloneNotSupportedException {
 		return (TrackKeeper)super.clone();
 	}

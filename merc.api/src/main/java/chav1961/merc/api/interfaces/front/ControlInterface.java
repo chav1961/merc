@@ -9,10 +9,12 @@ package chav1961.merc.api.interfaces.front;
  * @since 0.0.1
  * @param <State> entity state
  */
+@MerLan
 public interface ControlInterface<State extends Enum<State>> {
 	/**
 	 * <p>Get owner of the given interface</p> 
 	 * @return owner of the given interface. Can't be null
 	 */
+	@MerLan
 	Entity<State> getEntity();
 }

@@ -7,6 +7,8 @@ package chav1961.merc.api.interfaces.front;
  * @since 0.0.1
  * @param <State> entity state
  */
+@MerLan
+
 public interface EntityStateDescriptor<State extends Enum<State>> {
 	/**
 	 * <p>Get timestamp of the current state</p>
@@ -18,24 +20,28 @@ public interface EntityStateDescriptor<State extends Enum<State>> {
 	 * <p>Get x-coordinate of the bottom-left corner of the entity</p>
 	 * @return x-coordinate of the bottom-left corner of the entity
 	 */
+	@MerLan
 	int getX();
 	
 	/**
 	 * <p>Get y-coordinate of the bottom-left corner of the entity</p>
 	 * @return y-coordinate of the bottom-left corner of the entity
 	 */
+	@MerLan
 	int getY();
 	
 	/**
 	 * <p>Get current entity width</p>
 	 * @return current entity width
 	 */
+	@MerLan
 	int getWidth();
 	
 	/**
 	 * <p>Get current entity height</p>
 	 * @return current entity height
 	 */
+	@MerLan
 	int getHeight();
 	
 	/**

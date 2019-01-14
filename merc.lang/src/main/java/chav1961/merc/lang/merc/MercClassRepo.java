@@ -1,6 +1,8 @@
 package chav1961.merc.lang.merc;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,6 +11,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 import chav1961.merc.api.interfaces.front.EntityClassDescription;
+import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 import chav1961.merc.lang.merc.keepers.AreaKeeper;
 import chav1961.merc.lang.merc.keepers.BooleanKeeper;
@@ -30,27 +33,29 @@ public class MercClassRepo {
 	private final Map<String,VarDescriptor>		declaredNames = new HashMap<>();
 	private final Map<Class<?>,VarDescriptor>	declaredClasses = new HashMap<>();
 	
-	MercClassRepo() {
+	MercClassRepo(final int minLevel) {
 		VarDescriptor	desc;
 		
 		for (Class<?> item : BUILTIN) {
-			desc = prepareClass(names.placeName(item.getSimpleName(),null),item);
+			desc = prepareClass(minLevel,names.placeName(item.getSimpleName(),null),item);
 			declaredNames.put(item.getSimpleName(),desc);
 			declaredClasses.put(desc.getNameType(),desc);
 		}
 		for (EntityClassDescription<? extends Enum<?>> item :  ServiceLoader.load(EntityClassDescription.class)) {
-			final String	name;
-			final long		nameId;
-			
-			if (item.isSingleton()) {
-				nameId = names.placeOrChangeName(name = item.getSingletonName(),null);
+			if (item.getMinimalLevel2Use() >= minLevel) {
+				final String	name;
+				final long		nameId;
+				
+				if (item.isSingleton()) {
+					nameId = names.placeOrChangeName(name = item.getSingletonName(),null);
+				}
+				else {
+					nameId = names.placeOrChangeName(name = item.getEntitySubclass(),null);
+				}
+				desc = prepareClass(minLevel,nameId,item.getClass());
+				declaredNames.put(name,desc);
+				declaredClasses.put(desc.getNameType(),desc);
 			}
-			else {
-				nameId = names.placeOrChangeName(name = item.getEntitySubclass(),null);
-			}
-			desc = prepareClass(nameId,item.getClass());
-			declaredNames.put(name,desc);
-			declaredClasses.put(desc.getNameType(),desc);
 		}
 	}
 	
@@ -72,7 +77,7 @@ public class MercClassRepo {
 		}
 	}
 	
-	VarDescriptor prepareClass(final long nameId, final Class<?> clazz) {
+	VarDescriptor prepareClass(final int minLevel, final long nameId, final Class<?> clazz) {
 		final Class<?>	content;
 		int				dimensionCount = 0;
 		
@@ -92,33 +97,63 @@ public class MercClassRepo {
 		final List<VarDescriptor>	children = new ArrayList<>();
 		
 		for (Field f : content.getFields()) {
-			children.add(prepareClass(names.placeOrChangeName(f.getName(),null),f.getType()));
+			if (f.isAnnotationPresent(MerLan.class) && f.getAnnotation(MerLan.class).accessibleFrom() >= minLevel) {
+				children.add(prepareClass(minLevel,names.placeOrChangeName(f.getName(),null),f.getType()));
+			}
+		}
+		for (Method m : content.getMethods()) {
+			if (m.isAnnotationPresent(MerLan.class) && m.getAnnotation(MerLan.class).accessibleFrom() >= minLevel) {
+				final List<VarDescriptor>	parms = new ArrayList<>();
+				
+				parms.add(prepareClass(minLevel,names.placeOrChangeName(m.getName(),null),m.getReturnType()));
+				for (Parameter p : m.getParameters()) {
+					parms.add(prepareClass(minLevel,names.placeOrChangeName(p.getName(),null),p.getType()));
+				}
+			}
 		}
 		final VarDescriptor[]		forChildren = children.toArray(new VarDescriptor[children.size()]);
 		
-		return new VarDescriptorImpl(nameId,content,dimensionCount > 0,false,true,dimensionCount,forChildren);
+		return new VarDescriptorImpl(nameId,content,false,true,dimensionCount,forChildren);
 	}
 	
 	private static class VarDescriptorImpl implements VarDescriptor {
 		private final long				nameId;
 		private final Class<?>			nameType;
-		private final boolean			isArray, isReadOnly, isVar;
+		private final boolean			isArray, isReadOnly, isVar, isMethod;
 		private final int				howManyDimensions;
 		private final VarDescriptor[] 	content;
 		
-		public VarDescriptorImpl(final long nameId, final Class<?> nameType, final boolean isArray, final boolean isReadOnly, final boolean isVar, final int howManyDimensions, final VarDescriptor[] content) {
+		public VarDescriptorImpl(final long nameId, final Class<?> nameType, final boolean isReadOnly, final boolean isVar, final int howManyDimensions, final VarDescriptor[] content) {
 			this.nameId = nameId;
 			this.nameType = nameType;
-			this.isArray = isArray;
+			this.isArray = howManyDimensions > 0;
 			this.isReadOnly = isReadOnly;
 			this.isVar = isVar;
+			this.isMethod = false;
 			this.howManyDimensions = howManyDimensions;
 			this.content = content;
 		}
 
+		public VarDescriptorImpl(final long nameId, final VarDescriptor[] parameters, final Class<?> nameType, final int howManyDimensions) {
+			this.nameId = nameId;
+			this.nameType = nameType;
+			this.isArray = howManyDimensions > 0;
+			this.isReadOnly = false;
+			this.isVar = false;
+			this.isMethod = false;
+			this.howManyDimensions = howManyDimensions;
+			this.content = parameters;
+		}
+		
 		@Override
 		public long getNameId() {
 			return nameId;
+		}
+
+		@Override
+		public VarDescriptor[] getParameters() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 		@Override
@@ -142,12 +177,18 @@ public class MercClassRepo {
 		}
 
 		@Override
+		public boolean isMethod() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+		@Override
 		public int howManyDimensions() {
 			return howManyDimensions;
 		}
 
 		@Override
-		public VarDescriptor[] content() {
+		public VarDescriptor[] contentFields() {
 			return content;
 		}
 
@@ -157,5 +198,6 @@ public class MercClassRepo {
 					+ ", isReadOnly=" + isReadOnly + ", isVar=" + isVar + ", howManyDimensions=" + howManyDimensions
 					+ ", content=" + Arrays.toString(content) + "]";
 		}
+
 	}
 }
