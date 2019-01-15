@@ -1,9 +1,9 @@
-package chav1961.merc.lang.merc.keepers;
+package chav1961.merc.api;
 
 import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.api.interfaces.front.MerLan;
-import chav1961.merc.lang.merc.interfaces.VarKeeper;
+import chav1961.merc.api.interfaces.front.VarKeeper;
 
 @MerLan
 public class EntityKeeper<State extends  Enum<State>> implements Cloneable, VarKeeper {

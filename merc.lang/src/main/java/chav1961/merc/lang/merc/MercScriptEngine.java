@@ -57,7 +57,7 @@ class MercScriptEngine extends AbstractScriptEngine {
 	@Override
 	protected void afterCompile(final Reader reader, final OutputStream os) throws IOException {
 		try{lexemas.add(new Lexema(0,0,0,LexemaType.EOF));
-			MercCompiler.compile(lexemas.toArray(new Lexema[lexemas.size()]),names,os);
+			MercCompiler.compile(lexemas.toArray(new Lexema[lexemas.size()]),0,names,os);
 		} catch (SyntaxException e) {
 			throw new IOException(e);
 		} finally {
