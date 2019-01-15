@@ -12,10 +12,12 @@ import chav1961.merc.lang.merc.MercScriptEngine.Lexema;
 import chav1961.merc.lang.merc.MercScriptEngine.LexemaSubtype;
 import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.interfaces.LexemaType;
+import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 import chav1961.purelib.basic.AndOrTree;
 import chav1961.purelib.basic.CharUtils;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
+import chav1961.purelib.enumerations.ContinueMode;
 import chav1961.purelib.streams.JsonStaxParser.LexType;
 
 class MercCompiler {
@@ -354,7 +356,7 @@ class MercCompiler {
 		}
 	}
 	
-	static void compile(final Lexema[] lexemas, final SyntaxTreeInterface<?> names, final OutputStream target) throws SyntaxException {
+	static void compile(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final OutputStream target) throws SyntaxException {
 		final SyntaxTreeNode	root = new SyntaxTreeNode();
 		final int				lastParsed = buildSyntaxTree(lexemas,0,names,root); 
 	
@@ -362,12 +364,17 @@ class MercCompiler {
 			throw new SyntaxException(lexemas[lastParsed].row,lexemas[lastParsed].col,"Unparsed tail in the program!");
 		}
 		else {
-			checkSyntaxTree(root);
-			optimizeSyntaxTree(root);
-			generateProgram(root,target);
+			final MercClassRepo		classes = new MercClassRepo(names,current);
+			final MercNameRepo		vars = new MercNameRepo(names);
+			
+			collectGlobalDescriptions(root,classes,vars);
+			checkSyntaxTree(root,classes,vars);
+			allocateVariables(root,classes,vars);
 		}
 	}
 
+
+	
 	static int buildSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final SyntaxTreeNode node) throws SyntaxException {
 		final SyntaxTreeNode		main = new SyntaxTreeNode();
 		final List<SyntaxTreeNode>	funcs = new ArrayList<>();
@@ -414,7 +421,6 @@ class MercCompiler {
 			pos = buildBodySyntaxTree(depth,lexemas,pos+1,names,temp);
 			list.add(temp);
 		} while(lexemas[pos].type == LexemaType.Semicolon);
-		clearInnerDefinitions(depth+1, names);
 		
 		node.assignSequence(list.toArray(new SyntaxTreeNode[list.size()]));
 		list.clear();
@@ -598,12 +604,10 @@ class MercCompiler {
 					final SyntaxTreeNode	thenBody = new SyntaxTreeNode();
 					
 					pos = buildBodySyntaxTree(depth+1,lexemas,pos+1,names,thenBody);
-					clearInnerDefinitions(depth+1, names);
 					if (lexemas[pos].type == LexemaType.Else) {
 						final SyntaxTreeNode	elseBody = new SyntaxTreeNode();
 						
 						pos = buildBodySyntaxTree(depth+1,lexemas,pos+1,names,elseBody);
-						clearInnerDefinitions(depth+1, names);
 						node.assignIf(ifCond,thenBody,elseBody);
 					}
 					else {
@@ -615,7 +619,6 @@ class MercCompiler {
 				final SyntaxTreeNode	untilBody = new SyntaxTreeNode();
 				
 				pos = buildBodySyntaxTree(depth+1,lexemas,pos+1,names,untilBody);
-				clearInnerDefinitions(depth+1, names);
 				if (lexemas[pos].type == LexemaType.While) {
 					final SyntaxTreeNode	untilCond = new SyntaxTreeNode();
 					
@@ -634,7 +637,6 @@ class MercCompiler {
 					final SyntaxTreeNode	whileBody = new SyntaxTreeNode();
 					
 					pos = buildBodySyntaxTree(depth+1,lexemas,pos+1,names,whileBody);
-					clearInnerDefinitions(depth+1, names);
 					node.assignWhile(whileCond,whileBody);
 				}
 				else {
@@ -670,7 +672,6 @@ class MercCompiler {
 						final SyntaxTreeNode	forBody = new SyntaxTreeNode();
 						
 						pos = buildBodySyntaxTree(depth+1,lexemas, pos+1, names, forBody);
-						clearInnerDefinitions(depth+1, names);
 						if (typePresents) {
 							node.assignFor(forName,forType,forList,forBody);
 						}
@@ -732,7 +733,6 @@ class MercCompiler {
 					final SyntaxTreeNode	lockBody = new SyntaxTreeNode();
 					
 					pos = buildBodySyntaxTree(depth+1,lexemas,pos+1,names,lockBody);
-					clearInnerDefinitions(depth+1, names);
 					node.assignLock(lockExpression,lockBody);
 				}
 				else {
@@ -747,7 +747,6 @@ class MercCompiler {
 					pos = buildBodySyntaxTree(depth+1,lexemas,pos+1,names,temp);
 					list.add(temp);
 				} while(lexemas[pos].type == LexemaType.Semicolon);
-				clearInnerDefinitions(depth+1, names);
 				
 				if (lexemas[pos].type == LexemaType.CloseF) {
 					node.assignSequence(list.toArray(new SyntaxTreeNode[list.size()]));
@@ -1097,12 +1096,6 @@ class MercCompiler {
 		return val == SyntaxTreeNodeType.StandaloneName || val == SyntaxTreeNodeType.IndicedName || val == SyntaxTreeNodeType.InstanceField;
 	}
 
-	private static boolean testValidOperator(final SyntaxTreeNode node) {
-		final SyntaxTreeNodeType	val = node.getType(); 
-
-		return true;
-	}
-	
 	private static SyntaxTreeNodeType convert2TreeNodeType(final LexemaSubtype subtype) {
 		final SyntaxTreeNodeType	result = CONVERSIONS.get(subtype);
 		
@@ -1114,43 +1107,60 @@ class MercCompiler {
 		}
 	}
 
-	static void clearInnerDefinitions(final int depth, final SyntaxTreeInterface<?> names) throws SyntaxException {
-		names.walk((name,len,id,cargo)->{
-			if (cargo != null) {
-				((NestedDefinition)cargo).clear(depth);
+	static void collectGlobalDescriptions(final SyntaxTreeNode root, final MercClassRepo classes, final MercNameRepo vars) {
+		root.walk((node)->{
+			if (node.getType() == SyntaxTreeNodeType.Function || node.getType() == SyntaxTreeNodeType.Brick) {
+//				vars.addLocalVar(new VarDescriptorImpl(node.v, parameters, nameType, howManyDimensions));
+				return ContinueMode.SKIP_CHILDREN;
 			}
-			return true;
+			else {
+				return ContinueMode.CONTINUE;
+			}
 		});
 	}
 
-	static void checkSyntaxTree(final SyntaxTreeNode root) {
+	static void allocateVariables(final SyntaxTreeNode root, final MercClassRepo classes, final MercNameRepo vars) {
+		final int[]		allocation = new int[]{0};
+		
+		root.walk((node)->{
+			switch (node.getType()) {
+				case Brick		: case Function	:
+					allocation[0] = 0;
+					return ContinueMode.CONTINUE;
+				case Header		: case HeaderWithReturned:
+					node.walk((item)->{
+						if (item.getType() == SyntaxTreeNodeType.Variable) {
+							final VarType			type = (VarType)item.cargo;
+							final VarDescriptor		desc = new VarDescriptorImpl(item.value,null,false,type.isVar,0);
+							
+							vars.addParameter(desc);
+						}
+						return ContinueMode.CONTINUE;
+					});
+					return ContinueMode.CONTINUE;
+				case Variable	:
+					final VarType			type = (VarType)node.cargo;
+					final VarDescriptor		desc = new VarDescriptorImpl(node.value,null,false,type.isVar,0);
+					final AllocatedVarType	newType = new AllocatedVarType(desc,allocation[0]++);
+					
+					vars.addLocalVar(desc);
+				case InstanceField	:
+					return ContinueMode.CONTINUE;
+				case StandaloneName	:
+					return ContinueMode.CONTINUE;
+				case IndicedName	:
+					return ContinueMode.CONTINUE;
+				default:
+					return ContinueMode.CONTINUE;
+			}
+		});
+	}
+
+	private static void checkSyntaxTree(SyntaxTreeNode root, MercClassRepo classes, MercNameRepo vars) {
 		// TODO Auto-generated method stub
 		
 	}
 	
-	static void optimizeSyntaxTree(final SyntaxTreeNode root) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	static void generateProgram(final SyntaxTreeNode root, final OutputStream target) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	static class NestedDefinition {
-		void define(int depth) {
-			
-		}
-		
-		boolean isDefined(int depth) {
-			return false;
-		}
-		
-		void clear(int depth) {
-			
-		}
-	}
 	
 	static class VarType {
 		final boolean			isVar;
@@ -1172,6 +1182,27 @@ class MercCompiler {
 		@Override
 		public String toString() {
 			return "VarType [isVar=" + isVar + ", dataType=" + dataType + ", initial=" + initial + "]";
+		}
+	}
+	
+	static class AllocatedVarType {
+		final VarDescriptor		descriptor;
+		final long				location;
+		final SyntaxTreeNode	initial;
+		
+		public AllocatedVarType(VarDescriptor descriptor, long location) {
+			this(descriptor, location, null);
+		}
+		
+		public AllocatedVarType(VarDescriptor descriptor, long location, SyntaxTreeNode initial) {
+			this.descriptor = descriptor;
+			this.location = location;
+			this.initial = initial;
+		}
+
+		@Override
+		public String toString() {
+			return "AllocatedVarType [descriptor=" + descriptor + ", location=" + location + ", initial=" + initial + "]";
 		}
 	}
 }

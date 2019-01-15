@@ -3,6 +3,7 @@ package chav1961.merc.lang.merc;
 import chav1961.merc.lang.merc.MercCompiler.VarType;
 import chav1961.merc.lang.merc.MercScriptEngine.LexemaSubtype;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
+import chav1961.purelib.enumerations.ContinueMode;
 
 class SyntaxTreeNode {
 	static final String		STAIRWAY_STEP = "   ";
@@ -28,17 +29,22 @@ class SyntaxTreeNode {
 		LeftPart,
 		InList,
 		LongIf, ShortIf, While, Until, Break, Continue, ShortReturn, LongReturn, Print, Lock, TypedFor, UntypedFor, Sequence,
-		Variable, Variables, Vartype,
+		Variable, Variables, Vartype, AllocatedVariable,
 		Null, IntConst, RealConst, StrConst, BoolConst, RefConst,  
 		List, Range, 
 		Unknown,
 		 
 	}
 
-	private SyntaxTreeNode.SyntaxTreeNodeType	type = SyntaxTreeNodeType.Unknown;
-	private long								value = -1;
-	private Object								cargo = null;
-	private SyntaxTreeNode[]					children = null;
+	@FunctionalInterface
+	interface WalkCallback {
+		ContinueMode process(SyntaxTreeNode node);
+	}
+	
+	SyntaxTreeNode.SyntaxTreeNodeType	type = SyntaxTreeNodeType.Unknown;
+	long								value = -1;
+	Object								cargo = null;
+	SyntaxTreeNode[]					children = null;
 
 	SyntaxTreeNode() {
 		
@@ -57,6 +63,68 @@ class SyntaxTreeNode {
 
 	void rewrite(SyntaxTreeNode from) {
 		
+	}
+	
+	ContinueMode walk(final WalkCallback callback) {
+		ContinueMode	cont;
+		
+		switch (cont = callback.process(this)) {
+			case CONTINUE		:
+				if (cargo instanceof SyntaxTreeNode) {
+					switch (cont = ((SyntaxTreeNode)cargo).walk(callback)) {
+						case CONTINUE		:
+							break;
+						case PARENT_ONLY	:
+							return ContinueMode.CONTINUE;
+						case SIBLINGS_ONLY	:
+							break;
+						case SKIP_CHILDREN	:
+							return ContinueMode.CONTINUE;
+						case SKIP_PARENT	:
+							return ContinueMode.CONTINUE;
+						case SKIP_SIBLINGS	:
+							return ContinueMode.CONTINUE;
+						case STOP			:
+							return ContinueMode.STOP;
+						default : throw new UnsupportedOperationException("Continue mode [cont] is not supported yet");
+					}
+				}
+				if (children != null) {
+loop:				for (SyntaxTreeNode item : children) {
+						switch (item.walk(callback)) {
+							case CONTINUE		:
+								break;
+							case PARENT_ONLY	:
+								return ContinueMode.CONTINUE;
+							case SIBLINGS_ONLY	:
+								break;
+							case SKIP_CHILDREN	:
+								break loop;
+							case SKIP_PARENT	:
+								return ContinueMode.CONTINUE;
+							case SKIP_SIBLINGS	:
+								break loop;
+							case STOP:
+								return ContinueMode.STOP;
+							default : throw new UnsupportedOperationException("Continue mode [cont] is not supported yet");
+						}
+					}
+				}
+				return ContinueMode.CONTINUE;
+			case PARENT_ONLY	:
+				return ContinueMode.CONTINUE;
+			case SIBLINGS_ONLY	:
+				return ContinueMode.CONTINUE;
+			case SKIP_CHILDREN	:
+				return ContinueMode.CONTINUE;
+			case SKIP_PARENT	:
+				return ContinueMode.CONTINUE;
+			case SKIP_SIBLINGS	:
+				return ContinueMode.CONTINUE;
+			case STOP:
+				return ContinueMode.STOP;
+			default : throw new UnsupportedOperationException("Continue mode [cont] is not supported yet");
+		}
 	}
 	
 	
