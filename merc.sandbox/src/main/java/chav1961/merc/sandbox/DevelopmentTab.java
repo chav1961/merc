@@ -183,22 +183,22 @@ public class DevelopmentTab extends JPanel {
 			StyleConstants.setForeground(sas,Color.MAGENTA);
 			StyleConstants.setBold(sas,true);
 			
-			styles.put(LexemaType.If,sas); 
-			styles.put(LexemaType.Then,sas); 
-			styles.put(LexemaType.Else,sas); 
-			styles.put(LexemaType.For,sas); 
-			styles.put(LexemaType.In,sas); 
-			styles.put(LexemaType.Do,sas); 
-			styles.put(LexemaType.While,sas); 
-			styles.put(LexemaType.Var,sas); 
-			styles.put(LexemaType.Func,sas); 
-			styles.put(LexemaType.Brick,sas); 
-			styles.put(LexemaType.Break,sas); 
-			styles.put(LexemaType.Continue,sas); 
-			styles.put(LexemaType.Return,sas); 
-			styles.put(LexemaType.Print,sas); 
-			styles.put(LexemaType.TypeDef,sas); 
-			styles.put(LexemaType.Lock,sas);
+			characterStyles.put(LexemaType.If,sas); 
+			characterStyles.put(LexemaType.Then,sas); 
+			characterStyles.put(LexemaType.Else,sas); 
+			characterStyles.put(LexemaType.For,sas); 
+			characterStyles.put(LexemaType.In,sas); 
+			characterStyles.put(LexemaType.Do,sas); 
+			characterStyles.put(LexemaType.While,sas); 
+			characterStyles.put(LexemaType.Var,sas); 
+			characterStyles.put(LexemaType.Func,sas); 
+			characterStyles.put(LexemaType.Brick,sas); 
+			characterStyles.put(LexemaType.Break,sas); 
+			characterStyles.put(LexemaType.Continue,sas); 
+			characterStyles.put(LexemaType.Return,sas); 
+			characterStyles.put(LexemaType.Print,sas); 
+			characterStyles.put(LexemaType.TypeDef,sas); 
+			characterStyles.put(LexemaType.Lock,sas);
 
 			sas = new SimpleAttributeSet();
 			
@@ -206,7 +206,7 @@ public class DevelopmentTab extends JPanel {
 			StyleConstants.setBold(sas,true);
 			StyleConstants.setItalic(sas,true);
 			
-			styles.put(LexemaType.Type,sas); 
+			characterStyles.put(LexemaType.Type,sas); 
 			
 			
 			sas = new SimpleAttributeSet();
@@ -214,7 +214,7 @@ public class DevelopmentTab extends JPanel {
 			StyleConstants.setForeground(sas,Color.BLACK);
 			StyleConstants.setItalic(sas,true);
 			
-			styles.put(LexemaType.Name,sas);
+			characterStyles.put(LexemaType.Name,sas);
 			
 			sas = new SimpleAttributeSet();
 			
@@ -222,46 +222,46 @@ public class DevelopmentTab extends JPanel {
 			StyleConstants.setItalic(sas,true);
 			StyleConstants.setUnderline(sas,true);
 			
-			styles.put(LexemaType.PredefinedName,sas); 
+			characterStyles.put(LexemaType.PredefinedName,sas); 
 			
 			sas = new SimpleAttributeSet();
 			
 			StyleConstants.setForeground(sas,Color.BLUE);
 			StyleConstants.setBold(sas,true);
 			
-			styles.put(LexemaType.IntConst,sas); 
-			styles.put(LexemaType.RealConst,sas);
+			characterStyles.put(LexemaType.IntConst,sas); 
+			characterStyles.put(LexemaType.RealConst,sas);
 			
 			sas = new SimpleAttributeSet();
 			
 			StyleConstants.setForeground(sas,Color.GREEN);
 
-			styles.put(LexemaType.StrConst,sas); 
+			characterStyles.put(LexemaType.StrConst,sas); 
 			
 			sas = new SimpleAttributeSet();
 			
 			StyleConstants.setForeground(sas,Color.BLACK);
 			StyleConstants.setBold(sas,true);
 			
-			styles.put(LexemaType.BoolConst,sas); 
-			styles.put(LexemaType.NullConst,sas);
-			styles.put(LexemaType.RefConst,sas);
+			characterStyles.put(LexemaType.BoolConst,sas); 
+			characterStyles.put(LexemaType.NullConst,sas);
+			characterStyles.put(LexemaType.RefConst,sas);
 			
 			sas = new SimpleAttributeSet();
 			
 			StyleConstants.setForeground(sas,Color.BLACK);
 			
-			styles.put(LexemaType.Open,sas); 
-			styles.put(LexemaType.Close,sas); 
-			styles.put(LexemaType.OpenB,sas); 
-			styles.put(LexemaType.CloseB,sas); 
-			styles.put(LexemaType.OpenF,sas); 
-			styles.put(LexemaType.CloseF,sas); 
-			styles.put(LexemaType.Dot,sas); 
-			styles.put(LexemaType.Colon,sas); 
-			styles.put(LexemaType.Semicolon,sas); 
-			styles.put(LexemaType.Period,sas); 
-			styles.put(LexemaType.Div,sas); 
+			characterStyles.put(LexemaType.Open,sas); 
+			characterStyles.put(LexemaType.Close,sas); 
+			characterStyles.put(LexemaType.OpenB,sas); 
+			characterStyles.put(LexemaType.CloseB,sas); 
+			characterStyles.put(LexemaType.OpenF,sas); 
+			characterStyles.put(LexemaType.CloseF,sas); 
+			characterStyles.put(LexemaType.Dot,sas); 
+			characterStyles.put(LexemaType.Colon,sas); 
+			characterStyles.put(LexemaType.Semicolon,sas); 
+			characterStyles.put(LexemaType.Period,sas); 
+			characterStyles.put(LexemaType.Div,sas); 
 			
 			sas = new SimpleAttributeSet();
 			
@@ -269,13 +269,13 @@ public class DevelopmentTab extends JPanel {
 			StyleConstants.setBold(sas,true);
 			StyleConstants.setUnderline(sas,true);
 			
-			styles.put(LexemaType.Pipe,sas); 
+			characterStyles.put(LexemaType.Pipe,sas); 
 			
 			sas = new SimpleAttributeSet();
 			
 			StyleConstants.setForeground(sas,Color.ORANGE);
 			
-			styles.put(LexemaType.Operator,sas); 
+			characterStyles.put(LexemaType.Operator,sas); 
 			
 			sas = new SimpleAttributeSet();
 			
@@ -283,15 +283,15 @@ public class DevelopmentTab extends JPanel {
 			StyleConstants.setBold(sas,true);
 			StyleConstants.setStrikeThrough(sas,true);
 			
-			styles.put(LexemaType.Unknown,sas);
+			characterStyles.put(LexemaType.Unknown,sas);
 			
 			sas = new SimpleAttributeSet();
 			
 			StyleConstants.setForeground(sas,Color.LIGHT_GRAY);
 			StyleConstants.setItalic(sas,true);
 			
-			styles.put(LexemaType.EOF,sas); 
-			styles.put(LexemaType.Comment,sas);
+			characterStyles.put(LexemaType.EOF,sas); 
+			characterStyles.put(LexemaType.Comment,sas);
 		}
 		
 		@Override
