@@ -1,0 +1,23 @@
+		.line	none
+		.package chav1961.merc.lang.merc
+		.import	chav1961.merc.lang.merc.interfaces.CallProgram
+		.import	chav1961.merc.api.exceptions.MercContentException
+		.import	chav1961.merc.api.exceptions.MercEnvironmentException
+		.import	chav1961.merc.api.interfaces.front.World
+		.import	java.io.PrintWriter
+; ---
+Test%1$s	.class	public implements chav1961.merc.lang.merc.interfaces.CallProgram
+; ----
+Test%1$s	.method	void public
+		.stack	pessimistic
+		aload	this
+		invokespecial	java.lang.Object.Object()V
+		return
+Test%1$s	.end
+execute	.method	int public throws chav1961.merc.api.exceptions.MercEnvironmentException, chav1961.merc.api.exceptions.MercContentException
+world	.parameter chav1961.merc.api.interfaces.front.World final
+writer	.parameter java.io.PrintWriter final
+		.stack pessimistic
+counter	.var	long
+		ldc2_w	1L
+		lstore	counter

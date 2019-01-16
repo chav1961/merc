@@ -6,6 +6,7 @@ import java.nio.channels.UnsupportedAddressTypeException;
 
 import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.interfaces.CharDataOutput;
+import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 import chav1961.purelib.enumerations.ContinueMode;
@@ -107,8 +108,14 @@ class MercCodeBuilder {
 			
 			switch (Utils.defineClassType(resultClass)) {
 				case Utils.CLASSTYPE_REFERENCE	:
-					writer.writeln(" invokevirtual java.lang.Object.toString()Ljava/lang/String;");
-					writer.writeln(" invokevirtual java.io.PrintWriter.print(Ljava/lang/String;)V");
+					if (char[].class.isAssignableFrom(resultClass)) {
+						writer.writeln(" invokevirtual java.io.PrintWriter.print([C)V");
+					}
+					else {
+						writer.writeln(" invokevirtual java.lang.Object.toString()Ljava/lang/String;");
+						writer.writeln(" invokevirtual java.io.PrintWriter.print(Ljava/lang/String;)V");
+					}
+					break;
 				case Utils.CLASSTYPE_BYTE	: case Utils.CLASSTYPE_SHORT	: case Utils.CLASSTYPE_INT	: case Utils.CLASSTYPE_CHAR	:
 					writer.writeln(" i2l");
 				case Utils.CLASSTYPE_LONG	:
@@ -133,6 +140,16 @@ class MercCodeBuilder {
 	
 	static void printExpression(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
 		switch (node.getType()) {
+			case BitInv	:
+				printExpression(node.children[0], names, classes, vars, writer);
+				if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+					writer.writeln(" ldc2_w -1L");
+					writer.writeln(" lxor");
+				}
+				else {
+					throw new IOException(); 
+				}
+				break;
 			case BoolConst	:
 				writer.write(" ldc ").writeln(node.value);
 				break;
@@ -145,33 +162,93 @@ class MercCodeBuilder {
 			case InstanceField	:
 				break;
 			case IntConst	:
-				writer.write(" ldc2w ").writeln(node.value);
+				writer.write(" ldc2_w ").write(node.value).writeln("L");
 				break;
 			case Negation	:
+				printExpression(node.children[0], names, classes, vars, writer);
+				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+					writer.writeln(" dneg");
+				}
+				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+					writer.writeln(" lneg");
+				}
+				else {
+					throw new IOException(); 
+				}
+				break;
+			case Not		:
+				printExpression(node.children[0], names, classes, vars, writer);
+				if (boolean.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+					writer.writeln(" ldc 1");
+					writer.writeln(" ixor");
+				}
+				else {
+					throw new IOException(); 
+				}
 				break;
 			case OrdinalBinary	:
 				break;
 			case Pipe	:
 				break;
 			case PostDec	:
+				printExpression(node.children[0], names, classes, vars, writer);
+//				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+//					writer.writeln(" dneg");
+//				}
+//				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+//					writer.writeln(" lneg");
+//				}
+//				else {
+//					throw new IOException(); 
+//				}
 				break;
 			case PostInc	:
+				printExpression(node.children[0], names, classes, vars, writer);
+//				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+//					writer.writeln(" dneg");
+//				}
+//				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+//					writer.writeln(" lneg");
+//				}
+//				else {
+//					throw new IOException(); 
+//				}
 				break;
 			case PreDec	:
+				printExpression(node.children[0], names, classes, vars, writer);
+//				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+//					writer.writeln(" dneg");
+//				}
+//				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+//					writer.writeln(" lneg");
+//				}
+//				else {
+//					throw new IOException(); 
+//				}
 				break;
 			case PreInc	:
+				printExpression(node.children[0], names, classes, vars, writer);
+//				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+//					writer.writeln(" dneg");
+//				}
+//				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+//					writer.writeln(" lneg");
+//				}
+//				else {
+//					throw new IOException(); 
+//				}
 				break;
 			case PredefinedName	:
 				break;
 			case RealConst	:
-				writer.write(" ldc2w ").writeln(Double.longBitsToDouble(node.value));
+				writer.write(" ldc2_w ").writeln(Double.longBitsToDouble(node.value));
 				break;
 			case RefConst	:
 				break;
 			case StandaloneName	:
 				break;
 			case StrConst	:
-				writer.write(" ldcw \"").write((char[])node.cargo).writeln("\"\n");
+				writer.write(" ldc_w \"").write((char[])node.cargo).writeln("\"\n");
 				writer.writeln(" invokevirtual java.lang.String.toCharArray()[C");
 				break;
 			default:
@@ -188,6 +265,142 @@ class MercCodeBuilder {
 	}
 	
 	static Class<?> inferenceExpressionType(final SyntaxTreeNode node) {
+		switch (node.getType()) {
+			case Add:
+				break;
+			case AllocatedVariable:
+				break;
+			case And:
+				break;
+			case Assign:
+				break;
+			case BitAnd:
+				break;
+			case BitOr:
+				break;
+			case BitXOr:
+				break;
+			case BoolConst	:
+				return boolean.class;
+			case Break:
+				break;
+			case Brick:
+				break;
+			case Call:
+				break;
+			case Concat:
+				break;
+			case Continue:
+				break;
+			case Conversion:
+				break;
+			case Div:
+				break;
+			case EQ:
+				break;
+			case Function:
+				break;
+			case GE:
+				break;
+			case GT:
+				break;
+			case Header:
+				break;
+			case HeaderWithReturned:
+				break;
+			case InList:
+				break;
+			case IndicedName:
+				break;
+			case InstanceField:
+				break;
+			case IntConst	:
+				return long.class;
+			case Is:
+				break;
+			case LE:
+				break;
+			case LT:
+				break;
+			case LeftPart:
+				break;
+			case Like:
+				break;
+			case List:
+				break;
+			case Lock:
+				break;
+			case LongIf:
+				break;
+			case LongReturn:
+				break;
+			case Mul:
+				break;
+			case NE:
+				break;
+			case BitInv: case PostDec: case PostInc: case PreDec: case PreInc: case Negation	:
+				return inferenceExpressionType(node.children[0]);
+			case Not:
+				return boolean.class;
+			case Null:
+				break;
+			case Or:
+				break;
+			case OrdinalBinary:
+				break;
+			case Pipe:
+				break;
+			case PredefinedName:
+				break;
+			case Print:
+				break;
+			case Program:
+				break;
+			case Range:
+				break;
+			case RealConst	:
+				return double.class;
+			case RefConst:
+				break;
+			case Rem:
+				break;
+			case Sequence:
+				break;
+			case Shl:
+				break;
+			case ShortIf:
+				break;
+			case ShortReturn:
+				break;
+			case Shr:
+				break;
+			case Shra:
+				break;
+			case StandaloneName:
+				break;
+			case StrConst	:
+				return char[].class;
+			case Sub:
+				break;
+			case TypedFor:
+				break;
+			case Unknown:
+				break;
+			case Until:
+				break;
+			case UntypedFor:
+				break;
+			case Variable:
+				return ((VarDescriptor)node.cargo).getNameType();
+			case Variables:
+				break;
+			case Vartype:
+				break;
+			case While:
+				break;
+			default:
+				throw new UnsupportedOperationException("Node type ["+node.getType()+"] is not supported");
+		}
 		return null;
 	}
 
