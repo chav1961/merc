@@ -2,12 +2,12 @@ package chav1961.merc.lang.merc;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -34,6 +34,7 @@ public class MercClassRepo {
 	private final Map<String,VarDescriptor>		declaredNames = new HashMap<>();
 	private final Map<Class<?>,VarDescriptor>	declaredClasses = new HashMap<>();
 	
+	@SuppressWarnings("unchecked")
 	MercClassRepo(final SyntaxTreeInterface<?> names, final int minLevel) {
 		if (names == null) {
 			throw new NullPointerException("Names can't be null"); 
@@ -104,7 +105,7 @@ public class MercClassRepo {
 				Class<?> temp = clazz;
 				
 				while (temp.isArray()) {
-					temp.getComponentType();
+					temp = temp.getComponentType();
 					dimensionCount++;				
 				}
 				content = temp;
@@ -126,28 +127,47 @@ public class MercClassRepo {
 					final List<VarDescriptor>	parms = new ArrayList<>();
 					
 					for (Class<?> p : m.getParameterTypes()) {
-						final long	classNameId = names.placeOrChangeName(p.getSimpleName(),null);
+						final String	className = truncBrackets(p.getCanonicalName());
+						final long		classNameId = names.placeOrChangeName(className,null);
 						
 						if (!parsed.contains(classNameId)) {
-							parsed.add(classNameId);
 							parms.add(prepareClass(minLevel,classNameId,p,parsed));
 						}
 						else {
-							return new VarDescriptorImpl(classNameId);
+							return new VarDescriptorImpl(0,classNameId);
 						}
 					}
-					children.add(new VarDescriptorImpl(names.placeOrChangeName(m.getName(),null),parms.toArray(new VarDescriptor[parms.size()]),m.getReturnType(),0));
+					children.add(new VarDescriptorImpl(0,names.placeOrChangeName(m.getName(),null),parms.toArray(new VarDescriptor[parms.size()]),m.getReturnType(),0));
 				}
 			}
 			final VarDescriptor[]		forChildren = children.toArray(new VarDescriptor[children.size()]);
 			
-			return new VarDescriptorImpl(nameId,content,false,true,dimensionCount,forChildren);
+			return new VarDescriptorImpl(0,nameId,content,false,true,dimensionCount,forChildren);
 		}
 		else {
-			return new VarDescriptorImpl(nameId);
+			return new VarDescriptorImpl(0,nameId);
 		}
 	}
 
+	private String truncBrackets(final String canonicalName) {
+		final int	bracket = canonicalName.indexOf('[');
+		
+		return bracket == -1 ? canonicalName : canonicalName.substring(0,bracket);
+	}
+
+	public String toString(final SyntaxTreeInterface<?> names) {
+		final StringBuilder	sb = new StringBuilder("Class repo:\n - names:\n");
+		
+		for (Entry<String, VarDescriptor> item : declaredNames.entrySet()) {
+			sb.append("     ").append(item.getKey()).append(": ").append(item.getValue().toString(names)).append('\n');
+		}
+		sb.append(" - classes:\n");
+		for (Entry<Class<?>, VarDescriptor> item : declaredClasses.entrySet()) {
+			sb.append("     ").append(item.getKey().getName()).append(": ").append(item.getValue().toString(names)).append('\n');
+		}
+		return sb.append("End class repo\n").toString();
+	}
+	
 	@Override
 	public String toString() {
 		return "MercClassRepo:\ndeclaredNames=" + declaredNames + "\ndeclaredClasses=" + declaredClasses + "\n";

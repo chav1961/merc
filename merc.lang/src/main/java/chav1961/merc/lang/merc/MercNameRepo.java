@@ -5,16 +5,9 @@ import chav1961.purelib.basic.LongIdMap;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 
 class MercNameRepo {
-	private final SyntaxTreeInterface<?>	names;
 	private LevelCollection					top = new LevelCollection(); 
 	
-	MercNameRepo(final SyntaxTreeInterface<?> names) {
-		if (names == null) {
-			throw new NullPointerException("Names can't be null"); 
-		}
-		else {
-			this.names = names;
-		}
+	MercNameRepo() {
 	}
 	
 	void pushLevel(final long unitName) {

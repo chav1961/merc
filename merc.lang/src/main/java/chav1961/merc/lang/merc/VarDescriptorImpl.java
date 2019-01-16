@@ -9,10 +9,11 @@ class VarDescriptorImpl implements VarDescriptor {
 	private final long				nameId;
 	private final Class<?>			nameType;
 	private final boolean			isArray, isReadOnly, isVar, isMethod, isReference;
-	private final int				howManyDimensions;
+	private final int				howManyDimensions, allocated;
 	private final VarDescriptor[] 	content;
 	
-	public VarDescriptorImpl(final long nameId, final Class<?> nameType, final boolean isReadOnly, final boolean isVar, final int howManyDimensions, final VarDescriptor... content) {
+	public VarDescriptorImpl(final int allocated, final long nameId, final Class<?> nameType, final boolean isReadOnly, final boolean isVar, final int howManyDimensions, final VarDescriptor... content) {
+		this.allocated = allocated;
 		this.nameId = nameId;
 		this.nameType = nameType;
 		this.isArray = howManyDimensions > 0;
@@ -24,7 +25,8 @@ class VarDescriptorImpl implements VarDescriptor {
 		this.content = content;
 	}
 
-	public VarDescriptorImpl(final long nameId, final VarDescriptor[] parameters, final Class<?> nameType, final int howManyDimensions) {
+	public VarDescriptorImpl(final int allocated, final long nameId, final VarDescriptor[] parameters, final Class<?> nameType, final int howManyDimensions) {
+		this.allocated = allocated;
 		this.nameId = nameId;
 		this.nameType = nameType;
 		this.isArray = howManyDimensions > 0;
@@ -36,7 +38,8 @@ class VarDescriptorImpl implements VarDescriptor {
 		this.content = parameters;
 	}
 
-	public VarDescriptorImpl(final long nameId) {
+	public VarDescriptorImpl(final int allocated, final long nameId) {
+		this.allocated = allocated;
 		this.nameId = nameId;
 		this.nameType = null;
 		this.isArray = false;
@@ -117,11 +120,9 @@ class VarDescriptorImpl implements VarDescriptor {
 		}
 		sb.append(names.getName(nameId));
 		if (isArray()) {
-			char	prefix = '[';
-			
-			for (int index = 0; index < howManyDimensions; index++) {
-				sb.append(prefix);
-				prefix = ',';
+			sb.append('[');
+			for (int index = 1; index < howManyDimensions; index++) {
+				sb.append(',');
 			}
 			sb.append(']');
 		}

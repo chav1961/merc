@@ -36,18 +36,16 @@ public class MercReposTest {
 		for (VarDescriptor item : repo.byClass(PointKeeper.class).contentFields()) {
 			System.err.println(item.toString(names));
 		}
-		
-		
 	}
 
 	@Test
 	public void nameRepoTest() {
 		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
-		final MercNameRepo					repo = new MercNameRepo(names);
+		final MercNameRepo					repo = new MercNameRepo();
 		
 		Assert.assertEquals(1,repo.currentDepth());
-		repo.addParameter(new VarDescriptorImpl(1,String.class,false,false,0));
-		repo.addLocalVar(new VarDescriptorImpl(2,String.class,false,false,0));
+		repo.addParameter(new VarDescriptorImpl(0,1,String.class,false,false,0));
+		repo.addLocalVar(new VarDescriptorImpl(0,2,String.class,false,false,0));
 		Assert.assertTrue(repo.hasName(1));
 		Assert.assertTrue(repo.hasNameAtTop(1));
 		Assert.assertTrue(repo.hasName(2));
@@ -64,18 +62,18 @@ public class MercReposTest {
 			Assert.fail("Mandatory exception was not detected (null 1-st argument)");
 		} catch (NullPointerException exc) {
 		}
-		try{repo.addParameter(new VarDescriptorImpl(1,String.class,false,false,0));
+		try{repo.addParameter(new VarDescriptorImpl(0,1,String.class,false,false,0));
 			Assert.fail("Mandatory exception was not detected (duplicate name)");
 		} catch (IllegalArgumentException exc) {
 		}
-		try{repo.addLocalVar(new VarDescriptorImpl(1,String.class,false,false,0));
+		try{repo.addLocalVar(new VarDescriptorImpl(0,1,String.class,false,false,0));
 			Assert.fail("Mandatory exception was not detected (duplicate name)");
 		} catch (IllegalArgumentException exc) {
 		}
 		
 		repo.pushLevel();
 		Assert.assertEquals(2,repo.currentDepth());
-		repo.addParameter(new VarDescriptorImpl(1,int.class,false,false,0));
+		repo.addParameter(new VarDescriptorImpl(0,1,int.class,false,false,0));
 		Assert.assertTrue(repo.hasName(1));
 		Assert.assertTrue(repo.hasNameAtTop(1));
 		Assert.assertTrue(repo.hasName(2));
@@ -98,11 +96,6 @@ public class MercReposTest {
 		try{repo.popLevel();
 			Assert.fail("Mandatory exception was not detected (stack exhausted)");
 		} catch (IllegalStateException exc) {
-		}
-		
-		try{new MercNameRepo(null); 
-			Assert.fail("Mandatory exception was not detected (null 1-st argument)");
-		} catch (NullPointerException exc) {
 		}
 	}
 }

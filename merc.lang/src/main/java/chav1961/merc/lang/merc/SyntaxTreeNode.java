@@ -1,9 +1,10 @@
 package chav1961.merc.lang.merc;
 
-import chav1961.merc.lang.merc.MercCompiler.VarType;
 import chav1961.merc.lang.merc.MercScriptEngine.LexemaSubtype;
+import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 import chav1961.purelib.enumerations.ContinueMode;
+import chav1961.purelib.enumerations.NodeEnterMode;
 
 class SyntaxTreeNode {
 	static final String		STAIRWAY_STEP = "   ";
@@ -13,8 +14,7 @@ class SyntaxTreeNode {
 		Call,
 		InstanceField,
 		Header, HeaderWithReturned,
-		Function,
-		Brick,
+		Program, Function, Brick,
 		Conversion,
 		OrdinalBinary,
 		Assign,
@@ -38,13 +38,13 @@ class SyntaxTreeNode {
 
 	@FunctionalInterface
 	interface WalkCallback {
-		ContinueMode process(SyntaxTreeNode node);
+		ContinueMode process(NodeEnterMode mode, SyntaxTreeNode node);
 	}
 	
-	SyntaxTreeNode.SyntaxTreeNodeType	type = SyntaxTreeNodeType.Unknown;
-	long								value = -1;
-	Object								cargo = null;
-	SyntaxTreeNode[]					children = null;
+	SyntaxTreeNodeType	type = SyntaxTreeNodeType.Unknown;
+	long				value = -1;
+	Object				cargo = null;
+	SyntaxTreeNode[]	children = null;
 
 	SyntaxTreeNode() {
 		
@@ -55,6 +55,13 @@ class SyntaxTreeNode {
 		value = from.value;
 		cargo = from.cargo;
 		children = from.children != null ? from.children.clone() : null;
+	}
+
+	SyntaxTreeNode(final SyntaxTreeNodeType type, final long value, final Object cargo, final SyntaxTreeNode... children) {
+		this.type = type;
+		this.value = value;
+		this.cargo = cargo;
+		this.children = children;
 	}
 	
 	SyntaxTreeNode.SyntaxTreeNodeType getType() {
@@ -68,7 +75,7 @@ class SyntaxTreeNode {
 	ContinueMode walk(final WalkCallback callback) {
 		ContinueMode	cont;
 		
-		switch (cont = callback.process(this)) {
+		switch (cont = callback.process(NodeEnterMode.ENTER,this)) {
 			case CONTINUE		:
 				if (cargo instanceof SyntaxTreeNode) {
 					switch (cont = ((SyntaxTreeNode)cargo).walk(callback)) {
@@ -142,7 +149,7 @@ loop:				for (SyntaxTreeNode item : children) {
 		children = parms.clone();
 	}
 
-	public void assignHeaderWithReturned(final long name, final SyntaxTreeNode returned, final SyntaxTreeNode... parms) {
+	public void assignHeaderWithReturned(final long name, final Class returned, final SyntaxTreeNode... parms) {
 		type = SyntaxTreeNodeType.HeaderWithReturned;
 		value = name;
 		cargo = returned;
@@ -163,6 +170,13 @@ loop:				for (SyntaxTreeNode item : children) {
 		children = body.getType() == SyntaxTreeNodeType.Sequence ? body.children.clone() : new SyntaxTreeNode[]{body};
 	}
 
+	public void assignProgram(final SyntaxTreeNode main, final SyntaxTreeNode[] funcs) {
+		type = SyntaxTreeNodeType.Program;
+		value = -1;
+		cargo = main;
+		children = funcs;
+	}
+	
 	public void assignField(final SyntaxTreeNode owner, final SyntaxTreeNode field) {
 		type = SyntaxTreeNodeType.InstanceField;
 		value = -1;
@@ -196,11 +210,18 @@ loop:				for (SyntaxTreeNode item : children) {
 		}
 	}
 
-	public void assignVarDefinition(final long nameId, final VarType varType) {
+	public void assignVarDefinition(final long nameId, final VarDescriptor desc) {
 		type = SyntaxTreeNodeType.Variable;
 		value = nameId;
-		cargo = varType;
-		children = null;
+		cargo = desc;
+		children = new SyntaxTreeNode[0];
+	}
+	
+	public void assignVarDefinition(final long nameId, final VarDescriptor desc, final SyntaxTreeNode initial) {
+		type = SyntaxTreeNodeType.Variable;
+		value = nameId;
+		cargo = desc;
+		children = new SyntaxTreeNode[]{initial};
 	}
 	
 	public void assignCall(final SyntaxTreeNode item, final SyntaxTreeNode parm) {
@@ -524,7 +545,7 @@ loop:				for (SyntaxTreeNode item : children) {
 					before = prefix+",\n";
 				}
 				sb.append(prefix).append("returned\n");
-				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(prefix+STAIRWAY_STEP).append(cargo).append('\n');
 				sb.append(prefix).append("end header\n");
 				break;
 			case IndicedName:
@@ -646,6 +667,15 @@ loop:				for (SyntaxTreeNode item : children) {
 				}
 				sb.append(prefix).append("end print\n");
 				break;
+			case Program	:
+				sb.append(prefix).append("program\n");
+				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				for (SyntaxTreeNode item : children) {
+					sb.append(prefix).append("function/brick\n");
+					sb.append(item.toString(prefix+STAIRWAY_STEP,names));
+				}
+				sb.append(prefix).append("end program\n");
+				break;
 			case Range	:
 				sb.append(prefix).append("(\n");
 				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
@@ -714,11 +744,11 @@ loop:				for (SyntaxTreeNode item : children) {
 				}
 				break;
 			case Variable	:
-				final VarType	varType = (VarType)cargo;
+				final VarDescriptor	varType = (VarDescriptor)cargo;
 				
-				sb.append(prefix).append(varType.isVar ? "variable " : "").append("name ").append(names.getName(value)).append(" : ").append(varType.dataType);
-				if (varType.initial != null) {
-					sb.append("(\n").append(varType.initial.toString(prefix+STAIRWAY_STEP,names)).append(prefix).append(")\n");
+				sb.append(prefix).append(varType.isVar() ? "variable " : "").append("name ").append(names.getName(value)).append(" : ").append(varType.getNameType());
+				if (children.length > 0) {
+					sb.append("(\n").append(children[0].toString(prefix+STAIRWAY_STEP,names)).append(prefix).append(")\n");
 				}
 				else {
 					sb.append("\n");
