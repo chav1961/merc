@@ -266,19 +266,9 @@ class MercCodeBuilder {
 	
 	static Class<?> inferenceExpressionType(final SyntaxTreeNode node) {
 		switch (node.getType()) {
-			case Add:
-				break;
 			case AllocatedVariable:
 				break;
-			case And:
-				break;
 			case Assign:
-				break;
-			case BitAnd:
-				break;
-			case BitOr:
-				break;
-			case BitXOr:
 				break;
 			case BoolConst	:
 				return boolean.class;
@@ -286,23 +276,11 @@ class MercCodeBuilder {
 				break;
 			case Brick:
 				break;
-			case Call:
-				break;
-			case Concat:
-				break;
 			case Continue:
 				break;
 			case Conversion:
 				break;
-			case Div:
-				break;
-			case EQ:
-				break;
 			case Function:
-				break;
-			case GE:
-				break;
-			case GT:
 				break;
 			case Header:
 				break;
@@ -316,16 +294,6 @@ class MercCodeBuilder {
 				break;
 			case IntConst	:
 				return long.class;
-			case Is:
-				break;
-			case LE:
-				break;
-			case LT:
-				break;
-			case LeftPart:
-				break;
-			case Like:
-				break;
 			case List:
 				break;
 			case Lock:
@@ -334,19 +302,23 @@ class MercCodeBuilder {
 				break;
 			case LongReturn:
 				break;
-			case Mul:
-				break;
-			case NE:
-				break;
 			case BitInv: case PostDec: case PostInc: case PreDec: case PreInc: case Negation	:
 				return inferenceExpressionType(node.children[0]);
 			case Not:
 				return boolean.class;
 			case Null:
 				break;
-			case Or:
-				break;
 			case OrdinalBinary:
+				switch ((int)node.value) {
+					case MercCompiler.PRTY_BITAND	:
+					case MercCompiler.PRTY_BITORXOR	:
+					case MercCompiler.PRTY_SHIFT	:
+					case MercCompiler.PRTY_MUL		:
+					case MercCompiler.PRTY_ADD		:
+					case MercCompiler.PRTY_COMPARISON	:
+					case MercCompiler.PRTY_AND		:
+					case MercCompiler.PRTY_OR		:
+				}
 				break;
 			case Pipe:
 				break;
@@ -362,26 +334,16 @@ class MercCodeBuilder {
 				return double.class;
 			case RefConst:
 				break;
-			case Rem:
-				break;
 			case Sequence:
-				break;
-			case Shl:
 				break;
 			case ShortIf:
 				break;
 			case ShortReturn:
 				break;
-			case Shr:
-				break;
-			case Shra:
-				break;
 			case StandaloneName:
 				break;
 			case StrConst	:
 				return char[].class;
-			case Sub:
-				break;
 			case TypedFor:
 				break;
 			case Unknown:

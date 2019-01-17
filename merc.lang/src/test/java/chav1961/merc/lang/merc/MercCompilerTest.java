@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import chav1961.merc.lang.merc.MercScriptEngine.Lexema;
-import chav1961.merc.lang.merc.MercScriptEngine.LexemaSubtype;
 import chav1961.merc.lang.merc.interfaces.LexemaType;
 import chav1961.purelib.basic.OrdinalSyntaxTree;
 import chav1961.purelib.basic.exceptions.SyntaxException;

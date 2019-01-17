@@ -1,6 +1,5 @@
 package chav1961.merc.lang.merc;
 
-import chav1961.merc.lang.merc.MercScriptEngine.LexemaSubtype;
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 import chav1961.purelib.enumerations.ContinueMode;
@@ -21,17 +20,14 @@ class SyntaxTreeNode {
 		Pipe,
 		Negation, 
 		PreInc, PreDec, PostInc, PostDec, 
-		BitInv, BitAnd, BitOr, BitXOr, 
-		Shl, Shr, Shra,
-		Mul, Div, Rem, Add, Sub, Concat,
-		LT, LE, GT, GE, EQ, NE, Is, Like,
-		Not, And, Or,
-		LeftPart,
+		BitInv, 
+		Not,
 		InList,
-		LongIf, ShortIf, While, Until, Break, Continue, ShortReturn, LongReturn, Print, Lock, TypedFor, UntypedFor, Sequence,
+		LongIf, ShortIf, While, Until, Break, Continue, ShortReturn, LongReturn, Print, Lock, TypedFor, UntypedFor, Sequence, Infinite,
 		Variable, Variables, Vartype, AllocatedVariable,
 		Null, IntConst, RealConst, StrConst, BoolConst, RefConst,  
-		List, Range, 
+		List, Range,
+		Empty,
 		Unknown,
 		 
 	}
@@ -71,7 +67,7 @@ class SyntaxTreeNode {
 	void rewrite(SyntaxTreeNode from) {
 		
 	}
-	
+
 	ContinueMode walk(final WalkCallback callback) {
 		ContinueMode	cont;
 		
@@ -134,6 +130,12 @@ loop:				for (SyntaxTreeNode item : children) {
 		}
 	}
 	
+	public void assign(final SyntaxTreeNode another) {
+		this.type = another.type;
+		this.value = another.value;
+		this.cargo = another.cargo;
+		this.children = another.children == null ? null : another.children.clone();
+	}
 	
 	public void assignVarDefs(final SyntaxTreeNode[] array) {
 		type = SyntaxTreeNodeType.Variables;
@@ -421,9 +423,9 @@ loop:				for (SyntaxTreeNode item : children) {
 		children = new SyntaxTreeNode[]{node};
 	}
 
-	void assignBinary(final SyntaxTreeNodeType[] operations, SyntaxTreeNode[] operands) {
+	void assignBinary(final long prty, final LexemaSubtype[] operations, SyntaxTreeNode[] operands) {
 		type = SyntaxTreeNodeType.OrdinalBinary;
-		value = -1;
+		value = prty;
 		if (operations.length != operands.length) {
 			throw new IllegalArgumentException("Operations list length differ from operands one"); 
 		}

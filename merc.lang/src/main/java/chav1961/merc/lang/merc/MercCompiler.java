@@ -20,7 +20,6 @@ import chav1961.merc.api.SizeKeeper;
 import chav1961.merc.api.StringKeeper;
 import chav1961.merc.api.TrackKeeper;
 import chav1961.merc.lang.merc.MercScriptEngine.Lexema;
-import chav1961.merc.lang.merc.MercScriptEngine.LexemaSubtype;
 import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.interfaces.CharDataOutput;
 import chav1961.merc.lang.merc.interfaces.LexemaType;
@@ -98,28 +97,7 @@ class MercCompiler {
 		CONVERSIONS.put(LexemaSubtype.Inc,SyntaxTreeNodeType.PreInc);
 		CONVERSIONS.put(LexemaSubtype.Dec,SyntaxTreeNodeType.PreDec);
 		CONVERSIONS.put(LexemaSubtype.BitInv,SyntaxTreeNodeType.BitInv);
-		CONVERSIONS.put(LexemaSubtype.BitAnd,SyntaxTreeNodeType.BitAnd);
-		CONVERSIONS.put(LexemaSubtype.BitOr,SyntaxTreeNodeType.BitOr);
-		CONVERSIONS.put(LexemaSubtype.BitXor,SyntaxTreeNodeType.BitXOr);
-		CONVERSIONS.put(LexemaSubtype.Shl,SyntaxTreeNodeType.Shl);
-		CONVERSIONS.put(LexemaSubtype.Shr,SyntaxTreeNodeType.Shr);
-		CONVERSIONS.put(LexemaSubtype.Shra,SyntaxTreeNodeType.Shra);
-		CONVERSIONS.put(LexemaSubtype.Mul,SyntaxTreeNodeType.Mul);
-		CONVERSIONS.put(LexemaSubtype.Div,SyntaxTreeNodeType.Div);
-		CONVERSIONS.put(LexemaSubtype.Rem,SyntaxTreeNodeType.Rem);
-		CONVERSIONS.put(LexemaSubtype.Add,SyntaxTreeNodeType.Add);
-		CONVERSIONS.put(LexemaSubtype.Sub,SyntaxTreeNodeType.Sub);
-		CONVERSIONS.put(LexemaSubtype.LT,SyntaxTreeNodeType.LT);
-		CONVERSIONS.put(LexemaSubtype.LE,SyntaxTreeNodeType.LE);
-		CONVERSIONS.put(LexemaSubtype.GT,SyntaxTreeNodeType.GT);
-		CONVERSIONS.put(LexemaSubtype.GE,SyntaxTreeNodeType.GE);
-		CONVERSIONS.put(LexemaSubtype.EQ,SyntaxTreeNodeType.EQ);
-		CONVERSIONS.put(LexemaSubtype.NE,SyntaxTreeNodeType.NE);
-		CONVERSIONS.put(LexemaSubtype.IS,SyntaxTreeNodeType.Is);
-		CONVERSIONS.put(LexemaSubtype.LIKE,SyntaxTreeNodeType.Like);
 		CONVERSIONS.put(LexemaSubtype.Not,SyntaxTreeNodeType.Not);
-		CONVERSIONS.put(LexemaSubtype.And,SyntaxTreeNodeType.And);
-		CONVERSIONS.put(LexemaSubtype.Or,SyntaxTreeNodeType.Or);
 	}
 	
 	static void processLine(final int lineNo, final char[] data, final int from, final int length, final boolean parseForHighlight, final SyntaxTreeInterface<?> names, final List<Lexema> lexemas) throws IOException, SyntaxException {
@@ -1019,14 +997,14 @@ class MercCompiler {
 					final LexemaSubtype		oper = lexemas[pos].subtype;
 					
 					pos = buildExpressionSyntaxTree(level-1, lexemas, pos+1, names, classes, vars, right);
-					node.assignBinary(new SyntaxTreeNodeType[]{SyntaxTreeNodeType.Unknown,convert2TreeNodeType(oper)},new SyntaxTreeNode[]{left,right});
+					node.assignBinary(PRTY_COMPARISON,new LexemaSubtype[]{LexemaSubtype.Undefined,oper},new SyntaxTreeNode[]{left,right});
 				}
 				else if (lexemas[pos].type == LexemaType.In) {
 					final SyntaxTreeNode	left = new SyntaxTreeNode(node);
 					final SyntaxTreeNode	right = new SyntaxTreeNode();
 					
 					pos = buildListSyntaxTree(lexemas, pos+1, names, classes, vars, true, right);
-					node.assignBinary(new SyntaxTreeNodeType[]{SyntaxTreeNodeType.Unknown,SyntaxTreeNodeType.InList},new SyntaxTreeNode[]{left,right});
+					node.assignBinary(PRTY_COMPARISON,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.InList},new SyntaxTreeNode[]{left,right});
 				}
 				break;
 			case PRTY_NOT		:
@@ -1097,23 +1075,23 @@ class MercCompiler {
 		
 		pos = buildExpressionSyntaxTree(level-1, lexemas, pos, names, classes, vars, node);
 		if (lexemas[pos].type == LexemaType.Operator && inList(lexemas[pos].subtype,operations)) {
-			final List<SyntaxTreeNode>		nodeCollection = new ArrayList<>();
-			final List<SyntaxTreeNodeType>	operCollection = new ArrayList<>();
+			final List<SyntaxTreeNode>	nodeCollection = new ArrayList<>();
+			final List<LexemaSubtype>	operCollection = new ArrayList<>();
 			
 			nodeCollection.add(new SyntaxTreeNode(node));
-			operCollection.add(SyntaxTreeNodeType.Unknown);
+			operCollection.add(LexemaSubtype.Undefined);
 			while (lexemas[pos].type == LexemaType.Operator && inList(lexemas[pos].subtype,operations)) {
 				final LexemaSubtype		oper  = lexemas[pos].subtype;
 				final SyntaxTreeNode	item = new SyntaxTreeNode(node);
 				
 				pos = buildExpressionSyntaxTree(level-1, lexemas, pos+1, names, classes, vars, item);
 				nodeCollection.add(item);
-				operCollection.add(convert2TreeNodeType(oper));
+				operCollection.add(oper);
 				if (!repeatable) {
 					break;
 				}
 			}
-			node.assignBinary(operCollection.toArray(new SyntaxTreeNodeType[operCollection.size()]),nodeCollection.toArray(new SyntaxTreeNode[nodeCollection.size()]));
+			node.assignBinary(level,operCollection.toArray(new LexemaSubtype[operCollection.size()]),nodeCollection.toArray(new SyntaxTreeNode[nodeCollection.size()]));
 			nodeCollection.clear();
 			operCollection.clear();
 		}

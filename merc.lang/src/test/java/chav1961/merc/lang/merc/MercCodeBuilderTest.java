@@ -109,7 +109,28 @@ public class MercCodeBuilderTest {
 			}
 		}));
 	}
-	
+
+	@Test
+	public void chainedBinaryExpressionTest() throws IOException, URISyntaxException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, MercContentException, MercEnvironmentException {
+		final SyntaxTreeInterface<?>	names = new OrdinalSyntaxTree<>();
+		final MercClassRepo				classes = new MercClassRepo(names,0);
+		final MercNameRepo				vars = new MercNameRepo();
+		final long						counterId = names.placeName("counter",null);
+		
+		Assert.assertEquals("50 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,0,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+	}
 	
 	private String execute(final int classNameSuffix, final World world, final Insertion ins) {
 		try(final StringWriter			wr = new StringWriter();
