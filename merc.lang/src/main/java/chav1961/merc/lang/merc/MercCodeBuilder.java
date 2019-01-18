@@ -286,8 +286,6 @@ class MercCodeBuilder {
 				break;
 			case HeaderWithReturned:
 				break;
-			case InList:
-				break;
 			case IndicedName:
 				break;
 			case InstanceField:

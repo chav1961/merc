@@ -22,7 +22,6 @@ class SyntaxTreeNode {
 		PreInc, PreDec, PostInc, PostDec, 
 		BitInv, 
 		Not,
-		InList,
 		LongIf, ShortIf, While, Until, Break, Continue, ShortReturn, LongReturn, Print, Lock, TypedFor, UntypedFor, Sequence, Infinite,
 		Variable, Variables, Vartype, AllocatedVariable,
 		Null, IntConst, RealConst, StrConst, BoolConst, RefConst,  
@@ -37,6 +36,7 @@ class SyntaxTreeNode {
 		ContinueMode process(NodeEnterMode mode, SyntaxTreeNode node);
 	}
 	
+	int					row, col;
 	SyntaxTreeNodeType	type = SyntaxTreeNodeType.Unknown;
 	long				value = -1;
 	Object				cargo = null;
@@ -47,13 +47,21 @@ class SyntaxTreeNode {
 	}
 
 	SyntaxTreeNode(final SyntaxTreeNode from) {
-		type = from.type;
-		value = from.value;
-		cargo = from.cargo;
-		children = from.children != null ? from.children.clone() : null;
+		this.row = from.row;
+		this.col = from.col;
+		this.type = from.type;
+		this.value = from.value;
+		this.cargo = from.cargo;
+		this.children = from.children != null ? from.children.clone() : null;
 	}
 
 	SyntaxTreeNode(final SyntaxTreeNodeType type, final long value, final Object cargo, final SyntaxTreeNode... children) {
+		this(0, 0, type, value, cargo, children);
+	}
+	
+	SyntaxTreeNode(final int row, final int col, final SyntaxTreeNodeType type, final long value, final Object cargo, final SyntaxTreeNode... children) {
+		this.row = row;
+		this.col = col;
 		this.type = type;
 		this.value = value;
 		this.cargo = cargo;
@@ -131,76 +139,98 @@ loop:				for (SyntaxTreeNode item : children) {
 	}
 	
 	public void assign(final SyntaxTreeNode another) {
+		this.row = another.row;
+		this.col = another.col;
 		this.type = another.type;
 		this.value = another.value;
 		this.cargo = another.cargo;
 		this.children = another.children == null ? null : another.children.clone();
 	}
 	
-	public void assignVarDefs(final SyntaxTreeNode[] array) {
-		type = SyntaxTreeNodeType.Variables;
-		value = -1;
-		cargo = null;
-		children = array.clone();
+	public void assignVarDefs(final int row, final int col, final SyntaxTreeNode[] array) {
+		this.row = row;
+		this.col = col;
+		this.type = SyntaxTreeNodeType.Variables;
+		this.value = -1;
+		this.cargo = null;
+		this.children = array.clone();
 	}
 
-	public void assignHeader(final long name, final SyntaxTreeNode... parms) {
+	public void assignHeader(final int row, final int col, final long name, final SyntaxTreeNode... parms) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Header;
 		value = name;
 		cargo = null;
 		children = parms.clone();
 	}
 
-	public void assignHeaderWithReturned(final long name, final Class returned, final SyntaxTreeNode... parms) {
+	public void assignHeaderWithReturned(final int row, final int col, final long name, final Class<?> returned, final SyntaxTreeNode... parms) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.HeaderWithReturned;
 		value = name;
 		cargo = returned;
 		children = parms.clone();
 	}
 	
-	public void assignBrick(final SyntaxTreeNode head, final SyntaxTreeNode body) {
+	public void assignBrick(final int row, final int col, final SyntaxTreeNode head, final SyntaxTreeNode body) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Brick;
 		value = -1;
 		cargo = head;
 		children = body.getType() == SyntaxTreeNodeType.Sequence ? body.children.clone() : new SyntaxTreeNode[]{body};
 	}
 
-	public void assignFunc(SyntaxTreeNode head, SyntaxTreeNode body) {
+	public void assignFunc(final int row, final int col, final SyntaxTreeNode head, final SyntaxTreeNode body) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Function;
 		value = -1;
 		cargo = head;
 		children = body.getType() == SyntaxTreeNodeType.Sequence ? body.children.clone() : new SyntaxTreeNode[]{body};
 	}
 
-	public void assignProgram(final SyntaxTreeNode main, final SyntaxTreeNode[] funcs) {
+	public void assignProgram(final int row, final int col, final SyntaxTreeNode main, final SyntaxTreeNode[] funcs) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Program;
 		value = -1;
 		cargo = main;
 		children = funcs;
 	}
 	
-	public void assignField(final SyntaxTreeNode owner, final SyntaxTreeNode field) {
+	public void assignField(final int row, final int col, final SyntaxTreeNode owner, final SyntaxTreeNode field) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.InstanceField;
 		value = -1;
 		cargo = null;
 		children = new SyntaxTreeNode[]{owner,field};
 	}
 
-	public void assignName(final long intval) {
+	public void assignName(final int row, final int col, final long intval) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.StandaloneName;
 		value = intval;
 		cargo = null;
 		children = null;
 	}
 
-	public void assignPredefinedName(final LexemaSubtype subtype) {
+	public void assignPredefinedName(final int row, final int col, final LexemaSubtype subtype) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.PredefinedName;
 		value = -1;
 		cargo = subtype;
 		children = null;
 	}
 
-	public void assignNameIndiced(final long name, final SyntaxTreeNode indices) {
+	public void assignNameIndiced(final int row, final int col, final long name, final SyntaxTreeNode indices) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.IndicedName;
 		value = name;
 		cargo = null;
@@ -212,21 +242,27 @@ loop:				for (SyntaxTreeNode item : children) {
 		}
 	}
 
-	public void assignVarDefinition(final long nameId, final VarDescriptor desc) {
+	public void assignVarDefinition(final int row, final int col, final long nameId, final VarDescriptor desc) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Variable;
 		value = nameId;
 		cargo = desc;
 		children = new SyntaxTreeNode[0];
 	}
 	
-	public void assignVarDefinition(final long nameId, final VarDescriptor desc, final SyntaxTreeNode initial) {
+	public void assignVarDefinition(final int row, final int col, final long nameId, final VarDescriptor desc, final SyntaxTreeNode initial) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Variable;
 		value = nameId;
 		cargo = desc;
 		children = new SyntaxTreeNode[]{initial};
 	}
 	
-	public void assignCall(final SyntaxTreeNode item, final SyntaxTreeNode parm) {
+	public void assignCall(final int row, final int col, final SyntaxTreeNode item, final SyntaxTreeNode parm) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Call;
 		value = -1;
 		cargo = item;
@@ -238,14 +274,18 @@ loop:				for (SyntaxTreeNode item : children) {
 		}
 	}
 
-	public void assignCall(final SyntaxTreeNode item) {
+	public void assignCall(final int row, final int col, final SyntaxTreeNode item) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Call;
 		value = -1;
 		cargo = item;
 		children = new SyntaxTreeNode[0];
 	}
 	
-	public void assignConversion(final LexemaSubtype conv, final SyntaxTreeNode inner) {
+	public void assignConversion(final int row, final int col, final LexemaSubtype conv, final SyntaxTreeNode inner) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Conversion;
 		value = -1;
 		cargo = conv;
@@ -257,105 +297,135 @@ loop:				for (SyntaxTreeNode item : children) {
 		}
 	}
 
-	public void assignStr(final char[] strval) {
+	public void assignStr(final int row, final int col, final char[] strval) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.StrConst;
 		value = -1;
 		cargo = strval;
 		children = null;
 	}
 
-	public void assignRefConst(final Object refval) {
+	public void assignRefConst(final int row, final int col, final Object refval) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.RealConst;
 		value = -1;
 		cargo = refval;
 		children = null;
 	}
 
-	public void assignReal(final double realval) {
+	public void assignReal(final int row, final int col, final double realval) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.RealConst;
 		value = Double.doubleToLongBits(realval);
 		cargo = null;
 		children = null;
 	}
 
-	public void assignNull() {
+	public void assignNull(final int row, final int col) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Null;
 		value = -1;
 		cargo = null;
 		children = null;
 	}
 
-	public void assignInt(final long intval) {
+	public void assignInt(final int row, final int col, final long intval) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.IntConst;
 		value = intval;
 		cargo = null;
 		children = null;
 	}
 
-	public void assignBoolean(final boolean boolval) {
+	public void assignBoolean(final int row, final int col, final boolean boolval) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.BoolConst;
 		value = boolval ? 1 : 0;
 		cargo = null;
 		children = null;
 	}
 
-	void assignIf(final SyntaxTreeNode cond, final SyntaxTreeNode thenBody) {
+	void assignIf(final int row, final int col, final SyntaxTreeNode cond, final SyntaxTreeNode thenBody) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.ShortIf;
 		value = -1;
 		cargo = cond;
 		children = new SyntaxTreeNode[]{thenBody};
 	}
 
-	void assignIf(final SyntaxTreeNode cond, final SyntaxTreeNode thenBody, final SyntaxTreeNode elseBody) {
+	void assignIf(final int row, final int col, final SyntaxTreeNode cond, final SyntaxTreeNode thenBody, final SyntaxTreeNode elseBody) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.LongIf;
 		value = -1;
 		cargo = cond;
 		children = new SyntaxTreeNode[]{thenBody,elseBody};
 	}
 	
-	void assignWhile(final SyntaxTreeNode cond, final SyntaxTreeNode body) {
+	void assignWhile(final int row, final int col, final SyntaxTreeNode cond, final SyntaxTreeNode body) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.While;
 		value = -1;
 		cargo = cond;
 		children = new SyntaxTreeNode[]{body};
 	}
 	
-	void assignUntil(final SyntaxTreeNode cond, final SyntaxTreeNode body) {
+	void assignUntil(final int row, final int col, final SyntaxTreeNode cond, final SyntaxTreeNode body) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Until;
 		value = -1;
 		cargo = cond;
 		children = new SyntaxTreeNode[]{body};
 	}
 
-	void assignBreak(final int depth) {
+	void assignBreak(final int row, final int col, final int depth) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Break;
 		value = depth;
 		cargo = null;
 		children = null;
 	}
 
-	void assignContinue(final int depth) {
+	void assignContinue(final int row, final int col, final int depth) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Continue;
 		value = depth;
 		cargo = null;
 		children = null;
 	}
 
-	void assignReturn() {
+	void assignReturn(final int row, final int col) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.ShortReturn;
 		value = -1;
 		cargo = null;
 		children = null;
 	}
 
-	void assignReturn(final SyntaxTreeNode returnExpression) {
+	void assignReturn(final int row, final int col, final SyntaxTreeNode returnExpression) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.LongReturn;
 		value = -1;
 		cargo = null;
 		children = new SyntaxTreeNode[]{returnExpression};
 	}
 
-	void assignPrint(final SyntaxTreeNode expressions) {
+	void assignPrint(final int row, final int col, final SyntaxTreeNode expressions) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Print;
 		value = -1;
 		cargo = null;
@@ -367,63 +437,81 @@ loop:				for (SyntaxTreeNode item : children) {
 		}
 	}
 
-	void assignLock(final SyntaxTreeNode lockExpression, final SyntaxTreeNode lockBody) {
+	void assignLock(final int row, final int col, final SyntaxTreeNode lockExpression, final SyntaxTreeNode lockBody) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Lock;
 		value = -1;
 		cargo = lockExpression;
 		children = new SyntaxTreeNode[]{lockBody};
 	}
 
-	void assignType(final LexemaSubtype varType) {
+	void assignType(final int row, final int col, final LexemaSubtype varType) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Vartype;
 		value = -1;
 		cargo = varType;
 		children = new SyntaxTreeNode[0];
 	}
 
-	void assignFor(final SyntaxTreeNode forName, final SyntaxTreeNode forType, final SyntaxTreeNode forList, final SyntaxTreeNode forBody) {
+	void assignFor(final int row, final int col, final SyntaxTreeNode forName, final SyntaxTreeNode forType, final SyntaxTreeNode forList, final SyntaxTreeNode forBody) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.TypedFor;
 		value = -1;
 		cargo = null;
 		children = new SyntaxTreeNode[]{forName,forType,forList,forBody};
 	}
 
-	void assignFor(final SyntaxTreeNode forName, final SyntaxTreeNode forList, final SyntaxTreeNode forBody) {
+	void assignFor(final int row, final int col, final SyntaxTreeNode forName, final SyntaxTreeNode forList, final SyntaxTreeNode forBody) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.UntypedFor;
 		value = -1;
 		cargo = null;
 		children = new SyntaxTreeNode[]{forName,forList,forBody};
 	}
 	
-	public void assignSequence(SyntaxTreeNode... array) {
+	public void assignSequence(final int row, final int col, final SyntaxTreeNode... array) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Sequence;
 		value = -1;
 		cargo = null;
 		children = array.clone();
 	}
 
-	void assignRange(final SyntaxTreeNode itemFrom, final SyntaxTreeNode itemTo) {
+	void assignRange(final int row, final int col, final SyntaxTreeNode itemFrom, final SyntaxTreeNode itemTo) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Range;
 		value = -1;
 		cargo = null;
 		children = new SyntaxTreeNode[]{itemFrom,itemTo};
 	}
 
-	void assignList(SyntaxTreeNode... array) {
+	void assignList(final int row, final int col, SyntaxTreeNode... array) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.List;
 		value = -1;
 		cargo = null;
 		children = array.clone();
 	}
 
-	void assignUnary(final SyntaxTreeNodeType subtype, final SyntaxTreeNode node) {
+	void assignUnary(final int row, final int col, final SyntaxTreeNodeType subtype, final SyntaxTreeNode node) {
+		this.row = row;
+		this.col = col;
 		type = subtype;
 		value = -1;
 		cargo = null;
 		children = new SyntaxTreeNode[]{node};
 	}
 
-	void assignBinary(final long prty, final LexemaSubtype[] operations, SyntaxTreeNode[] operands) {
+	void assignBinary(final int row, final int col, final long prty, final LexemaSubtype[] operations, SyntaxTreeNode[] operands) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.OrdinalBinary;
 		value = prty;
 		if (operations.length != operands.length) {
@@ -435,14 +523,18 @@ loop:				for (SyntaxTreeNode item : children) {
 		}
 	}
 
-	void assignAssignment(final SyntaxTreeNode left, final SyntaxTreeNode right) {
+	void assignAssignment(final int row, final int col, final SyntaxTreeNode left, final SyntaxTreeNode right) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Assign;
 		value = -1;
 		cargo = null;
 		children = new SyntaxTreeNode[]{left,right};
 	}
 
-	void assignPipe(SyntaxTreeNode startPipe, SyntaxTreeNode[] intermediate, SyntaxTreeNode endPipe) {
+	void assignPipe(final int row, final int col, final SyntaxTreeNode startPipe, final SyntaxTreeNode[] intermediate, final SyntaxTreeNode endPipe) {
+		this.row = row;
+		this.col = col;
 		type = SyntaxTreeNodeType.Pipe;
 		value = -1;
 		cargo = new SyntaxTreeNode[]{startPipe,endPipe};

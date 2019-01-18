@@ -755,4 +755,11 @@ public class MercOptimizerTest {
 		Assert.assertEquals(SyntaxTreeNodeType.BoolConst,root.type);
 		Assert.assertEquals(0,root.value);
 	}
+	
+	@Test
+	public void constantConversionTest() {
+		SyntaxTreeNode	root;
+		
+	}
+	
 }
