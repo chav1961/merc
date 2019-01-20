@@ -35,12 +35,17 @@ import chav1961.purelib.basic.exceptions.EnvironmentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
+import chav1961.purelib.i18n.LocalizerFactory;
 import chav1961.purelib.i18n.PureLibLocalizer;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
+import chav1961.purelib.model.ContentModelFactory;
+import chav1961.purelib.model.interfaces.ContentMetadataInterface;
+import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.nanoservice.NanoServiceFactory;
+import chav1961.purelib.ui.XMLDescribedApplication;
+import chav1961.purelib.ui.swing.SwingModelUtils;
 import chav1961.purelib.ui.swing.SwingUtils;
-import chav1961.purelib.ui.swing.XMLDescribedApplication;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 
 public class Application extends JFrame implements LocaleChangeListener {
@@ -52,9 +57,10 @@ public class Application extends JFrame implements LocaleChangeListener {
 	private final JMenuBar			menu;
 	private final JTabbedPane		tabbed = new JTabbedPane();
 	private final Screen			screen;
+	private final DevelopmentTab	devTab;
 	private final Console			console = new Console();
 	
-	public Application(final XMLDescribedApplication app, final Localizer parent, final int localHelpPort, final CountDownLatch latch) throws NullPointerException, IllegalArgumentException, EnvironmentException, MercContentException {
+	public Application(final ContentMetadataInterface app, final Localizer parent, final int localHelpPort, final CountDownLatch latch) throws NullPointerException, IllegalArgumentException, EnvironmentException, MercContentException, IOException {
 		if (app == null) {
 			throw new NullPointerException("Application descriptor can't be null");
 		}
@@ -65,14 +71,14 @@ public class Application extends JFrame implements LocaleChangeListener {
 			throw new NullPointerException("Latch can't be null");
 		}
 		else {
-			this.localizer = app.getLocalizer();
+			this.localizer = LocalizerFactory.getLocalizer(app.byUIPath(URI.create("navigator.i18n")).getApplicationPath());
 			this.localHelpPort = localHelpPort;
 			this.latch = latch;
 			
 			parent.push(localizer);
 			localizer.addLocaleChangeListener(this);
 			
-			this.menu = app.getEntity("mainmenu",JMenuBar.class,null); 
+			this.menu = SwingModelUtils.toMenuEntity(app.byUIPath(URI.create("navigator.root.mainmenu")),JMenuBar.class); 
 			SwingUtils.assignActionListeners(this.menu,this);
 		
 			setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -94,7 +100,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 			final JSplitPane	split = new JSplitPane();
 			final JSplitPane	leftPart = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 			
-			tabbed.addTab("Program",new DevelopmentTab(PureLibSettings.PURELIB_LOCALIZER));
+			tabbed.addTab("Program",devTab = new DevelopmentTab(PureLibSettings.PURELIB_LOCALIZER));
 			tabbed.addTab("Economics",new Dashboard(PureLibSettings.PURELIB_LOCALIZER));
 
 			split.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(SwingUtils.KS_HELP,SwingUtils.ACTION_HELP);
@@ -134,14 +140,35 @@ public class Application extends JFrame implements LocaleChangeListener {
 	}
 
 	@OnAction("newProgram")
-	private void newProgram () {
+	private void newProgram() throws IOException {
+		devTab.getContentManipulator().newFile();
+	}
+
+	@OnAction("openProgram")
+	private void openProgram() throws IOException {
+		devTab.getContentManipulator().openFile();
+	}
+
+	@OnAction("saveProgram")
+	private void saveProgram() throws IOException {
+		devTab.getContentManipulator().saveFile();
+	}
+
+	@OnAction("saveProgramAs")
+	private void saveProgramAs() throws IOException {
+		devTab.getContentManipulator().saveFileAs();
 	}
 	
 	@OnAction("exit")
 	private void exitApplication () {
-		setVisible(false);
-		dispose();
-		latch.countDown();
+		try{devTab.getContentManipulator().close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			setVisible(false);
+			dispose();
+			latch.countDown();
+		}
 	}
 	
 	@Override
@@ -183,10 +210,11 @@ public class Application extends JFrame implements LocaleChangeListener {
 				final InputStream				is = Application.class.getResourceAsStream("application.xml");
 				final Localizer					localizer = new PureLibLocalizer();
 				final NanoServiceFactory		service = new NanoServiceFactory(logger,props)) {
-				final XMLDescribedApplication	xda = new XMLDescribedApplication(is,logger);
+//				final XMLDescribedApplication	xda = new XMLDescribedApplication(is,logger);
+				final ContentMetadataInterface 	metadata = ContentModelFactory.forXmlDescription(is);				
 				final CountDownLatch			latch = new CountDownLatch(1);
 				
-				new Application(xda,localizer,helpPort,latch).setVisible(true);
+				new Application(metadata,localizer,helpPort,latch).setVisible(true);
 				service.start();
 				latch.await();
 				service.stop();

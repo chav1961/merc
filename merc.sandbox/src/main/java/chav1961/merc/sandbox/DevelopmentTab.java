@@ -1,11 +1,14 @@
 package chav1961.merc.sandbox;
 
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.net.URI;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -17,14 +20,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
 import chav1961.merc.lang.merc.MercHighlighter;
 import chav1961.merc.lang.merc.interfaces.LexemaType;
+import chav1961.purelib.fsys.FileSystemFactory;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.ui.HighlightItem;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
+import chav1961.purelib.ui.swing.useful.JFileContentManipulator;
 import chav1961.purelib.ui.swing.useful.JTextPaneHighlighter;
 
 public class DevelopmentTab extends JPanel {
@@ -42,22 +49,23 @@ public class DevelopmentTab extends JPanel {
 	private static final KeyStroke	KS_STEP_OVER = KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0);
 	private static final KeyStroke	KS_STEP_RETURN = KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0);
 
-	private final JLabel			message = new JLabel();
-	private final ProgramEditor		area = new ProgramEditor();
-	private final JButton			run = new SmartButton(RUN_ICON,true,(e)->{run();});
-	private final JButton			debug = new SmartButton(DEBUG_ICON,true,(e)->{debug();});
-	private final JButton			stop = new SmartButton(STOP_ICON,false,(e)->{stop();});
-	private final JButton			stepInto = new SmartButton(STEP_INTO_ICON,false,(e)->{stepInto();});
-	private final JButton			stepOver = new SmartButton(STEP_OVER_ICON,false,(e)->{stepOver();});
-	private final JButton			stepReturn = new SmartButton(STEP_RETURN_ICON,false,(e)->{stepReturn();});
-	private final Localizer			localizer;
+	private final JLabel					message = new JLabel();
+	private final ProgramEditor				area = new ProgramEditor();
+	private final JButton					run = new SmartButton(RUN_ICON,true,(e)->{run();});
+	private final JButton					debug = new SmartButton(DEBUG_ICON,true,(e)->{debug();});
+	private final JButton					stop = new SmartButton(STOP_ICON,false,(e)->{stop();});
+	private final JButton					stepInto = new SmartButton(STEP_INTO_ICON,false,(e)->{stepInto();});
+	private final JButton					stepOver = new SmartButton(STEP_OVER_ICON,false,(e)->{stepOver();});
+	private final JButton					stepReturn = new SmartButton(STEP_RETURN_ICON,false,(e)->{stepReturn();});
+	private final Localizer					localizer;
+	private final JFileContentManipulator	fileManipulator;
 	
 	@FunctionalInterface
 	interface MyActionCall {
 		void call(ActionEvent event);
 	}
 	
-	public DevelopmentTab(final Localizer localizer) throws NullPointerException {
+	public DevelopmentTab(final Localizer localizer) throws NullPointerException, IllegalArgumentException, IOException {
 		super(new BorderLayout());
 		if (localizer == null) {
 			throw new NullPointerException("Localizer can't be null");
@@ -67,6 +75,12 @@ public class DevelopmentTab extends JPanel {
 			final JToolBar	toolBar = new JToolBar();
 			
 			this.localizer = localizer;
+			this.fileManipulator = new JFileContentManipulator(FileSystemFactory.createFileSystem(URI.create("fsys:file:./")),localizer,area);
+			this.area.getDocument().addDocumentListener(new DocumentListener() {
+				@Override public void removeUpdate(DocumentEvent e) {fileManipulator.setModificationFlag();}				
+				@Override public void insertUpdate(DocumentEvent e) {fileManipulator.setModificationFlag();}
+				@Override public void changedUpdate(DocumentEvent e) {fileManipulator.setModificationFlag();}
+			});
 			
 			toolBar.setFloatable(false);
 			toolBar.add(run);
@@ -93,6 +107,10 @@ public class DevelopmentTab extends JPanel {
 		}
 	}
 
+	public JFileContentManipulator getContentManipulator() {
+		return fileManipulator;
+	}
+	
 	public String getProgramText() {
 		return area.getText();
 	}
