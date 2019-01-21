@@ -71,14 +71,14 @@ public class Application extends JFrame implements LocaleChangeListener {
 			throw new NullPointerException("Latch can't be null");
 		}
 		else {
-			this.localizer = LocalizerFactory.getLocalizer(app.byUIPath(URI.create("navigator.i18n")).getApplicationPath());
+			this.localizer = LocalizerFactory.getLocalizer(app.byUIPath(URI.create(ContentMetadataInterface.UI_SCHEME+":/model")).getLocalizerAssociated());
 			this.localHelpPort = localHelpPort;
 			this.latch = latch;
 			
 			parent.push(localizer);
 			localizer.addLocaleChangeListener(this);
 			
-			this.menu = SwingModelUtils.toMenuEntity(app.byUIPath(URI.create("navigator.root.mainmenu")),JMenuBar.class); 
+			this.menu = SwingModelUtils.toMenuEntity(app.byUIPath(URI.create(ContentMetadataInterface.UI_SCHEME+":/model/navigation.top.mainmenu")),JMenuBar.class); 
 			SwingUtils.assignActionListeners(this.menu,this);
 		
 			setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -139,27 +139,27 @@ public class Application extends JFrame implements LocaleChangeListener {
 		}
 	}
 
-	@OnAction("newProgram")
+	@OnAction("action:/newProgram")
 	private void newProgram() throws IOException {
 		devTab.getContentManipulator().newFile();
 	}
 
-	@OnAction("openProgram")
+	@OnAction("action:/openProgram")
 	private void openProgram() throws IOException {
 		devTab.getContentManipulator().openFile();
 	}
 
-	@OnAction("saveProgram")
+	@OnAction("action:/saveProgram")
 	private void saveProgram() throws IOException {
 		devTab.getContentManipulator().saveFile();
 	}
 
-	@OnAction("saveProgramAs")
+	@OnAction("action:/saveProgramAs")
 	private void saveProgramAs() throws IOException {
 		devTab.getContentManipulator().saveFileAs();
 	}
 	
-	@OnAction("exit")
+	@OnAction("action:/exit")
 	private void exitApplication () {
 		try{devTab.getContentManipulator().close();
 		} catch (IOException e) {
