@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -47,6 +48,7 @@ import chav1961.purelib.ui.XMLDescribedApplication;
 import chav1961.purelib.ui.swing.SwingModelUtils;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
+import chav1961.purelib.ui.swing.useful.JStateString;
 
 public class Application extends JFrame implements LocaleChangeListener {
 	private static final long serialVersionUID = 2476913896592024861L;
@@ -59,6 +61,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 	private final Screen			screen;
 	private final DevelopmentTab	devTab;
 	private final Console			console = new Console();
+	private final JStateString		state;
 	
 	public Application(final ContentMetadataInterface app, final Localizer parent, final int localHelpPort, final CountDownLatch latch) throws NullPointerException, IllegalArgumentException, EnvironmentException, MercContentException, IOException {
 		if (app == null) {
@@ -74,6 +77,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 			this.localizer = LocalizerFactory.getLocalizer(app.byUIPath(URI.create(ContentMetadataInterface.UI_SCHEME+":/model")).getLocalizerAssociated());
 			this.localHelpPort = localHelpPort;
 			this.latch = latch;
+			this.state = new JStateString(localizer,1);
 			
 			parent.push(localizer);
 			localizer.addLocaleChangeListener(this);
@@ -135,28 +139,30 @@ public class Application extends JFrame implements LocaleChangeListener {
 
 			getContentPane().add(menu,BorderLayout.NORTH);
 			getContentPane().add(split,BorderLayout.CENTER);
+			getContentPane().add(state,BorderLayout.SOUTH);
+			state.message(Severity.info,"Welcome!");
 			fillLocalizedStrings();
 		}
 	}
 
 	@OnAction("action:/newProgram")
 	private void newProgram() throws IOException {
-		devTab.getContentManipulator().newFile();
+		devTab.getContentManipulator().newFile(state);
 	}
 
 	@OnAction("action:/openProgram")
 	private void openProgram() throws IOException {
-		devTab.getContentManipulator().openFile();
+		devTab.getContentManipulator().openFile(state);
 	}
 
 	@OnAction("action:/saveProgram")
 	private void saveProgram() throws IOException {
-		devTab.getContentManipulator().saveFile();
+		devTab.getContentManipulator().saveFile(state);
 	}
 
 	@OnAction("action:/saveProgramAs")
 	private void saveProgramAs() throws IOException {
-		devTab.getContentManipulator().saveFileAs();
+		devTab.getContentManipulator().saveFileAs(state);
 	}
 	
 	@OnAction("action:/exit")
