@@ -74,6 +74,10 @@ public class MercClassRepo {
 		}
 	}
 
+	SyntaxTreeInterface<?> getNames() {
+		return names;
+	}
+	
 	int size() {
 		return declaredClasses.size();
 	}
