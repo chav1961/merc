@@ -869,7 +869,7 @@ class MercCompiler {
 			final SyntaxTreeNode	field = new SyntaxTreeNode();
 			
 			pos = buildNameSyntaxTree(lexemas, pos+1, names, classes, vars, field);
-			node.assignField(lexemas[current].row,lexemas[current].col,owner,field);
+			node.assignField(lexemas[current].row,lexemas[current].col,null,owner,field);
 		}
 		return pos;
 	}

@@ -201,12 +201,12 @@ loop:				for (SyntaxTreeNode item : children) {
 		children = funcs;
 	}
 	
-	public void assignField(final int row, final int col, final SyntaxTreeNode owner, final SyntaxTreeNode field) {
+	public void assignField(final int row, final int col, final VarDescriptor desc, final SyntaxTreeNode owner, final SyntaxTreeNode field) {
 		this.row = row;
 		this.col = col;
 		type = SyntaxTreeNodeType.InstanceField;
 		value = -1;
-		cargo = null;
+		cargo = desc;
 		children = new SyntaxTreeNode[]{owner,field};
 	}
 

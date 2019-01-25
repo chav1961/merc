@@ -3,10 +3,16 @@ package chav1961.merc.lang.merc;
 import org.junit.Assert;
 import org.junit.Test;
 
+import chav1961.merc.api.AreaKeeper;
 import chav1961.merc.api.BooleanKeeper;
 import chav1961.merc.api.DoubleKeeper;
 import chav1961.merc.api.LongKeeper;
+import chav1961.merc.api.Point;
+import chav1961.merc.api.PointKeeper;
+import chav1961.merc.api.SizeKeeper;
 import chav1961.merc.api.StringKeeper;
+import chav1961.merc.api.Track;
+import chav1961.merc.api.TrackKeeper;
 import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 import chav1961.purelib.basic.AndOrTree;
@@ -867,10 +873,27 @@ public class MercOptimizerTest {
 				);
 		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.type);
 		Assert.assertEquals(boolean.class,((VarDescriptor)root.children[1].cargo).getNameType());
-	}
 
+		Assert.assertEquals(DoubleKeeper.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.IndicedName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0)
+								, new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,1,null))
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(boolean.class,
+			MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.IndicedName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0)
+								, new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,1,null))
+					,boolean.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.type);
+		Assert.assertEquals(boolean.class,((VarDescriptor)root.children[1].cargo).getNameType());
+	}
+ 
 	@Test
-	public void ordinalBinaryConversionTest() throws SyntaxException {
+	public void ordinalBinaryAddMulConversionTest() throws SyntaxException {
 		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
 		final MercClassRepo				repo = new MercClassRepo(names,0);
 		SyntaxTreeNode	root;
@@ -883,17 +906,625 @@ public class MercOptimizerTest {
 						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
 					)
 					,null,null,repo,null
-				));
-
-		MercOptimizer.processTypeConversions(
-				root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD,null,
-					new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
-					,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
 				)
-				,double.class,null,repo,null
-			);
-		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.type);
-		Assert.assertEquals(long.class,((VarDescriptor)root.children[1].cargo).getNameType());
+		);
+		Assert.assertEquals(double.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,double.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+
+		Assert.assertEquals(double.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(long.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+					)
+					,long.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.children[1].type);
+
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],SizeKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],AreaKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(double.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						, new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,double.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+					)
+					,Track.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],AreaKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],AreaKeeper.class,0))
+					)
+					,Track.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],AreaKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],AreaKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],AreaKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],AreaKeeper.class,0))
+					)
+					,Track.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+					)
+					,Track.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+		
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],AreaKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],AreaKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+					)
+					,Track.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(Track.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+					)
+					,Track.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+	}
+
+	@Test
+	public void ordinalBinaryBitConversionTest() throws SyntaxException {
+		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
+		final MercClassRepo				repo = new MercClassRepo(names,0);
+		SyntaxTreeNode	root;
+		
+		Assert.assertEquals(long.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_BITAND
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.BitAnd}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(double.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_BITAND,null,
+						new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,double.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[1].type);
+
+		Assert.assertEquals(long.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_BITAND
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.BitAnd}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(double.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_BITAND,null,
+						new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+					)
+					,double.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.children[0].children[1].type);
+
+		Assert.assertEquals(long.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_BITAND
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.BitAnd}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(double.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_BITAND,null,
+						new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,double.class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.children[0].children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[1].type);
+	}
+
+	@Test
+	public void ordinalComparisonConversionTest() throws SyntaxException {
+		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
+		final MercClassRepo				repo = new MercClassRepo(names,0);
+		SyntaxTreeNode	root;
+		
+		Assert.assertEquals(boolean.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_COMPARISON
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.EQ}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_BITAND
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.EQ}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,char[].class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[1].type);
+
+		Assert.assertEquals(boolean.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_COMPARISON
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.InList}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_COMPARISON
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.InList}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
+					)
+					,char[].class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[1].type);
+
+		Assert.assertEquals(boolean.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_COMPARISON
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.InList}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_COMPARISON
+						,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.InList}
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
+					)
+					,char[].class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.children[0].children[1].type);
+	}
+
+	@Test
+	public void ordinalAndOrConversionTest() throws SyntaxException {
+		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
+		final MercClassRepo				repo = new MercClassRepo(names,0);
+		SyntaxTreeNode	root;
+		
+		Assert.assertEquals(boolean.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_AND
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_AND
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
+					)
+					,char[].class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[1].type);
+
+		Assert.assertEquals(boolean.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_AND
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_AND
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
+					)
+					,char[].class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.children[0].children[1].type);
+	}
+
+
+	@Test
+	public void unaryConversionTest() throws SyntaxException {
+		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
+		final MercClassRepo				repo = new MercClassRepo(names,0);
+		SyntaxTreeNode	root;
+		
+		Assert.assertEquals(long.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.Negation
+						, -1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(double.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.Negation
+						,-1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.Negation
+						, -1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,char[].class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.Negation,root.children[0].type);
+
+		Assert.assertEquals(long.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.BitInv
+						, -1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(long.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.BitInv
+						, -1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.BitInv
+						, -1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,char[].class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.BitInv,root.children[0].type);
+
+		Assert.assertEquals(long.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.PreInc
+						, -1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(double.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.PreInc
+						, -1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.PreInc
+						, -1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+	 				)
+					,char[].class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.PreInc,root.children[0].type);
+		
+		
+		Assert.assertEquals(boolean.class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.Not
+						, -1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
+					)
+					,null,null,repo,null
+				)
+		);
+		Assert.assertEquals(char[].class,
+				MercOptimizer.processTypeConversions(
+					root = new SyntaxTreeNode(SyntaxTreeNodeType.Not
+						, -1
+						,null
+						,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
+					)
+					,char[].class,null,repo,null
+				)
+		);
+		Assert.assertEquals(SyntaxTreeNodeType.Conversion,root.type);
+		Assert.assertEquals(SyntaxTreeNodeType.Not,root.children[0].type);
+		Assert.assertEquals(SyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
 	}
 
 }
