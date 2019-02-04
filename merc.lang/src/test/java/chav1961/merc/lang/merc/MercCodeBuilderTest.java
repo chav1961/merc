@@ -117,10 +117,11 @@ public class MercCodeBuilderTest {
 		final MercNameRepo				vars = new MercNameRepo();
 		final long						counterId = names.placeName("counter",null);
 		
+		/* integer */
 		Assert.assertEquals("50 ", execute(uniqueName++, null,(out)->{
 			try{MercCodeBuilder.printPrintOperator(
 					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
-							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,0,
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD,
 									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null)
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
@@ -130,7 +131,210 @@ public class MercCodeBuilderTest {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
+		Assert.assertEquals("-10 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Sub}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+
+		Assert.assertEquals("600 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_MUL,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Mul}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+		Assert.assertEquals("0 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_MUL,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Div}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+		Assert.assertEquals("20 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_MUL,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Rem}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+
+		Assert.assertEquals("2 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_BITAND,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.BitAnd}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,2,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,3,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+		
+		Assert.assertEquals("3 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_BITORXOR,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.BitOr}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,2,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,3,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+		Assert.assertEquals("1 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_BITORXOR,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.BitXor}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,2,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,3,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+
+		Assert.assertEquals("4 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_SHIFT,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Shl}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,2,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,1,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+		Assert.assertEquals("1 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_SHIFT,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Shr}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,2,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,1,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+		Assert.assertEquals("1 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_SHIFT,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Shra}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,2,null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,1,null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+
+		/* numeric */
+		Assert.assertEquals("50.0 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(20),null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(30),null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+		Assert.assertEquals("-10.0 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Sub}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(20),null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(30),null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+
+		Assert.assertEquals("600.0 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_MUL,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Mul}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(20),null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(30),null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+		Assert.assertEquals("0.6666666666666666 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_MUL,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Div}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(20),null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(30),null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
+		Assert.assertEquals("20.0 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_MUL,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Rem}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(20),null)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(30),null))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
 	}
+
 	
 	private String execute(final int classNameSuffix, final World world, final Insertion ins) {
 		try(final StringWriter			wr = new StringWriter();

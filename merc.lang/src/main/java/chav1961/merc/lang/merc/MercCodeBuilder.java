@@ -187,6 +187,7 @@ class MercCodeBuilder {
 				}
 				break;
 			case OrdinalBinary	:
+				printOrdinalBinaryExpression(node, names, classes, vars, writer);
 				break;
 			case Pipe	:
 				break;
@@ -256,6 +257,150 @@ class MercCodeBuilder {
 		}		
 	}
 
+	static void printOrdinalBinaryExpression(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
+		final LexemaSubtype[]	operators = (LexemaSubtype[])node.cargo;
+		final Class<?>			firstClass = inferenceExpressionType(node.children[0]); 
+		
+		switch ((int)node.value) {
+			case MercCompiler.PRTY_ADD		:
+				if (char[].class.isAssignableFrom(firstClass)) {
+					writer.writeln(" load arr_len");
+					writer.writeln(" ldc 0");
+					writer.writeln(" store arr_len");
+
+					for (SyntaxTreeNode item : node.children) {
+						printExpression(item, names, classes, vars, writer);
+						writer.writeln(" dup");
+						writer.writeln(" arraylength");
+						writer.writeln(" load arr_len");
+						writer.writeln(" iadd");
+						writer.writeln(" store arr_len");
+					}
+					writer.writeln(" load arr_len");
+					writer.writeln(" arraynew char");
+					writer.writeln(" dup");
+					writer.writeln(" store arr_ref");
+					writer.writeln(" arraylength");
+					writer.writeln(" invokevirtual _concat_([C[CI)I");
+					
+					for (int index = 1; index < node.children.length; index++) {
+						writer.writeln(" load arr_ref");
+						writer.writeln(" swap");
+						writer.writeln(" invokevirtual _concat_([C[CI)I");
+					}
+					writer.writeln(" pop");
+					writer.writeln(" store arr_len");
+					writer.writeln(" load arr_ref");
+				}
+				else {
+					printExpression(node.children[0], names, classes, vars, writer);						
+					for (int index = 1; index < operators.length; index++) {
+						printExpression(node.children[index], names, classes, vars, writer);
+						switch (operators[index]) {
+							case Add	:
+								if (long.class.isAssignableFrom(firstClass)) {
+									writer.writeln(" ladd");
+								}
+								else if (double.class.isAssignableFrom(firstClass)) {
+									writer.writeln(" dadd");
+								}
+								break;
+							case Sub	:
+								if (long.class.isAssignableFrom(firstClass)) {
+									writer.writeln(" lsub");
+								}
+								else if (double.class.isAssignableFrom(firstClass)) {
+									writer.writeln(" dsub");
+								}
+								break;
+							default :
+						}
+					}
+				}
+				break;
+			case MercCompiler.PRTY_MUL		:
+				printExpression(node.children[0], names, classes, vars, writer);						
+				for (int index = 1; index < operators.length; index++) {
+					printExpression(node.children[index], names, classes, vars, writer);
+					switch (operators[index]) {
+						case Mul	:
+							if (long.class.isAssignableFrom(firstClass)) {
+								writer.writeln(" lmul");
+							}
+							else if (double.class.isAssignableFrom(firstClass)) {
+								writer.writeln(" dmul");
+							}
+							break;
+						case Div	:
+							if (long.class.isAssignableFrom(firstClass)) {
+								writer.writeln(" ldiv");
+							}
+							else if (double.class.isAssignableFrom(firstClass)) {
+								writer.writeln(" ddiv");
+							}
+							break;
+						case Rem	:
+							if (long.class.isAssignableFrom(firstClass)) {
+								writer.writeln(" lrem");
+							}
+							else if (double.class.isAssignableFrom(firstClass)) {
+								writer.writeln(" drem");
+							}
+							break;
+						default :
+					}
+				}
+				break;
+			case MercCompiler.PRTY_BITORXOR	:
+				printExpression(node.children[0], names, classes, vars, writer);						
+				for (int index = 1; index < operators.length; index++) {
+					printExpression(node.children[index], names, classes, vars, writer);
+					switch (operators[index]) {
+						case BitOr	:
+							writer.writeln(" lor");
+							break;
+						case BitXor	:
+							writer.writeln(" lxor");
+							break;
+						default :
+					}
+				}
+				break;
+			case MercCompiler.PRTY_BITAND	:
+				printExpression(node.children[0], names, classes, vars, writer);						
+				for (int index = 1; index < operators.length; index++) {
+					printExpression(node.children[index], names, classes, vars, writer);
+					switch (operators[index]) {
+						case BitAnd	:
+							writer.writeln(" land");
+							break;
+						default :
+					}
+				}
+				break;
+			case MercCompiler.PRTY_SHIFT	:
+				printExpression(node.children[0], names, classes, vars, writer);						
+				for (int index = 1; index < operators.length; index++) {
+					printExpression(node.children[index], names, classes, vars, writer);
+					writer.writeln(" l2i");
+					switch (operators[index]) {
+						case Shl	:
+							writer.writeln(" lshl");
+							break;
+						case Shr	:
+							writer.writeln(" lshr");
+							break;
+						case Shra	:
+							writer.writeln(" lushr");
+							break;
+						default :
+					}
+				}
+				break;
+		}
+	}
+	
+	
 	static boolean isConstantExpression(final SyntaxTreeNode node) {
 		return false;
 	}
@@ -309,13 +454,21 @@ class MercCodeBuilder {
 			case OrdinalBinary:
 				switch ((int)node.value) {
 					case MercCompiler.PRTY_BITAND	:
+						return long.class;
 					case MercCompiler.PRTY_BITORXOR	:
+						return long.class;
 					case MercCompiler.PRTY_SHIFT	:
+						return long.class;
 					case MercCompiler.PRTY_MUL		:
+						return inferenceExpressionType(node.children[0]);
 					case MercCompiler.PRTY_ADD		:
+						return inferenceExpressionType(node.children[0]);
 					case MercCompiler.PRTY_COMPARISON	:
+						return boolean.class;
 					case MercCompiler.PRTY_AND		:
+						return boolean.class;
 					case MercCompiler.PRTY_OR		:
+						return boolean.class;
 				}
 				break;
 			case Pipe:

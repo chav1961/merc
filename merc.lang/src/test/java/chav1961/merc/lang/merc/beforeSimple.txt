@@ -18,6 +18,10 @@ execute	.method	int public throws chav1961.merc.api.exceptions.MercEnvironmentEx
 world	.parameter chav1961.merc.api.interfaces.front.World final
 writer	.parameter java.io.PrintWriter final
 		.stack pessimistic
+arr_len	.var	int
+arr_ref	.var	char[]
 counter	.var	long
 		ldc2_w	1L
 		lstore	counter
+		ldc		0
+		istore	arr_len
