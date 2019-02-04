@@ -413,7 +413,6 @@ public interface World extends DrawableEntity<WorldState> {
 	 * <p>Get runtime interface for the given world</p>
 	 * @return runtime interface. Can't be null
 	 */
-	@MerLan
 	RuntimeInterface getRuntime();
 	
 	/**

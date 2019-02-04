@@ -3,7 +3,10 @@ package chav1961.merc.lang.merc;
 
 import java.io.IOException;
 import java.nio.channels.UnsupportedAddressTypeException;
+import java.util.UUID;
 
+import chav1961.merc.api.exceptions.MercContentException;
+import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.interfaces.CharDataOutput;
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
@@ -154,15 +157,30 @@ class MercCodeBuilder {
 				writer.write(" ldc ").writeln(node.value);
 				break;
 			case Call	:
+				printExpression(node.children[0], names, classes, vars, writer);
+				for (SyntaxTreeNode item : node.children[1].children) {
+					printExpression(item, names, classes, vars, writer);
+				}
+				writer.write(" invokevirtual ").writeln(node.value);
 				break;
 			case Conversion	:
 				break;
 			case IndicedName	:
+				printExpression(node.children[0], names, classes, vars, writer);
+				for (SyntaxTreeNode item : node.children[1].children) {
+					printExpression(item, names, classes, vars, writer);
+					writer.write(" aaload");
+				}
 				break;
 			case InstanceField	:
+				printExpression(node.children[0], names, classes, vars, writer);
+				writer.write(" getfield ").writeln(names.getName(node.children[1].value));
 				break;
 			case IntConst	:
 				writer.write(" ldc2_w ").write(node.value).writeln("L");
+				break;
+			case LocalName	:
+				writer.write(" aload ").writeln(names.getName(node.children[0].value));
 				break;
 			case Negation	:
 				printExpression(node.children[0], names, classes, vars, writer);
@@ -240,6 +258,7 @@ class MercCodeBuilder {
 //				}
 				break;
 			case PredefinedName	:
+				printPredefinedName(node, names, classes, vars, writer);
 				break;
 			case RealConst	:
 				writer.write(" ldc2_w ").writeln(Double.longBitsToDouble(node.value));
@@ -247,6 +266,8 @@ class MercCodeBuilder {
 			case RefConst	:
 				break;
 			case StandaloneName	:
+				writer.write(" aload this");
+				writer.write(" getfield ").writeln(names.getName(node.children[0].value));
 				break;
 			case StrConst	:
 				writer.write(" ldc_w \"").write((char[])node.cargo).writeln("\"\n");
@@ -264,33 +285,34 @@ class MercCodeBuilder {
 		switch ((int)node.value) {
 			case MercCompiler.PRTY_ADD		:
 				if (char[].class.isAssignableFrom(firstClass)) {
-					writer.writeln(" load arr_len");
+					writer.writeln(" iload arr_len");
 					writer.writeln(" ldc 0");
-					writer.writeln(" store arr_len");
+					writer.writeln(" istore arr_len");
 
 					for (SyntaxTreeNode item : node.children) {
 						printExpression(item, names, classes, vars, writer);
 						writer.writeln(" dup");
 						writer.writeln(" arraylength");
-						writer.writeln(" load arr_len");
+						writer.writeln(" iload arr_len");
 						writer.writeln(" iadd");
-						writer.writeln(" store arr_len");
+						writer.writeln(" istore arr_len");
 					}
-					writer.writeln(" load arr_len");
-					writer.writeln(" arraynew char");
+					writer.writeln(" iload arr_len");
+					writer.writeln(" newarray char");
 					writer.writeln(" dup");
-					writer.writeln(" store arr_ref");
+					writer.writeln(" dup");
+					writer.writeln(" astore arr_ref");
 					writer.writeln(" arraylength");
-					writer.writeln(" invokevirtual _concat_([C[CI)I");
+					writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMercProgram._concat_([C[CI)I");
 					
 					for (int index = 1; index < node.children.length; index++) {
-						writer.writeln(" load arr_ref");
+						writer.writeln(" aload arr_ref");
 						writer.writeln(" swap");
-						writer.writeln(" invokevirtual _concat_([C[CI)I");
+						writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMercProgram._concat_([C[CI)I");
 					}
 					writer.writeln(" pop");
-					writer.writeln(" store arr_len");
-					writer.writeln(" load arr_ref");
+					writer.writeln(" istore arr_len");
+					writer.writeln(" aload arr_ref");
 				}
 				else {
 					printExpression(node.children[0], names, classes, vars, writer);						
@@ -397,6 +419,35 @@ class MercCodeBuilder {
 					}
 				}
 				break;
+		}
+	}
+	
+	static void printPredefinedName(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
+		switch ((LexemaSubtype)node.cargo) {
+			case Robo		:
+				writer.writeln(" aload	world");
+				writer.writeln(" getstatic chav1961.merc.api.Constants.ROBO_INSTANCE_UUID");
+				writer.writeln(" invokeinterface chav1961.merc.api.interfaces.front.World.getEntity(Ljava/util/UUID;)Lchav1961/merc/api/interfaces/front/Entity;");
+				writer.writeln(" checkcast chav1961.merc.core.robots.UniversalRobotInstance");
+				break;
+			case World		:
+				writer.writeln(" aload	world");
+				break;
+			case Rt			:
+				writer.writeln(" aload	world");
+				writer.writeln(" invokeinterface chav1961.merc.api.interfaces.front.World.getRuntime()Lchav1961/merc/api/interfaces/front/RuntimeInterface;");
+				break;
+			case Market		:
+				writer.writeln(" aload	world");
+				writer.writeln(" invokeinterface chav1961.merc.api.interfaces.front.World.getRuntime()Lchav1961/merc/api/interfaces/front/RuntimeInterface;");
+				writer.writeln(" invokeinterface chav1961.merc.api.interfaces.front.RuntimeInterface.market()Lchav1961/merc/api/interfaces/front/RuntimeInterface$MarketInterface;");
+				break;
+			case Teleport	:
+				writer.writeln(" aload	world");
+				writer.writeln(" invokeinterface chav1961.merc.api.interfaces.front.World.getRuntime()Lchav1961/merc/api/interfaces/front/RuntimeInterface;");
+				writer.writeln(" invokeinterface chav1961.merc.api.interfaces.front.RuntimeInterface.teleport()Lchav1961/merc/api/interfaces/front/RuntimeInterface$TeleportInterface;");
+				break;
+			default : throw new IOException("Predefined name ["+node.cargo+"] is not known");
 		}
 	}
 	

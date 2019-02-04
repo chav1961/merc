@@ -333,6 +333,21 @@ public class MercCodeBuilderTest {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
+
+		/* text */
+		Assert.assertEquals("test1test2 ", execute(uniqueName++, null,(out)->{
+			try{MercCodeBuilder.printPrintOperator(
+					new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+							,new SyntaxTreeNode(SyntaxTreeNodeType.OrdinalBinary,MercCompiler.PRTY_ADD,
+									new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.Add}
+									,new SyntaxTreeNode(SyntaxTreeNodeType.StrConst,0,"test1".toCharArray())
+									,new SyntaxTreeNode(SyntaxTreeNodeType.StrConst,0,"test2".toCharArray()))
+					),
+					names,classes,vars,out);
+			} catch (IOException e) {
+				Assert.fail("Unwaited exception: "+e);
+			}
+		}));
 	}
 
 	

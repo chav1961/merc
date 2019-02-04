@@ -9,7 +9,7 @@ class SyntaxTreeNode {
 	static final String		STAIRWAY_STEP = "   ";
 	
 	enum SyntaxTreeNodeType {
-		StandaloneName, PredefinedName, IndicedName,
+		StandaloneName, PredefinedName, LocalName, IndicedName,
 		Call,
 		InstanceField,
 		Header, HeaderWithReturned,
