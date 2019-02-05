@@ -21,11 +21,16 @@ class MercCodeBuilder {
 		
 	}
 
-	static void printFields(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) {
-		// TODO Auto-generated method stub
+	static void printFields(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
 		node.walk((mode,entity)->{
 			if (mode == NodeEnterMode.ENTER && entity.getType() == SyntaxTreeNodeType.Variable) {
-				try{writer.write(names.getName(entity.value)).write(" .field \n");
+				try{writer.write(names.getName(entity.value)).write(" .field ").write(((VarDescriptor)entity.cargo).getNameType().getCanonicalName());
+					if (((VarDescriptor)entity.cargo).isArray()) {
+						for (int index = 0, maxIndex = ((VarDescriptor)entity.cargo).howManyDimensions(); index < maxIndex; index++) {
+							writer.write("[]");
+						}
+					}
+					writer.writeln();
 				} catch (IOException e) {
 					return ContinueMode.STOP;
 				}
@@ -34,6 +39,24 @@ class MercCodeBuilder {
 		});
 	}
 
+	static void printFieldInitials(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
+		node.walk((mode,entity)->{
+			if (mode == NodeEnterMode.ENTER && entity.getType() == SyntaxTreeNodeType.Variable) {
+				try{writer.write(names.getName(entity.value)).write(" .field ").write(((VarDescriptor)entity.cargo).getNameType().getCanonicalName());
+					if (((VarDescriptor)entity.cargo).isArray()) {
+						for (int index = 0, maxIndex = ((VarDescriptor)entity.cargo).howManyDimensions(); index < maxIndex; index++) {
+							writer.write("[]");
+						}
+					}
+					writer.writeln();
+				} catch (IOException e) {
+					return ContinueMode.STOP;
+				}
+			}
+			return ContinueMode.CONTINUE;
+		});
+	}
+	
 	static void printMain(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
 		// TODO Auto-generated method stub
 		for (SyntaxTreeNode item : node.children) {
@@ -109,6 +132,10 @@ class MercCodeBuilder {
 			printExpression(item,names,classes,vars,writer);
 			final Class<?>	resultClass = inferenceExpressionType(item);
 			
+			if (resultClass == null) {
+				System.err.println("null");
+			}
+			
 			switch (Utils.defineClassType(resultClass)) {
 				case Utils.CLASSTYPE_REFERENCE	:
 					if (char[].class.isAssignableFrom(resultClass)) {
@@ -157,8 +184,8 @@ class MercCodeBuilder {
 				writer.write(" ldc ").writeln(node.value);
 				break;
 			case Call	:
-				printExpression(node.children[0], names, classes, vars, writer);
-				for (SyntaxTreeNode item : node.children[1].children) {
+				printExpression((SyntaxTreeNode)node.cargo, names, classes, vars, writer);
+				for (SyntaxTreeNode item : node.children[0].children) {
 					printExpression(item, names, classes, vars, writer);
 				}
 				writer.write(" invokevirtual ").writeln(node.value);
@@ -472,6 +499,8 @@ class MercCodeBuilder {
 				break;
 			case Brick:
 				break;
+			case Call:
+				return inferenceExpressionType((SyntaxTreeNode)node.cargo);
 			case Continue:
 				break;
 			case Conversion:

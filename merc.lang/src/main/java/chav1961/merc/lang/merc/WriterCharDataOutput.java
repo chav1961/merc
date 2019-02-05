@@ -23,6 +23,11 @@ public class WriterCharDataOutput implements CharDataOutput, Flushable, Closeabl
 	public void close() throws IOException {
 	}
 
+	@Override
+	public CharDataOutput writeln() throws IOException {
+		wr.append('\n');
+		return this;
+	}
 	
 	@Override
 	public CharDataOutput write(byte b) throws IOException {
@@ -180,4 +185,5 @@ public class WriterCharDataOutput implements CharDataOutput, Flushable, Closeabl
 			return write(obj.toString());
 		}
 	}
+
 }

@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import chav1961.merc.api.LongKeeper;
 import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.merc.api.exceptions.MercEnvironmentException;
 import chav1961.merc.api.interfaces.front.World;
@@ -351,6 +352,60 @@ public class MercCodeBuilderTest {
 	}
 
 	
+	@Test
+	public void fieldDefinitionTest() throws IOException, URISyntaxException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, MercContentException, MercEnvironmentException {
+		final SyntaxTreeInterface<?>	names = new OrdinalSyntaxTree<>();
+		final MercClassRepo				classes = new MercClassRepo(names,0);
+		final MercNameRepo				vars = new MercNameRepo();
+		final long						counterId = names.placeName("counter",null);
+		final long						varName1 = names.placeName("varname1",null);
+		final long						varName2 = names.placeName("varname2",null);
+		final long						varName3 = names.placeName("varname3",null);
+		final long						getValue = names.placeName("getValue",null);
+		
+		/* integer */
+		Assert.assertEquals("50 ", executeFull(uniqueName++, null,
+			(out)->{
+				try{MercCodeBuilder.printFields(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+								new VarDescriptorImpl(0,varName1, LongKeeper.class, false, false, 0)
+								),
+						names,classes,vars,out);
+				} catch (IOException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			},
+			(out)->{
+				try{MercCodeBuilder.printFieldInitials(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Assign,-1,null,
+								new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+										new VarDescriptorImpl(0,varName1, LongKeeper.class, false, false, 0)
+										),
+								new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null)
+								)
+						,
+						names,classes,vars,out);
+				} catch (IOException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			},
+			(out)->{
+				try{MercCodeBuilder.printPrintOperator(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+								,new SyntaxTreeNode(SyntaxTreeNodeType.Call,-1
+										,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,varName1,null,
+												new SyntaxTreeNode(SyntaxTreeNodeType.InstanceField,getValue,null))
+										,new SyntaxTreeNode(SyntaxTreeNodeType.List,-1,null)
+										)
+						),
+						names,classes,vars,out);
+				} catch (IOException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			}
+		));
+	}	
+	
 	private String execute(final int classNameSuffix, final World world, final Insertion ins) {
 		try(final StringWriter			wr = new StringWriter();
 			final WriterCharDataOutput	out = new WriterCharDataOutput(wr)) {
@@ -358,6 +413,46 @@ public class MercCodeBuilderTest {
 			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("beforeSimple.txt").toURI())),classNameSuffix));
 			ins.process(out);
 			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("afterSimple.txt").toURI())),classNameSuffix));
+			out.flush();
+			
+			try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream();
+				final AsmWriter				asm = new AsmWriter(baos)) {
+			
+				System.err.println(wr.toString());
+				
+				Utils.copyStream(new StringReader(wr.toString()),asm);
+				asm.flush();
+				
+				final Class<CallProgram>	cl = (Class<CallProgram>)new ClassLoaderWrapper().createClass("chav1961.merc.lang.merc.Test"+classNameSuffix,baos.toByteArray());
+				final CallProgram			instance = (CallProgram)cl.newInstance();
+				
+				try(final StringWriter		result = new StringWriter();
+					final PrintWriter		pw = new PrintWriter(result)) {
+					
+					instance.execute(world,pw);
+					result.flush();
+					System.err.println("Result="+result);
+					return result.toString().replace("\r","").replace("\n","");
+				}
+			}
+		} catch (Exception exc) {
+			exc.printStackTrace();
+			Assert.fail("Unwaited exception: "+exc);
+		}
+		return null;
+	}
+
+	private String executeFull(final int classNameSuffix, final World world, final Insertion insFields, final Insertion insInits, final Insertion insCode) {
+		try(final StringWriter			wr = new StringWriter();
+			final WriterCharDataOutput	out = new WriterCharDataOutput(wr)) {
+		
+			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("beforeFields.txt").toURI())),classNameSuffix));
+			insFields.process(out);
+			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("insideFields1.txt").toURI())),classNameSuffix));
+			insInits.process(out);
+			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("insideFields2.txt").toURI())),classNameSuffix));
+			insCode.process(out);
+			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("afterFields.txt").toURI())),classNameSuffix));
 			out.flush();
 			
 			try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream();

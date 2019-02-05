@@ -107,7 +107,7 @@ public class Basement implements EntityClassDescription<BasementState> {
 
 	@Override
 	public boolean isSingleton() {
-		return true;
+		return false;
 	}
 
 	@Override

@@ -1,0 +1,17 @@
+		.line	none
+		.package chav1961.merc.lang.merc
+		.import	chav1961.merc.api.Constants
+		.import	chav1961.merc.lang.merc.BasicMercProgram
+		.import	chav1961.merc.lang.merc.interfaces.CallProgram
+		.import	chav1961.merc.api.exceptions.MercContentException
+		.import	chav1961.merc.api.exceptions.MercEnvironmentException
+		.import	chav1961.merc.api.interfaces.front.World
+		.import	chav1961.merc.api.interfaces.front.Entity
+		.import	chav1961.merc.api.interfaces.front.RuntimeInterface
+		.import	chav1961.merc.api.interfaces.front.RuntimeInterface$MarketInterface
+		.import	chav1961.merc.api.interfaces.front.RuntimeInterface$TeleportInterface
+		.import	chav1961.merc.core.robots.UniversalRobotInstance
+		.import	java.util.UUID
+		.import	java.io.PrintWriter
+; ---
+Test%1$s	.class	public extends chav1961.merc.lang.merc.BasicMercProgram implements chav1961.merc.lang.merc.interfaces.CallProgram

@@ -1,5 +1,6 @@
 package chav1961.merc.sandbox;
 
+
 import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -44,7 +45,6 @@ import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.nanoservice.NanoServiceFactory;
-import chav1961.purelib.ui.XMLDescribedApplication;
 import chav1961.purelib.ui.swing.SwingModelUtils;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
@@ -216,7 +216,6 @@ public class Application extends JFrame implements LocaleChangeListener {
 				final InputStream				is = Application.class.getResourceAsStream("application.xml");
 				final Localizer					localizer = new PureLibLocalizer();
 				final NanoServiceFactory		service = new NanoServiceFactory(logger,props)) {
-//				final XMLDescribedApplication	xda = new XMLDescribedApplication(is,logger);
 				final ContentMetadataInterface 	metadata = ContentModelFactory.forXmlDescription(is);				
 				final CountDownLatch			latch = new CountDownLatch(1);
 				

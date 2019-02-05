@@ -1,6 +1,7 @@
 package chav1961.merc.content;
 
 import java.awt.BorderLayout;
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -27,10 +28,13 @@ import chav1961.purelib.basic.exceptions.EnvironmentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.fsys.FileSystemFactory;
+import chav1961.purelib.i18n.LocalizerFactory;
 import chav1961.purelib.i18n.PureLibLocalizer;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
-import chav1961.purelib.ui.XMLDescribedApplication;
+import chav1961.purelib.model.ContentModelFactory;
+import chav1961.purelib.model.interfaces.ContentMetadataInterface;
+import chav1961.purelib.ui.swing.SwingModelUtils;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JCreoleEditor;
@@ -45,7 +49,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 	private final JLabel			state = new JLabel();
 	private final JFileContentManipulator	manipulator;
 	
-	public Application(final XMLDescribedApplication app, final Localizer parent) throws EnvironmentException, NullPointerException, IllegalArgumentException, IOException {
+	public Application(final ContentMetadataInterface app, final Localizer parent) throws EnvironmentException, NullPointerException, IllegalArgumentException, IOException {
 		if (app == null) {
 			throw new NullPointerException("Application descriptor can't be null");
 		}
@@ -53,10 +57,10 @@ public class Application extends JFrame implements LocaleChangeListener {
 			throw new NullPointerException("Parent localizer can't be null");
 		}
 		else {
-			this.localizer = app.getLocalizer();
+			this.localizer = LocalizerFactory.getLocalizer(app.getRoot().getLocalizerAssociated());
 			parent.push(localizer);
 			localizer.addLocaleChangeListener(this);
-			menu = app.getEntity("mainmenu",JMenuBar.class,null);
+			menu = SwingModelUtils.toMenuEntity(app.byUIPath(URI.create("ui:/navigation.top.mainMenu")), JMenuBar.class);
 			
 			setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 			SwingUtils.assignActionListeners(menu,this);
@@ -179,7 +183,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 		try(final LoggerFacade				logger = new SystemErrLoggerFacade();
 			final InputStream				is = Application.class.getResourceAsStream("application.xml");
 			final Localizer					localizer = new PureLibLocalizer()) {
-			final XMLDescribedApplication	xda = new XMLDescribedApplication(is,logger);
+			final ContentMetadataInterface	xda = ContentModelFactory.forXmlDescription(is);
 				
 			new Application(xda,localizer).setVisible(true);
 		} catch (EnvironmentException  e) {

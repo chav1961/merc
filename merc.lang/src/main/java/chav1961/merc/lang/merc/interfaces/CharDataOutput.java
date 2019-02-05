@@ -3,6 +3,7 @@ package chav1961.merc.lang.merc.interfaces;
 import java.io.IOException;
 
 public interface CharDataOutput {
+	CharDataOutput writeln() throws IOException;
 	CharDataOutput write(byte b) throws IOException;
 	CharDataOutput writeln(byte b) throws IOException;
 	CharDataOutput write(char c) throws IOException;

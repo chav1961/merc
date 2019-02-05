@@ -1,0 +1,4 @@
+Test%1$s	.method	void public
+		.stack	pessimistic
+		aload	this
+		invokespecial	chav1961.merc.lang.merc.BasicMercProgram.BasicMercProgram()V
