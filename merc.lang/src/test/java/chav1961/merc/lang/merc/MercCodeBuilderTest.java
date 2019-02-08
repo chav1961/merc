@@ -377,13 +377,10 @@ public class MercCodeBuilderTest {
 			},
 			(out)->{
 				try{MercCodeBuilder.printFieldInitials(
-						new SyntaxTreeNode(SyntaxTreeNodeType.Assign,-1,null,
-								new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
-										new VarDescriptorImpl(0,varName1, LongKeeper.class, false, false, 0)
-										),
-								new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null)
-								)
-						,
+						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+							new VarDescriptorImpl(0,varName1, LongKeeper.class, false, false, 0)
+							,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null)
+						),
 						names,classes,vars,out);
 				} catch (IOException e) {
 					Assert.fail("Unwaited exception: "+e);
@@ -392,9 +389,9 @@ public class MercCodeBuilderTest {
 			(out)->{
 				try{MercCodeBuilder.printPrintOperator(
 						new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
-								,new SyntaxTreeNode(SyntaxTreeNodeType.Call,-1
-										,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,varName1,null,
-												new SyntaxTreeNode(SyntaxTreeNodeType.InstanceField,getValue,null))
+								,new SyntaxTreeNode(SyntaxTreeNodeType.Call,getValue
+										,new VarDescriptorImpl(0,getValue,long.class,false,false,0)
+										,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,varName1,null)
 										,new SyntaxTreeNode(SyntaxTreeNodeType.List,-1,null)
 										)
 						),

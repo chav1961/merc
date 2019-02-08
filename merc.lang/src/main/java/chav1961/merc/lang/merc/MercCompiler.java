@@ -849,13 +849,13 @@ class MercCompiler {
 				final SyntaxTreeNode	parms = new SyntaxTreeNode();
 				
 				if (lexemas[pos+1].type == LexemaType.Close) {
-					node.assignCall(lexemas[current].row,lexemas[current].col,call);
+					node.assignCall(lexemas[current].row,lexemas[current].col,nameId,null,call);
 					pos += 2;
 				}
 				else {
 					pos = buildListSyntaxTree(lexemas, pos+1, names, classes, vars, false, parms);
 					if (lexemas[pos].type == LexemaType.Close) {
-						node.assignCall(lexemas[current].row,lexemas[current].col,call,parms);
+						node.assignCall(lexemas[current].row,lexemas[current].col,nameId,null,call,parms);
 						pos++;
 					}
 					else {

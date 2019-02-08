@@ -1,5 +1,9 @@
 package chav1961.merc.lang.merc;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 import chav1961.purelib.enumerations.ContinueMode;
@@ -260,27 +264,27 @@ loop:				for (SyntaxTreeNode item : children) {
 		children = new SyntaxTreeNode[]{initial};
 	}
 	
-	public void assignCall(final int row, final int col, final SyntaxTreeNode item, final SyntaxTreeNode parm) {
+	public void assignCall(final int row, final int col, final long name, final VarDescriptor desc, final SyntaxTreeNode item, final SyntaxTreeNode parm) {
 		this.row = row;
 		this.col = col;
 		type = SyntaxTreeNodeType.Call;
-		value = -1;
-		cargo = item;
+		value = name;
+		cargo = desc;
 		if (parm.getType() != SyntaxTreeNodeType.List) {
 			throw new IllegalArgumentException("Parameters must be list!");
 		}
 		else {
-			children = parm.children.clone();
+			children = new SyntaxTreeNode[]{item,parm};
 		}
 	}
 
-	public void assignCall(final int row, final int col, final SyntaxTreeNode item) {
+	public void assignCall(final int row, final int col, final long name, final VarDescriptor desc, final SyntaxTreeNode item) {
 		this.row = row;
 		this.col = col;
 		type = SyntaxTreeNodeType.Call;
-		value = -1;
-		cargo = item;
-		children = new SyntaxTreeNode[0];
+		value = name;
+		cargo = desc;
+		children = new SyntaxTreeNode[]{item};
 	}
 	
 	public void assignConversion(final int row, final int col, final LexemaSubtype conv, final SyntaxTreeNode inner) {
@@ -586,8 +590,9 @@ loop:				for (SyntaxTreeNode item : children) {
 				sb.append(prefix).append("end brick\n");
 				break;
 			case Call		:
-				sb.append(prefix).append("Call\n");
-				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				final VarDescriptor	varType = (VarDescriptor)cargo;
+				
+				sb.append(prefix).append("Call ").append(names.getName(value)).append(": ").append(varType.isVar() ? "variable " : "").append("name ").append(names.getName(value)).append(" : ").append(varType.getNameType()).append('\n');
 				if (children.length > 0) {
 					sb.append(prefix).append("with :\n");
 					before = "";
@@ -838,9 +843,9 @@ loop:				for (SyntaxTreeNode item : children) {
 				}
 				break;
 			case Variable	:
-				final VarDescriptor	varType = (VarDescriptor)cargo;
+				final VarDescriptor	callType = (VarDescriptor)cargo;
 				
-				sb.append(prefix).append(varType.isVar() ? "variable " : "").append("name ").append(names.getName(value)).append(" : ").append(varType.getNameType());
+				sb.append(prefix).append(callType.isVar() ? "variable " : "").append("name ").append(names.getName(value)).append(" : ").append(callType.getNameType());
 				if (children.length > 0) {
 					sb.append("(\n").append(children[0].toString(prefix+STAIRWAY_STEP,names)).append(prefix).append(")\n");
 				}
@@ -862,5 +867,10 @@ loop:				for (SyntaxTreeNode item : children) {
 				throw new UnsupportedOperationException("Type ["+getType()+"] is not supported yet");
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public String toString() {
+		return "SyntaxTreeNode [row=" + row + ", col=" + col + ", type=" + type + ", value=" + value + ", cargo=" + cargo + ", children=" + Arrays.toString(children) + "]";
 	}
 }
