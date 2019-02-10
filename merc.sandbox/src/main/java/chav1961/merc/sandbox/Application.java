@@ -31,6 +31,7 @@ import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SubstitutableProperties;
 import chav1961.purelib.basic.SystemErrLoggerFacade;
 import chav1961.purelib.basic.Utils;
+import chav1961.purelib.basic.exceptions.CommandLineParametersException;
 import chav1961.purelib.basic.exceptions.ConsoleCommandException;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.EnvironmentException;
@@ -206,11 +207,9 @@ public class Application extends JFrame implements LocaleChangeListener {
 	}
 	
 	public static void main(final String[] args) {		
-		try{final ArgParser						parser = new ApplicationArgParser();
-			final int							helpPort = getFreePort();
+		try{final ArgParser						parser = new ApplicationArgParser().parse(args);
+			final int							helpPort = parser.isTyped("helpport") ? getFreePort() : parser.getValue("hepport", int.class);
 			final SubstitutableProperties		props = new SubstitutableProperties(Utils.mkProps("nanoservicePort",""+helpPort,"nanoserviceRoot","fsys:fsys:jar:/mercury/merc/merc.static/target/merc.static.0.0.1-SNAPSHOT.jar"));
-			
-			parser.parse(args);
 			
 			try(final LoggerFacade				logger = new SystemErrLoggerFacade();
 				final InputStream				is = Application.class.getResourceAsStream("application.xml");
@@ -227,7 +226,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 				e.printStackTrace();
 				System.exit(128);
 			}
-		} catch (IOException | ConsoleCommandException e) {
+		} catch (IOException | ConsoleCommandException | CommandLineParametersException e) {
 			e.printStackTrace();
 			System.exit(128);
 		}

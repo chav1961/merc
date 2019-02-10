@@ -441,7 +441,7 @@ public class MercCompilerTest {
 		final List<Lexema>	lexemas = new ArrayList<>();
 		final String		data = text + "\n";
 		
-		MercCompiler.processLine(0, data.toCharArray(), 0, data.length(), suppressErrors, names, lexemas);
+		MercCompiler.processLine(0, 0, data.toCharArray(), 0, data.length(), suppressErrors, names, lexemas);
 		if (appendEOF) {
 			lexemas.add(new Lexema(0,0,0,LexemaType.EOF));
 		} 

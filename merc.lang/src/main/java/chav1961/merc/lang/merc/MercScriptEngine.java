@@ -31,8 +31,8 @@ class MercScriptEngine extends AbstractScriptEngine {
 	}
 
 	@Override
-	protected void processLineInternal(final int lineNo, final char[] data, final int from, final int length) throws IOException, SyntaxException {
-		MercCompiler.processLine(lineNo, data, from, length, false, names, lexemas);
+	protected void processLineInternal(final long displacement, final int lineNo, final char[] data, final int from, final int length) throws IOException, SyntaxException {
+		MercCompiler.processLine(displacement, lineNo, data, from, length, false, names, lexemas);
 	}
 
 	@Override

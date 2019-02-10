@@ -100,7 +100,7 @@ class MercCompiler {
 		CONVERSIONS.put(LexemaSubtype.Not,SyntaxTreeNodeType.Not);
 	}
 	
-	static void processLine(final int lineNo, final char[] data, final int from, final int length, final boolean parseForHighlight, final SyntaxTreeInterface<?> names, final List<Lexema> lexemas) throws IOException, SyntaxException {
+	static void processLine(final long displacement, final int lineNo, final char[] data, final int from, final int length, final boolean parseForHighlight, final SyntaxTreeInterface<?> names, final List<Lexema> lexemas) throws IOException, SyntaxException {
 		final int 	to = from + length, tempResult[] = new int[2];
 		long		keywordId, tempCell[] = new long[2];
 		int			pos = from, end;

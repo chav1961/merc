@@ -22,7 +22,7 @@ public class MercHighlighter {
 			final List<Lexema>					lexemas = new ArrayList<>();
 			final char[]						content = program.replace("\r","").toCharArray();
 			
-			try(final LineByLineProcessor	lblp = new LineByLineProcessor((lineNo, data, from, length)->{MercCompiler.processLine(lineNo, data, from, length, true, names, lexemas);})) {
+			try(final LineByLineProcessor	lblp = new LineByLineProcessor((displacement,lineNo, data, from, length)->{MercCompiler.processLine(displacement,lineNo, data, from, length, true, names, lexemas);})) {
 				lblp.write(content, 0, content.length);
 			} catch (SyntaxException | IOException e) {
 				e.printStackTrace();
