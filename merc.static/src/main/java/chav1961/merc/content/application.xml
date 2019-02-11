@@ -21,4 +21,10 @@
 			<app:item name="menu.help.about" caption="menu.help.about" tooltip="menu.help.about.tt" action="helpAbout"/>
 		</app:submenu>
 	</app:menu>
+	<app:keyset id="mainmenu.keyset">
+		<app:key code="N" ctrl="true" action="newFile"/>
+		<app:key code="O" ctrl="true" action="openFile"/>
+		<app:key code="S" ctrl="true" action="saveFile"/>
+		<app:key code="Q" ctrl="true" action="exit"/>
+	</app:keyset>
 </app:root>

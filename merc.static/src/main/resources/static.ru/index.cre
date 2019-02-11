@@ -1,11 +1,8 @@
-= Справочник по возможностям
+== Содержимое
 
-Мир Mercury landing содержит много всякой всячины:
-
-* устройство [[./world/station.cre|станции]]
-* действующие персонажи
-* язык MerLan
-
-Все это можно найти на сайте
-
-
+* [[./world/introduction.cre|Фабула]]
+* [[./world/world.cre|Мир]]
+* [[./world/costmaterial.cre|Баланс]]
+* [[./development/content.cre|Разработка]]
+* [[./lang/content.cre|MerLan]]
+* [[./world/advanced.cre|Дополнения]]

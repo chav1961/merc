@@ -39,19 +39,54 @@ body {
 
 p {
 	font-size: 16px;
+	text-indent: 2%;
+    text-align: justify;	
 }
 
 h1 {
 	font-size: 30px;
 	line-height: 34px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	color: #00C0C0;
 }
 
 h2 {
-	font-size: 20px;
-	line-height: 25px;
+	font-size: 24px;
+	line-height: 28px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	color: #00C0C0;
+    text-align: center;	
 }
 
 h3 {
+	font-size: 16px;
+	line-height: 27px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #D8D8D8;
+	border-top: 1px solid #D8D8D8;
+	color: #00C0C0;
+}
+
+h4 {
+	font-size: 16px;
+	line-height: 27px;
+	width: 100%;
+	color: #00C0C0;
+}
+
+h5 {
+	font-size: 16px;
+	line-height: 27px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #D8D8D8;
+	border-top: 1px solid #D8D8D8;
+}
+
+h6 {
 	font-size: 16px;
 	line-height: 27px;
 	padding-top: 15px;
@@ -78,9 +113,14 @@ a[href]:hover {
 
 img {
 	max-width: 100%;
+	float: left;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
 }
 
 li {
+    margin-left: 10px;
 	line-height: 1.5em;
 }
 
@@ -116,4 +156,30 @@ pre {
 	_width: 100%;
 	_overflow-x: auto;
 	_padding-bottom: 1.5em;
+}
+
+tr {
+	border: 1px solid #ddd;
+	max-width: 100%;
+	_width: 100%;
+}
+
+th {
+	color: #00C0C0;
+	border: 1px solid #ddd;
+	padding: 3px;
+	max-width: 100%;
+	_width: 100%;
+}
+
+td {
+	color: #C0C0C0;
+	padding: 3px;
+	max-width: 100%;
+	_width: 100%;
+}
+
+strong {
+	color: #A06080;
+	
 }
