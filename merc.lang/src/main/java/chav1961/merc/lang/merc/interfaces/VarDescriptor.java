@@ -5,6 +5,7 @@ import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 public interface VarDescriptor {
 	long getNameId();
 	VarDescriptor[] getParameters();
+	default Class<?> getNameTrueType() {return getNameType();}
 	Class<?> getNameType();
 	boolean isReference();
 	boolean isArray();

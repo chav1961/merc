@@ -192,7 +192,7 @@ public class GeometryTest {
 			Assert.fail("Mandatory exception was not detected (null 1-st argument)");
 		} catch (NullPointerException exc) {
 		}
-		try{new Area(new Point(0,0),(BasePoint)null);
+		try{new Area(new Point(0,0),(Point)null);
 			Assert.fail("Mandatory exception was not detected (null 2-nd argument)");
 		} catch (NullPointerException exc) {
 		}
@@ -200,7 +200,7 @@ public class GeometryTest {
 			Assert.fail("Mandatory exception was not detected (null 1-st argument)");
 		} catch (NullPointerException exc) {
 		}
-		try{new Area(new Point(0,0),(BaseSize)null);
+		try{new Area(new Point(0,0),(Size)null);
 			Assert.fail("Mandatory exception was not detected (null 2-nd argument)");
 		} catch (NullPointerException exc) {
 		}

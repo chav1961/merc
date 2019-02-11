@@ -10,7 +10,12 @@ import java.net.URISyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import chav1961.merc.api.BooleanKeeper;
+import chav1961.merc.api.DoubleKeeper;
 import chav1961.merc.api.LongKeeper;
+import chav1961.merc.api.Point;
+import chav1961.merc.api.PointKeeper;
+import chav1961.merc.api.StringKeeper;
 import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.merc.api.exceptions.MercEnvironmentException;
 import chav1961.merc.api.interfaces.front.World;
@@ -20,6 +25,7 @@ import chav1961.merc.lang.merc.interfaces.CharDataOutput;
 import chav1961.purelib.basic.ClassLoaderWrapper;
 import chav1961.purelib.basic.OrdinalSyntaxTree;
 import chav1961.purelib.basic.Utils;
+import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 import chav1961.purelib.streams.char2byte.AsmWriter;
 
@@ -46,7 +52,7 @@ public class MercCodeBuilderTest {
 		
 		Assert.assertEquals("20 12.5 test string false true ", execute(uniqueName++, null,(out)->{
 			try{MercCodeBuilder.printPrintOperator(root,names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -65,7 +71,7 @@ public class MercCodeBuilderTest {
 							,new SyntaxTreeNode(SyntaxTreeNodeType.Negation,0,null,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -75,7 +81,7 @@ public class MercCodeBuilderTest {
 							,new SyntaxTreeNode(SyntaxTreeNodeType.Negation,0,null,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(12.5),null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -85,7 +91,7 @@ public class MercCodeBuilderTest {
 							,new SyntaxTreeNode(SyntaxTreeNodeType.BitInv,0,null,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,0,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -95,7 +101,7 @@ public class MercCodeBuilderTest {
 							,new SyntaxTreeNode(SyntaxTreeNodeType.Not,0,null,new SyntaxTreeNode(SyntaxTreeNodeType.BoolConst,1,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -105,7 +111,7 @@ public class MercCodeBuilderTest {
 							,new SyntaxTreeNode(SyntaxTreeNodeType.Not,0,null,new SyntaxTreeNode(SyntaxTreeNodeType.BoolConst,0,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -128,7 +134,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -141,7 +147,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -155,7 +161,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -168,7 +174,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -181,7 +187,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,30,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -195,7 +201,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,3,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -209,7 +215,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,3,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -222,7 +228,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,3,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -236,7 +242,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,1,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -249,7 +255,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,1,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -262,7 +268,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,1,null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -277,7 +283,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(30),null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -290,7 +296,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(30),null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -304,7 +310,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(30),null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -317,7 +323,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(30),null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -330,7 +336,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(30),null))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -345,7 +351,7 @@ public class MercCodeBuilderTest {
 									,new SyntaxTreeNode(SyntaxTreeNodeType.StrConst,0,"test2".toCharArray()))
 					),
 					names,classes,vars,out);
-			} catch (IOException e) {
+			} catch (IOException | SyntaxException e) {
 				Assert.fail("Unwaited exception: "+e);
 			}
 		}));
@@ -364,7 +370,7 @@ public class MercCodeBuilderTest {
 		final long						getValue = names.placeName("getValue",null);
 		
 		/* integer */
-		Assert.assertEquals("50 ", executeFull(uniqueName++, null,
+		Assert.assertEquals("20 ", executeFull(uniqueName++, null,
 			(out)->{
 				try{MercCodeBuilder.printFields(
 						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
@@ -391,16 +397,218 @@ public class MercCodeBuilderTest {
 						new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
 								,new SyntaxTreeNode(SyntaxTreeNodeType.Call,getValue
 										,new VarDescriptorImpl(0,getValue,long.class,false,false,0)
-										,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,varName1,null)
+										,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,varName1,new VarDescriptorImpl(0,varName1, LongKeeper.class, false, false, 0))
 										,new SyntaxTreeNode(SyntaxTreeNodeType.List,-1,null)
 										)
+						),
+						names,classes,vars,out);
+				} catch (IOException | SyntaxException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			}
+		));
+
+		/* real */
+		Assert.assertEquals("20.0 ", executeFull(uniqueName++, null,
+			(out)->{
+				try{MercCodeBuilder.printFields(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+								new VarDescriptorImpl(0,varName1, DoubleKeeper.class, false, false, 0)
+								),
+						names,classes,vars,out);
+				} catch (IOException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			},
+			(out)->{
+				try{MercCodeBuilder.printFieldInitials(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+							new VarDescriptorImpl(0,varName1, DoubleKeeper.class, false, false, 0)
+							,new SyntaxTreeNode(SyntaxTreeNodeType.RealConst,Double.doubleToLongBits(20.0),null)
 						),
 						names,classes,vars,out);
 				} catch (IOException e) {
 					Assert.fail("Unwaited exception: "+e);
 				}
+			},
+			(out)->{
+				try{MercCodeBuilder.printPrintOperator(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+								,new SyntaxTreeNode(SyntaxTreeNodeType.Call,getValue
+										,new VarDescriptorImpl(0,getValue,double.class,false,false,0)
+										,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,varName1,new VarDescriptorImpl(0,varName1, DoubleKeeper.class, false, false, 0))
+										,new SyntaxTreeNode(SyntaxTreeNodeType.List,-1,null)
+										)
+						),
+						names,classes,vars,out);
+				} catch (IOException | SyntaxException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
 			}
 		));
+
+		/* string */
+		Assert.assertEquals("test ", executeFull(uniqueName++, null,
+			(out)->{
+				try{MercCodeBuilder.printFields(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+								new VarDescriptorImpl(0,varName1, StringKeeper.class, false, false, 0)
+								),
+						names,classes,vars,out);
+				} catch (IOException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			},
+			(out)->{
+				try{MercCodeBuilder.printFieldInitials(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+							new VarDescriptorImpl(0,varName1, StringKeeper.class, false, false, 0)
+							,new SyntaxTreeNode(SyntaxTreeNodeType.StrConst,0,"test".toCharArray())
+						),
+						names,classes,vars,out);
+				} catch (IOException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			},
+			(out)->{
+				try{MercCodeBuilder.printPrintOperator(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+								,new SyntaxTreeNode(SyntaxTreeNodeType.Call,getValue
+										,new VarDescriptorImpl(0,getValue,char[].class,false,false,0)
+										,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,varName1,new VarDescriptorImpl(0,varName1, StringKeeper.class, false, false, 0))
+										,new SyntaxTreeNode(SyntaxTreeNodeType.List,-1,null)
+										)
+						),
+						names,classes,vars,out);
+				} catch (IOException | SyntaxException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			}
+		));
+		
+		/* boolean */
+		Assert.assertEquals("true ", executeFull(uniqueName++, null,
+			(out)->{
+				try{MercCodeBuilder.printFields(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+								new VarDescriptorImpl(0,varName1, BooleanKeeper.class, false, false, 0)
+								),
+						names,classes,vars,out);
+				} catch (IOException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			},
+			(out)->{
+				try{MercCodeBuilder.printFieldInitials(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+							new VarDescriptorImpl(0,varName1, BooleanKeeper.class, false, false, 0)
+							,new SyntaxTreeNode(SyntaxTreeNodeType.BoolConst,1,null)
+						),
+						names,classes,vars,out);
+				} catch (IOException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			},
+			(out)->{
+				try{MercCodeBuilder.printPrintOperator(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+								,new SyntaxTreeNode(SyntaxTreeNodeType.Call,getValue
+										,new VarDescriptorImpl(0,getValue,boolean.class,false,false,0)
+										,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,varName1,new VarDescriptorImpl(0,varName1, BooleanKeeper.class, false, false, 0))
+										,new SyntaxTreeNode(SyntaxTreeNodeType.List,-1,null)
+										)
+						),
+						names,classes,vars,out);
+				} catch (IOException | SyntaxException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			}
+		));
+		
+		/* Point */
+		Assert.assertEquals("Point [x=0, y=0] ", executeFull(uniqueName++, null,
+				(out)->{
+					try{MercCodeBuilder.printFields(
+							new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+									new VarDescriptorImpl(0,varName1, PointKeeper.class, false, false, 0)
+									),
+							names,classes,vars,out);
+					} catch (IOException e) {
+						Assert.fail("Unwaited exception: "+e);
+					}
+				},
+				(out)->{
+					try{MercCodeBuilder.printFieldInitials(
+							new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+								new VarDescriptorImpl(0,varName1, PointKeeper.class, false, false, 0)
+									,new SyntaxTreeNode(SyntaxTreeNodeType.Conversion,0,
+											new VarDescriptorImpl(0,0,Point.class,false,false,0)
+									)
+							),
+							names,classes,vars,out);
+					} catch (IOException e) {
+						Assert.fail("Unwaited exception: "+e);
+					}
+				},
+				(out)->{
+					try{MercCodeBuilder.printPrintOperator(
+							new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+									,new SyntaxTreeNode(SyntaxTreeNodeType.Call,getValue
+											,new VarDescriptorImpl(0,getValue,Point.class,false,false,0)
+											,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,varName1,new VarDescriptorImpl(0,varName1, PointKeeper.class, false, false, 0))
+											,new SyntaxTreeNode(SyntaxTreeNodeType.List,-1,null)
+											)
+							),
+							names,classes,vars,out);
+					} catch (IOException | SyntaxException e) {
+						Assert.fail("Unwaited exception: "+e);
+					}
+				}
+			));
+		
+		
+		Assert.assertEquals("Point [x=10, y=20] ", executeFull(uniqueName++, null,
+			(out)->{
+				try{MercCodeBuilder.printFields(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+								new VarDescriptorImpl(0,varName1, PointKeeper.class, false, false, 0)
+								),
+						names,classes,vars,out);
+				} catch (IOException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			},
+			(out)->{
+				try{MercCodeBuilder.printFieldInitials(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Variable,varName1,
+							new VarDescriptorImpl(0,varName1, PointKeeper.class, false, false, 0)
+								,new SyntaxTreeNode(SyntaxTreeNodeType.Conversion,0,
+										new VarDescriptorImpl(0,0,Point.class,false,false,0)
+										,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,10,null)
+										,new SyntaxTreeNode(SyntaxTreeNodeType.IntConst,20,null)
+								)
+						),
+						names,classes,vars,out);
+				} catch (IOException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			},
+			(out)->{
+				try{MercCodeBuilder.printPrintOperator(
+						new SyntaxTreeNode(SyntaxTreeNodeType.Print,-1,null
+								,new SyntaxTreeNode(SyntaxTreeNodeType.Call,getValue
+										,new VarDescriptorImpl(0,getValue,Point.class,false,false,0)
+										,new SyntaxTreeNode(SyntaxTreeNodeType.StandaloneName,varName1,new VarDescriptorImpl(0,varName1, PointKeeper.class, false, false, 0))
+										,new SyntaxTreeNode(SyntaxTreeNodeType.List,-1,null)
+										)
+						),
+						names,classes,vars,out);
+				} catch (IOException | SyntaxException e) {
+					Assert.fail("Unwaited exception: "+e);
+				}
+			}
+		));
+		
 	}	
 	
 	private String execute(final int classNameSuffix, final World world, final Insertion ins) {

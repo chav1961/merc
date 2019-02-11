@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
-import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 
 class InitialValuesRepo {
 	private final List<ValuesContainer>	repo = new ArrayList<>();

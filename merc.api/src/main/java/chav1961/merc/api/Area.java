@@ -13,11 +13,11 @@ public final class Area extends BaseArea {
 		super(x, y, width, height);
 	}
 
-	public Area(BasePoint p1, BasePoint p2) throws NullPointerException, IllegalArgumentException {
+	public Area(Point p1, Point p2) throws NullPointerException, IllegalArgumentException {
 		super(p1, p2);
 	}
 
-	public Area(BasePoint point, BaseSize size) throws NullPointerException, IllegalArgumentException {
+	public Area(Point point, Size size) throws NullPointerException, IllegalArgumentException {
 		super(point, size);
 	}
 }

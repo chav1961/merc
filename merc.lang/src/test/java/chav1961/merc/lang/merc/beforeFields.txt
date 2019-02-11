@@ -10,6 +10,18 @@
 		.import	chav1961.merc.api.interfaces.front.RuntimeInterface
 		.import	chav1961.merc.api.interfaces.front.RuntimeInterface$MarketInterface
 		.import	chav1961.merc.api.interfaces.front.RuntimeInterface$TeleportInterface
+		.import	chav1961.merc.api.LongKeeper
+		.import	chav1961.merc.api.DoubleKeeper
+		.import	chav1961.merc.api.StringKeeper
+		.import	chav1961.merc.api.BooleanKeeper
+		.import	chav1961.merc.api.Point
+		.import	chav1961.merc.api.Size
+		.import	chav1961.merc.api.Area
+		.import	chav1961.merc.api.Track
+		.import	chav1961.merc.api.PointKeeper
+		.import	chav1961.merc.api.SizeKeeper
+		.import	chav1961.merc.api.AreaKeeper
+		.import	chav1961.merc.api.TrackKeeper
 		.import	chav1961.merc.core.robots.UniversalRobotInstance
 		.import	java.util.UUID
 		.import	java.io.PrintWriter

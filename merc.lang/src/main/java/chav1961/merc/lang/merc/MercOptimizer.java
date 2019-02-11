@@ -32,7 +32,6 @@ class MercOptimizer {
 	private static final Map<LexemaSubtype,Class<?>>	PREDEFINED_CLASSES = new HashMap<>();
 	private static final Map<Class<?>,Class<?>>			RESOLVED_4_VALUE = new HashMap<>();
 	private static final Map<Class<?>,LexemaSubtype>				CONVERSION_TYPE = new HashMap<>();
-	private static final Map<Class<?>,Map<Class<?>,Class<?>>>		RESOLVED_DOMINATOR = new HashMap<>();
 	private static final Map<Class<?>,TypeClassification>			ORDINAL_TYPE_CLASSIFICATOR = new HashMap<>();
 	private static final Set<Class<?>>								ORDINAL_TYPE_GETTER = new HashSet<>();
 
@@ -68,89 +67,6 @@ class MercOptimizer {
 		CONVERSION_TYPE.put(Area.class,LexemaSubtype.Area);
 		CONVERSION_TYPE.put(Size.class,LexemaSubtype.Size);
 		CONVERSION_TYPE.put(Track.class,LexemaSubtype.Track);
-		
-		Map<Class<?>,Class<?>>	target = new HashMap<>();
-		
-		target.put(long.class,long.class);
-		target.put(LongKeeper.class,long.class);
-		target.put(double.class,double.class);
-		target.put(DoubleKeeper.class,double.class);
-		target.put(char[].class,char[].class);
-		target.put(StringKeeper.class,char[].class);
-		RESOLVED_DOMINATOR.put(long.class,target);
-
-		target = new HashMap<>();
-		target.put(long.class,double.class);
-		target.put(LongKeeper.class,double.class);
-		target.put(double.class,double.class);
-		target.put(DoubleKeeper.class,double.class);
-		target.put(char[].class,char[].class);
-		target.put(StringKeeper.class,char[].class);
-		RESOLVED_DOMINATOR.put(double.class,target);
-
-		target = new HashMap<>();
-		target.put(long.class,char[].class);
-		target.put(LongKeeper.class,char[].class);
-		target.put(double.class,char[].class);
-		target.put(DoubleKeeper.class,char[].class);
-		target.put(char[].class,char[].class);
-		target.put(StringKeeper.class,char[].class);
-		target.put(boolean.class,char[].class);
-		target.put(BooleanKeeper.class,char[].class);
-		target.put(Point.class,char[].class);
-		target.put(PointKeeper.class,char[].class);
-		target.put(Area.class,char[].class);
-		target.put(AreaKeeper.class,char[].class);
-		target.put(Size.class,char[].class);
-		target.put(SizeKeeper.class,char[].class);
-		target.put(Track.class,char[].class);
-		target.put(TrackKeeper.class,char[].class);
-		RESOLVED_DOMINATOR.put(char[].class,target);
-
-		target = new HashMap<>();
-		target.put(char[].class,char[].class);
-		target.put(StringKeeper.class,char[].class);
-		target.put(boolean.class,boolean.class);
-		target.put(BooleanKeeper.class,boolean.class);
-		RESOLVED_DOMINATOR.put(boolean.class,target);
-		
-		target = new HashMap<>();
-		target.put(char[].class,char[].class);
-		target.put(StringKeeper.class,char[].class);
-		target.put(Point.class,Track.class);
-		target.put(PointKeeper.class,Track.class);
-		target.put(Area.class,Track.class);
-		target.put(AreaKeeper.class,Track.class);
-		target.put(Track.class,Track.class);
-		target.put(TrackKeeper.class,Track.class);
-		RESOLVED_DOMINATOR.put(Point.class,target);
-
-		target = new HashMap<>();
-		target.put(char[].class,char[].class);
-		target.put(StringKeeper.class,char[].class);
-		target.put(Point.class,Track.class);
-		target.put(PointKeeper.class,Track.class);
-		target.put(Area.class,Track.class);
-		target.put(AreaKeeper.class,Track.class);
-		target.put(Track.class,Track.class);
-		target.put(TrackKeeper.class,Track.class);
-		RESOLVED_DOMINATOR.put(Area.class,target);
-
-		target = new HashMap<>();
-		target.put(char[].class,char[].class);
-		target.put(StringKeeper.class,char[].class);
-		RESOLVED_DOMINATOR.put(Size.class,target);
-		
-		target = new HashMap<>();
-		target.put(char[].class,char[].class);
-		target.put(StringKeeper.class,char[].class);
-		target.put(Point.class,Track.class);
-		target.put(PointKeeper.class,Track.class);
-		target.put(Area.class,Track.class);
-		target.put(AreaKeeper.class,Track.class);
-		target.put(Track.class,Track.class);
-		target.put(TrackKeeper.class,Track.class);
-		RESOLVED_DOMINATOR.put(Track.class,target);
 		
 		ORDINAL_TYPE_CLASSIFICATOR.put(long.class, TypeClassification.IntType);
 		ORDINAL_TYPE_CLASSIFICATOR.put(double.class, TypeClassification.RealType);
@@ -308,7 +224,7 @@ class MercOptimizer {
 					for (SyntaxTreeNode item : node.children) {
 						memberClasses.add(processTypeConversions(item,null,returnedClass,repo,staticInitials)); 
 					}
-					final Class<?>			dominated = extractDominatingClass(memberClasses);
+					final Class<?>			dominated = InternalUtils.extractDominatingType(memberClasses.toArray(new Class[memberClasses.size()]));
 					
 					for (SyntaxTreeNode item : node.children) {
 						memberClasses.add(processTypeConversions(item,dominated,returnedClass,repo,staticInitials)); 
@@ -392,7 +308,7 @@ class MercOptimizer {
 							for (SyntaxTreeNode item : node.children) {
 								mulClasses.add(resolveType4Value(processTypeConversions(item,null,returnedClass,repo,staticInitials)));
 							}
-							final Class<?>			mulRequired = extractDominatingClass(mulClasses);
+							final Class<?>			mulRequired = InternalUtils.extractDominatingType(mulClasses.toArray(new Class[mulClasses.size()]));
 							
 							for (SyntaxTreeNode item : node.children) {
 								processTypeConversions(item,mulRequired,returnedClass,repo,staticInitials); 
@@ -982,23 +898,7 @@ class MercOptimizer {
 		}
 	}
 	
-	private static Class<?> extractDominatingClass(final List<Class<?>> memberClasses) throws SyntaxException {
-		Class<?>	result = memberClasses.get(0);
-		
-		for (Class<?> candidate : memberClasses) {
-			if (RESOLVED_DOMINATOR.containsKey(result)) {
-				if (RESOLVED_DOMINATOR.get(result).containsKey(candidate)) {
-					result = RESOLVED_DOMINATOR.get(result).get(candidate);
-				}
-			}
-			else {
-				throw new SyntaxException(0,0,"Uncompatible operands in the expression");
-			}
-		}
-		return result;
-	}
-
-	private static Class<?> resolveType4Value(final Class<?> sourceClass) {
+	static Class<?> resolveType4Value(final Class<?> sourceClass) {
 		final Class<?>	converted = RESOLVED_4_VALUE.get(sourceClass);
 		
 		return converted != null ? converted : sourceClass;
