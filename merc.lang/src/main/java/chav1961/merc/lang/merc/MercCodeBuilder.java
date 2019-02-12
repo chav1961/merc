@@ -22,13 +22,13 @@ import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.interfaces.CharDataOutput;
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
-import chav1961.purelib.basic.CompilerUtils;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.PreparationException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 import chav1961.purelib.enumerations.ContinueMode;
 import chav1961.purelib.enumerations.NodeEnterMode;
+import chav1961.purelib.streams.char2byte.asm.CompilerUtils;
 
 class MercCodeBuilder {
 	private static final Method			PRODUCE_AREA_KEEPER;
