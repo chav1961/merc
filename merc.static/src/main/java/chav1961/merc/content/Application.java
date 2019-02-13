@@ -35,6 +35,7 @@ import chav1961.purelib.i18n.PureLibLocalizer;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.ContentModelFactory;
+import chav1961.purelib.model.ModelUtils;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.nanoservice.NanoServiceFactory;
@@ -143,6 +144,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 	private void saveFileAs() throws IOException, LocalizationException {
 		if (manipulator.saveFileAs(state)) {
 			state.message(Severity.info, localizer.getValue(MESSAGE_FILE_SAVED), manipulator.getCurrentPathOfTheFile());
+			refillLru();
 		}
 	}
 	
@@ -186,8 +188,8 @@ public class Application extends JFrame implements LocaleChangeListener {
 	}
 
 	private void refillLru() {
-		final ContentNodeMetadata	node = app.byUIPath(URI.create("action"));
-		final JMenu					lru = (JMenu)SwingUtils.findComponentByName(this.menu,node.getUIPath().toString());
+		final ContentNodeMetadata	node = app.byUIPath(URI.create("ui:/model/navigation.top.mainmenu/navigation.node.menu.file/navigation.node.menu.file.lru"));
+		final JMenu					lru = (JMenu)SwingUtils.findComponentByName(this.menu,node.getName());
 
 		lru.removeAll();
 		for (String item : manipulator.getLastUsed()) {

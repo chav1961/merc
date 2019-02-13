@@ -158,6 +158,11 @@ pre {
 	_padding-bottom: 1.5em;
 }
 
+ table {
+    table-layout: auto;
+    width: 100%;
+}
+
 tr {
 	border: 1px solid #ddd;
 	max-width: 100%;
