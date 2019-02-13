@@ -1,12 +1,13 @@
 package chav1961.merc.api;
 
+import chav1961.merc.api.interfaces.front.AvailableForTrack;
 import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.api.interfaces.front.Immutable;
 import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.api.interfaces.front.Printable;
 import chav1961.purelib.basic.exceptions.PrintingException;
 
-class BasePoint implements Printable, Cloneable, Immutable<BasePoint> {
+class BasePoint implements Printable, Cloneable, Immutable<BasePoint>, AvailableForTrack {
 	int x, y;
 
 	BasePoint(){

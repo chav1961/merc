@@ -10,7 +10,9 @@ import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
@@ -34,6 +36,7 @@ import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
+import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.nanoservice.NanoServiceFactory;
 import chav1961.purelib.ui.swing.SwingModelUtils;
 import chav1961.purelib.ui.swing.SwingUtils;
@@ -49,6 +52,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 	public static final String		MESSAGE_FILE_LOADED = "Application.message.fileLoaded";
 	public static final String		MESSAGE_FILE_SAVED = "Application.message.fileSaved";
 	
+	private final ContentMetadataInterface 	app;
 	private final Localizer			localizer;
 	private final int 				localHelpPort;
 	private final CountDownLatch	latch;
@@ -74,6 +78,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 			throw new NullPointerException("Latch to notify closure can't be null");
 		}
 		else {
+			this.app = app;
 			this.localizer = LocalizerFactory.getLocalizer(app.getRoot().getLocalizerAssociated());
 			this.localHelpPort = localHelpPort;
 			this.latch = latch;
@@ -114,9 +119,19 @@ public class Application extends JFrame implements LocaleChangeListener {
 			editor.getDocument().removeDocumentListener(listener);
 			manipulator.clearModificationFlag();
 			SwingUtilities.invokeLater(()->{editor.getDocument().addDocumentListener(listener);});
+			refillLru();
 		}
 	}
 
+	private void openFile(final String file) throws IOException, LocalizationException {
+		if (manipulator.openFile(file,state)) {
+			state.message(Severity.info, localizer.getValue(MESSAGE_FILE_LOADED), manipulator.getCurrentPathOfTheFile());
+			editor.getDocument().removeDocumentListener(listener);
+			manipulator.clearModificationFlag();
+			SwingUtilities.invokeLater(()->{editor.getDocument().addDocumentListener(listener);});
+		}
+	}
+	
 	@OnAction(value="action:/saveFile",async=true)
 	private void saveFile() throws IOException, LocalizationException {
 		if (manipulator.saveFile(state)) {
@@ -167,6 +182,25 @@ public class Application extends JFrame implements LocaleChangeListener {
 			} catch (IOException exc) {
 				exc.printStackTrace();
 			}
+		}
+	}
+
+	private void refillLru() {
+		final ContentNodeMetadata	node = app.byUIPath(URI.create("action"));
+		final JMenu					lru = (JMenu)SwingUtils.findComponentByName(this.menu,node.getUIPath().toString());
+
+		lru.removeAll();
+		for (String item : manipulator.getLastUsed()) {
+			final JMenuItem			menu = new JMenuItem(item);
+			final String			fileItem = item;
+			
+			menu.addActionListener((e)->{
+				try{openFile(fileItem);
+				} catch (LocalizationException | IOException exc) {
+					state.message(Severity.error,exc,exc.getLocalizedMessage());
+				}
+			});
+			lru.add(menu);
 		}
 	}
 	

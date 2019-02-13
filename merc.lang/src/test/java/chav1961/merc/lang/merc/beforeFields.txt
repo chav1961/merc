@@ -10,6 +10,7 @@
 		.import	chav1961.merc.api.interfaces.front.RuntimeInterface
 		.import	chav1961.merc.api.interfaces.front.RuntimeInterface$MarketInterface
 		.import	chav1961.merc.api.interfaces.front.RuntimeInterface$TeleportInterface
+		.import	chav1961.merc.api.interfaces.front.AvailableForTrack
 		.import	chav1961.merc.api.LongKeeper
 		.import	chav1961.merc.api.DoubleKeeper
 		.import	chav1961.merc.api.StringKeeper

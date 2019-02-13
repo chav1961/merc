@@ -18,6 +18,7 @@ import chav1961.merc.api.SizeKeeper;
 import chav1961.merc.api.StringKeeper;
 import chav1961.merc.api.Track;
 import chav1961.merc.api.TrackKeeper;
+import chav1961.merc.api.interfaces.front.AvailableForTrack;
 import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.interfaces.CharDataOutput;
@@ -59,6 +60,11 @@ class MercCodeBuilder {
 	
 	private static final Constructor<?>	SIZE_CONSTRUCTOR_ENTITY;
 	private static final Constructor<?>	SIZE_CONSTRUCTOR_II;
+
+	private static final Constructor<?>	TRACK_CONSTRUCTOR_II;
+	private static final Constructor<?>	TRACK_CONSTRUCTOR_IIII;
+	private static final Constructor<?>	TRACK_CONSTRUCTOR_POINTSIZE;
+	private static final Constructor<?>	TRACK_CONSTRUCTOR_LIST;
 	
 	static {
 		try{PRODUCE_AREA_KEEPER = BasicMercProgram.class.getMethod("_newAreaKeeper_");
@@ -89,6 +95,11 @@ class MercCodeBuilder {
 
 			SIZE_CONSTRUCTOR_ENTITY = Size.class.getConstructor(Entity.class);
 			SIZE_CONSTRUCTOR_II = Size.class.getConstructor(int.class,int.class);
+
+			TRACK_CONSTRUCTOR_II = Track.class.getConstructor(int.class,int.class);
+			TRACK_CONSTRUCTOR_IIII = Track.class.getConstructor(int.class,int.class,int.class,int.class);
+			TRACK_CONSTRUCTOR_POINTSIZE = Track.class.getConstructor(Point.class,Size.class);
+			TRACK_CONSTRUCTOR_LIST = Track.class.getConstructor(AvailableForTrack[].class);
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new PreparationException("Class ["+MercCodeBuilder.class+"] static initialization failed: "+e.getLocalizedMessage(),e);
 		}
@@ -534,29 +545,49 @@ class MercCodeBuilder {
 				}
 				break;
 			case TrackType	:
-				switch (node.children.length) {
-					case 0 :
-						newAndDup(writer,Track.class);
-						writer.writeln(" invokespecial chav1961.merc.api.Size.Track()V");
-						break;
-					case 1 :
-						printExpression(node.children[0], names, classes, vars, writer);
-						break;
-					case 2 :
-						newAndDup(writer,Track.class);
-						printExpression(node.children[0], names, classes, vars, writer);
-						printExpression(node.children[1], names, classes, vars, writer);
-						writer.writeln(" invokespecial chav1961.merc.api.Size.Size(II)V");
-						break;
-					case 4 :
-						newAndDup(writer,Track.class);
+				final Class<?>[]	innerNodeTypes = new Class[node.children.length];
+				
+				newAndDup(writer,Track.class);
+				for (int index = 0; index < innerNodeTypes.length; index++) {
+					innerNodeTypes[index] = InternalUtils.resolveNodeType(node.children[index]);
+				}
+				if (innerNodeTypes.length == 2) {
+					if (innerNodeTypes[0] == long.class && innerNodeTypes[1] == long.class) {
+						for (SyntaxTreeNode item : node.children) {
+							printExpression(item, names, classes, vars, writer);
+							writer.writeln(" l2i");
+						}
+						writer.writeln(CompilerUtils.buildConstructorCall(TRACK_CONSTRUCTOR_II));
+						return;
+					}
+					else if (innerNodeTypes[0] == Point.class && innerNodeTypes[1] == Size.class) {
 						for (SyntaxTreeNode item : node.children) {
 							printExpression(item, names, classes, vars, writer);
 						}
-						writer.writeln(" invokespecial chav1961.merc.api.Size.Size(II)V");
-						break;
-					default : throw new UnsupportedOperationException(""); 
+						writer.writeln(CompilerUtils.buildConstructorCall(TRACK_CONSTRUCTOR_POINTSIZE));
+						return;
+					}
 				}
+				if (innerNodeTypes.length == 4) {
+					if (innerNodeTypes[0] == long.class && innerNodeTypes[1] == long.class && innerNodeTypes[2] == long.class && innerNodeTypes[3] == long.class) {
+						for (SyntaxTreeNode item : node.children) {
+							printExpression(item, names, classes, vars, writer);
+							writer.writeln(" l2i");
+						}
+						writer.writeln(CompilerUtils.buildConstructorCall(TRACK_CONSTRUCTOR_IIII));
+						return;
+					}
+				}
+				writer.write(" ldc ").writeln(innerNodeTypes.length);
+				writer.write(" anewarray ").writeln(CompilerUtils.buildClassPath(AvailableForTrack.class));
+				for (int index = 0; index < node.children.length; index++) {
+					writer.writeln(" dup");
+					writer.write(" ldc ").writeln(index);
+					printExpression(node.children[index], names, classes, vars, writer);
+					writer.write(" checkcast ").writeln(CompilerUtils.buildClassPath(AvailableForTrack.class));
+					writer.writeln(" aastore");
+				}
+				writer.writeln(CompilerUtils.buildConstructorCall(TRACK_CONSTRUCTOR_LIST));
 				break;
 			default : throw new UnsupportedOperationException("Simplified type ["+InternalUtils.defineSimplifiedType(((VarDescriptor)node.cargo).getNameType())+"] is not supported yet");
 		}

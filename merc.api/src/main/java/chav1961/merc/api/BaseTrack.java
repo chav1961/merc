@@ -2,6 +2,7 @@ package chav1961.merc.api;
 
 import java.util.Arrays;
 
+import chav1961.merc.api.interfaces.front.AvailableForTrack;
 import chav1961.merc.api.interfaces.front.Immutable;
 import chav1961.merc.api.interfaces.front.MerLan;
 import chav1961.merc.api.interfaces.front.Printable;
@@ -15,22 +16,13 @@ import chav1961.purelib.basic.exceptions.PrintingException;
  * @since 0.0.1
  */
 
-class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
+class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack>, AvailableForTrack {
 	private static final int[]	EMPTY_ARRAY = new int[0];
 
 	protected int[]	points;
 	
 	public BaseTrack() {
 		points = EMPTY_ARRAY;
-	}
-	
-	/**
-	 * <p>Constructor of the object (track with the only point)</p>
-	 * @param x x-coordinate of the point 
-	 * @param y y-coordinate of the point
-	 */
-	public BaseTrack(final int x, final int y) {
-		points = new int[] {x,y};
 	}
 
 	public BaseTrack(final Point point) throws NullPointerException {
@@ -42,38 +34,6 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 		}
 	}
 	
-	/**
-	 * <p>Constructor of the object (track with the all the points in area)</p>
-	 * @param x x-coordinate of the bottom right corner of the area
-	 * @param y y-coordinate of the bottom right corner of the area
-	 * @param width area width
-	 * @param height area height
-	 * @throws IllegalArgumentException width or height is not positive
-	 */
-	public BaseTrack(final int x, final int y, final int width, final int height) throws IllegalArgumentException {
-		if (width < 0) {
-			throw new IllegalArgumentException("Width ["+width+"] must be greater then 0");
-		}
-		else if (height < 0) {
-			throw new IllegalArgumentException("Height ["+height+"] must be greater then 0");
-		}
-		else {
-			fillPoints(x,y,width,height);
-		}
-	}
-
-	public BaseTrack(final Point point, final Size size) throws NullPointerException {
-		if (point == null) {
-			throw new NullPointerException("Point can't be null");
-		}
-		else if (size == null) {
-			throw new NullPointerException("Size can't be null");
-		}
-		else {
-			fillPoints(point.x,point.y,size.width,size.height);
-		}
-	}
-
 	public BaseTrack(final Area area) throws NullPointerException {
 		if (area == null) {
 			throw new NullPointerException("Area can't be null");
@@ -82,11 +42,54 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 			fillPoints(area.x,area.y,area.width,area.height);
 		}
 	}
+
+	public BaseTrack(final AvailableForTrack... elements) throws NullPointerException {
+		if (elements == null) {
+			throw new NullPointerException("Element list can't be null");
+		}
+		else {
+			int	count = 0;
+			
+			for (AvailableForTrack item : elements) {
+				if (item instanceof Point) {
+					count++;
+				}
+				else if (item instanceof Area) {
+					count += ((Area)item).getSize().getWidth()*((Area)item).getSize().getHeight();
+				}
+				else if (item instanceof Track) {
+					count += ((Track)item).points.length / 2;
+				}
+			}
+			final long[]	temp = new long[count];
+			
+			for (int index = 0, location = 0; index < elements.length; index++) {
+				AvailableForTrack 	item = elements[index]; 
+						
+				if (item instanceof Point) {
+					temp[location++] = (((0L + ((Point)item).x) << 32)) | ((Point)item).y;
+				}
+				else if (item instanceof Area) {
+					for (int yIndex = 0, yMaxIndex = ((Area)item).height; yIndex < yMaxIndex; yIndex++) {
+						for (int xIndex = 0, xMaxIndex = ((Area)item).height; xIndex < xMaxIndex; xIndex++) {
+							temp[location++] = ((0L + ((Area)item).x + xIndex) << 32) | (((Area)item).y + yIndex);
+						}
+					}
+				}
+				else if (item instanceof Track) {
+					for (int from = 0, maxFrom = ((Track)item).points.length/2; from < maxFrom; from += 2) {
+						temp[location++] = ((0L + ((Track)item).points[2*from]) << 32) | ((Track)item).points[2*from+1];
+					}					
+				}
+			}
+			this.points = reduce(temp);
+		}
+	}
 	
 	private BaseTrack(final int[] points, final boolean toDifferentSignature) {
 		this.points = points;
 	}
-	
+
 	@MerLan
 	public int size() {
 		return points.length/2;
@@ -479,6 +482,33 @@ class BaseTrack implements Printable, Cloneable, Immutable<BaseTrack> {
 				points[index] = x + xIndex;
 				points[index + 1] = y + yIndex;
 			}
+		}
+	}
+	
+	private static int[] reduce(final long[] content) {
+		if (content.length == 0) {
+			return EMPTY_ARRAY;
+		}
+		else {
+			int	count = 1;
+			
+			Arrays.sort(content);
+			for (int index = 1, maxIndex = content.length; index < maxIndex; index++) {
+				if (content[index] != content[index-1]) {
+					count++;
+				}
+			}
+			final int[] 	result = new int[2*count];
+	
+			result[0] = (int)((content[0] >> 32) & 0xFFFFFFFF);
+			result[1] = (int)((content[0] >> 00) & 0xFFFFFFFF);
+			for (int index = 1, destIndex = 2, maxIndex = content.length; index < maxIndex; index++) {
+				if (content[index] != content[index-1]) {
+					result[destIndex++] = (int)((content[index] >> 32) & 0xFFFFFFFF);
+					result[destIndex++] = (int)((content[index] >> 00) & 0xFFFFFFFF);
+				}
+			}
+			return result;
 		}
 	}
 }

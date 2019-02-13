@@ -1,29 +1,26 @@
 package chav1961.merc.api;
 
+import chav1961.merc.api.interfaces.front.AvailableForTrack;
 import chav1961.merc.api.interfaces.front.MerLan;
 
 @MerLan
 public final class Track extends BaseTrack {
 	public Track(int x, int y, int width, int height) throws IllegalArgumentException {
-		super(x, y, width, height);
+		this(new Point(x, y), new Size(width, height));
 	}
 
 	public Track(int x, int y) {
-		super(x, y);
-	}
-
-	public Track(Area area) throws NullPointerException {
-		super(area);
+		this(new Point(x, y));
 	}
 
 	public Track(Point point, Size size) throws NullPointerException {
-		super(point, size);
+		this(new Area(point, size));
 	}
 
-	public Track(Point point) throws NullPointerException {
-		super(point);
-	}
-
+	public Track(final AvailableForTrack... elements) throws NullPointerException {
+		super(elements);
+	}	
+	
 	@Override
 	public void walk(final TrackWalkCallback callback) throws NullPointerException {
 		super.walk(callback);
