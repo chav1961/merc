@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
@@ -14,9 +16,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import chav1961.purelib.basic.ArgParser;
 import chav1961.purelib.basic.SubstitutableProperties;
@@ -29,21 +30,17 @@ import chav1961.purelib.basic.exceptions.EnvironmentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
-import chav1961.purelib.fsys.FileSystemFactory;
 import chav1961.purelib.i18n.LocalizerFactory;
 import chav1961.purelib.i18n.PureLibLocalizer;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.ContentModelFactory;
-import chav1961.purelib.model.ModelUtils;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.nanoservice.NanoServiceFactory;
 import chav1961.purelib.ui.swing.SwingModelUtils;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
-import chav1961.purelib.ui.swing.useful.JCreoleEditor;
-import chav1961.purelib.ui.swing.useful.JFileContentManipulator;
 import chav1961.purelib.ui.swing.useful.JStateString;
 
 public class Application extends JFrame implements LocaleChangeListener {
@@ -58,14 +55,9 @@ public class Application extends JFrame implements LocaleChangeListener {
 	private final int 				localHelpPort;
 	private final CountDownLatch	latch;
 	private final JMenuBar			menu;
-	private final JCreoleEditor		editor = new JCreoleEditor();
+	private final JTabbedPane		tabber = new JTabbedPane(); 
+	private final List<CreoleEditorTab>	tabs = new ArrayList<>();
 	private final JStateString		state;
-	private final JFileContentManipulator	manipulator;
-	private final DocumentListener	listener = new DocumentListener() {
-										@Override public void removeUpdate(DocumentEvent e) {manipulator.setModificationFlag();}
-										@Override public void insertUpdate(DocumentEvent e) {manipulator.setModificationFlag();}				
-										@Override public void changedUpdate(DocumentEvent e) {manipulator.setModificationFlag();}
-									};
 																		
 	
 	public Application(final ContentMetadataInterface app, final Localizer parent, final int localHelpPort, final CountDownLatch latch) throws EnvironmentException, NullPointerException, IllegalArgumentException, IOException {
@@ -94,11 +86,9 @@ public class Application extends JFrame implements LocaleChangeListener {
 			SwingUtils.assignExitMethod4MainWindow(this,()->{exitApplication();});
 			
 			getContentPane().add(menu,BorderLayout.NORTH);
-			getContentPane().add(new JScrollPane(editor),BorderLayout.CENTER);
+			getContentPane().add(tabber,BorderLayout.CENTER);
 			getContentPane().add(state,BorderLayout.SOUTH);
 
-			this.manipulator = new JFileContentManipulator(FileSystemFactory.createFileSystem(URI.create("fsys:file:./")),localizer,editor);
-			editor.getDocument().addDocumentListener(listener);
 			fillLocalizedStrings();
 		}
 	}
@@ -110,47 +100,84 @@ public class Application extends JFrame implements LocaleChangeListener {
 
 	@OnAction(value="action:/newFile",async=true)
 	private void newFile () throws IOException {
-		manipulator.newFile();
+		final CreoleEditorTab	newTab = new CreoleEditorTab(localizer, state);
+		
+		tabs.add(newTab);
+		tabber.addTab("(*)",new JScrollPane(newTab.editor));
+		tabber.setSelectedIndex(tabs.size()-1);
+		newTab.manipulator.newFile();
 	}
 
 	@OnAction(value="action:/openFile",async=true)
 	private void openFile() throws IOException, LocalizationException {
-		if (manipulator.openFile(state)) {
-			state.message(Severity.info, localizer.getValue(MESSAGE_FILE_LOADED), manipulator.getCurrentPathOfTheFile());
-			editor.getDocument().removeDocumentListener(listener);
-			manipulator.clearModificationFlag();
-			SwingUtilities.invokeLater(()->{editor.getDocument().addDocumentListener(listener);});
+		if (tabber.getTabCount() == 0) {
+			newFile();
+		}
+		
+		final CreoleEditorTab	currentTab = tabs.get(tabber.getSelectedIndex()); 
+		
+		if (currentTab.manipulator.openFile(state)) {
+			state.message(Severity.info, localizer.getValue(MESSAGE_FILE_LOADED), currentTab.manipulator.getCurrentPathOfTheFile());
+			currentTab.turnOffDocumentListener();
+			currentTab.manipulator.clearModificationFlag();
+			SwingUtilities.invokeLater(()->{currentTab.turnOnDocumentListener();});
+			tabber.setTitleAt(tabber.getSelectedIndex(), currentTab.manipulator.getCurrentNameOfTheFile());
+			tabber.setToolTipTextAt(tabber.getSelectedIndex(), currentTab.manipulator.getCurrentPathOfTheFile());
 			refillLru();
 		}
 	}
 
 	private void openFile(final String file) throws IOException, LocalizationException {
-		if (manipulator.openFile(file,state)) {
-			state.message(Severity.info, localizer.getValue(MESSAGE_FILE_LOADED), manipulator.getCurrentPathOfTheFile());
-			editor.getDocument().removeDocumentListener(listener);
-			manipulator.clearModificationFlag();
-			SwingUtilities.invokeLater(()->{editor.getDocument().addDocumentListener(listener);});
+		if (tabber.getTabCount() == 0) {
+			newFile();
+		}
+		
+		final CreoleEditorTab	currentTab = tabs.get(tabber.getSelectedIndex());
+		
+		if (currentTab.manipulator.openFile(file,state)) {
+			state.message(Severity.info, localizer.getValue(MESSAGE_FILE_LOADED), currentTab.manipulator.getCurrentPathOfTheFile());
+			currentTab.turnOffDocumentListener();
+			currentTab.manipulator.clearModificationFlag();
+			SwingUtilities.invokeLater(()->{currentTab.turnOnDocumentListener();});
+			tabber.setTitleAt(tabber.getSelectedIndex(), currentTab.manipulator.getCurrentNameOfTheFile());
+			tabber.setToolTipTextAt(tabber.getSelectedIndex(), currentTab.manipulator.getCurrentPathOfTheFile());
 		}
 	}
 	
 	@OnAction(value="action:/saveFile",async=true)
 	private void saveFile() throws IOException, LocalizationException {
-		if (manipulator.saveFile(state)) {
-			state.message(Severity.info, localizer.getValue(MESSAGE_FILE_SAVED), manipulator.getCurrentPathOfTheFile());
+		if (tabber.getTabCount() == 0) {
+			newFile();
+		}		
+
+		final CreoleEditorTab	currentTab = tabs.get(tabber.getSelectedIndex());
+		
+		if (currentTab.manipulator.saveFile(state)) {
+			state.message(Severity.info, localizer.getValue(MESSAGE_FILE_SAVED), currentTab.manipulator.getCurrentPathOfTheFile());
 		}
 	}
 
 	@OnAction(value="action:/saveFileAs",async=true)
 	private void saveFileAs() throws IOException, LocalizationException {
-		if (manipulator.saveFileAs(state)) {
-			state.message(Severity.info, localizer.getValue(MESSAGE_FILE_SAVED), manipulator.getCurrentPathOfTheFile());
+		if (tabber.getTabCount() == 0) {
+			newFile();
+		}		
+
+		final CreoleEditorTab	currentTab = tabs.get(tabber.getSelectedIndex());
+		
+		if (currentTab.manipulator.saveFileAs(state)) {
+			state.message(Severity.info, localizer.getValue(MESSAGE_FILE_SAVED), currentTab.manipulator.getCurrentPathOfTheFile());
+			tabber.setTitleAt(tabber.getSelectedIndex(), currentTab.manipulator.getCurrentNameOfTheFile());
+			tabber.setToolTipTextAt(tabber.getSelectedIndex(), currentTab.manipulator.getCurrentPathOfTheFile());
 			refillLru();
 		}
 	}
 	
 	@OnAction("action:/exit")
 	private void exitApplication () {
-		try{manipulator.close();
+		try{for (CreoleEditorTab currentTab : tabs) {
+				currentTab.manipulator.close();
+			}
 		} catch (IOException e) {
 			state.message(Severity.error,e,e.getLocalizedMessage());
 		} finally {
@@ -171,9 +198,11 @@ public class Application extends JFrame implements LocaleChangeListener {
 	}
 	
 	private void fillLocalizedStrings() throws LocalizationException {
-//		setTitle(localizer.getValue(Constants.APPLICATION_TITLE));
 		if (menu instanceof LocaleChangeListener) {
 			((LocaleChangeListener)menu).localeChanged(localizer.currentLocale().getLocale(),localizer.currentLocale().getLocale());
+		}
+		for (CreoleEditorTab currentTab : tabs) {
+			((LocaleChangeListener)currentTab).localeChanged(localizer.currentLocale().getLocale(),localizer.currentLocale().getLocale());
 		}
 	}
 	
@@ -192,17 +221,19 @@ public class Application extends JFrame implements LocaleChangeListener {
 		final JMenu					lru = (JMenu)SwingUtils.findComponentByName(this.menu,node.getName());
 
 		lru.removeAll();
-		for (String item : manipulator.getLastUsed()) {
-			final JMenuItem			menu = new JMenuItem(item);
-			final String			fileItem = item;
-			
-			menu.addActionListener((e)->{
-				try{openFile(fileItem);
-				} catch (LocalizationException | IOException exc) {
-					state.message(Severity.error,exc,exc.getLocalizedMessage());
-				}
-			});
-			lru.add(menu);
+		for (CreoleEditorTab currentTab : tabs) {
+			for (String item : currentTab.manipulator.getLastUsed()) {
+				final JMenuItem			menu = new JMenuItem(item);
+				final String			fileItem = item;
+				
+				menu.addActionListener((e)->{
+					try{openFile(fileItem);
+					} catch (LocalizationException | IOException exc) {
+						state.message(Severity.error,exc,exc.getLocalizedMessage());
+					}
+				});
+				lru.add(menu);
+			}
 		}
 	}
 	
