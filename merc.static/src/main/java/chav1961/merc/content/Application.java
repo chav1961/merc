@@ -198,6 +198,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 	}
 	
 	private void fillLocalizedStrings() throws LocalizationException {
+		setTitle(localizer.getValue(APPLICATION_TITLE));
 		if (menu instanceof LocaleChangeListener) {
 			((LocaleChangeListener)menu).localeChanged(localizer.currentLocale().getLocale(),localizer.currentLocale().getLocale());
 		}
