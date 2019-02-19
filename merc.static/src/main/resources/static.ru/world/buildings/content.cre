@@ -39,28 +39,54 @@
 | **5** |{{/images/mini/chlorineholder.png}} ChlorineHolder | [[./chlorineholder.cre|Газгольдер хлора]] |
 | **10** |{{/images/mini/sulphuricacidtank.png}} SulphuricAcidTank | [[./sulphuricacidholder.cre|Резервуар серной кислоты]] |
 | **10** |{{/images/mini/nitriccidtank.png}} NitricAcidTank | [[./nitricacidholder.cre|Резервуар азотной кислоты]] |
-| **10** |{{/images/mini/hydrochloricacidtank.png}} HydroChloricAcidTank | [[./hydrochloricacidholder.cre|Резервуар соляной кислоты]]|
+| **10** |{{/images/mini/hydrochloricacidtank.png}} HydroChloricAcidTank | [[./hydrochloricacidholder.cre|Резервуар соляной кислоты]] |
 
 == Здания первичной обработки сырья
 
 Здания первичной обработки сырья представлены в программе следующими зданиями:
 
 |=Уровень игрока |= Наименование здания |= Назначение|
-| **5** |{{/images/mini/watertank.png}} WaterTank | Водяной резервуар |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Обогатительная фабрика]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех водородной металлургии]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех электрометаллургии]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех электролитического рафинирования]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства серной кислоты]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства азотной кислоты]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства соляной кислоты]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех электролиза растворов]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех электролиза расплавов]] |
 
 == Здания вторичной обработки сырья
 
 Здания вторичной обработки сырья представлены в программе следующими зданиями:
 
 |=Уровень игрока |= Наименование здания |= Назначение|
-| **5** |{{/images/mini/watertank.png}} WaterTank | Водяной резервуар |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Водорослевая ферма]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Целлюлозный цех]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех спиртового брожения]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства полихлорвинила]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства взрывчатых веществ]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства силиконовых полимеров]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства фтористых соединений]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства кремния]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства гидразина]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства перхлоратов]] |
 
 == Здания выпуска готовых изделий
 
 Здания выпуска готовых изделий представлены в программе следующими зданиями:
 
 |=Уровень игрока |= Наименование здания |= Назначение|
-| **5** |{{/images/mini/watertank.png}} WaterTank | Водяной резервуар |
+| **5** |{{/images/mini/pipefactory.png}} PipeFactory | [[./pipefactory.cre|Завод по производству труб]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Завод по производству рельсов]] |
+| **5** |{{/images/mini/transformatorfactory.png}} TransformatorFactory | [[./transformatorfactory.cre|Завод по производству трансформаторов]] |
+| **5** |{{/images/mini/solarbatteryfactory.png}} SolarBatteryFactory | [[./transformatorfactory.cre|Завод по производству солнечных батарей]] |
+| **5** |{{/images/mini/solidrocketfactory.png}} SolidRocketFactory | [[./transformatorfactory.cre|Завод по производству твердотопливных ракет]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Завод по производству жидкотопливных ракет]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Завод по производству электроники]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Завод по производству роботов]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Завод по производству подвижного состава]] |
+
 
 == Здания специального назначения
 
