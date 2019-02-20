@@ -1,82 +1,38 @@
 package chav1961.merc.lang.merc;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
+import chav1961.purelib.cdb.SyntaxNode;
 import chav1961.purelib.enumerations.ContinueMode;
 import chav1961.purelib.enumerations.NodeEnterMode;
 
-class SyntaxTreeNode {
+class MercSyntaxTreeNode extends SyntaxNode<MercSyntaxTreeNodeType,MercSyntaxTreeNode> {
 	static final String		STAIRWAY_STEP = "   ";
 	
-	enum SyntaxTreeNodeType {
-		StandaloneName, PredefinedName, LocalName, IndicedName,
-		Call,
-		InstanceField,
-		Header, HeaderWithReturned,
-		Program, Function, Brick,
-		Conversion,
-		OrdinalBinary,
-		Assign,
-		Pipe,
-		Negation, 
-		PreInc, PreDec, PostInc, PostDec, 
-		BitInv, 
-		Not,
-		LongIf, ShortIf, While, Until, Break, Continue, ShortReturn, LongReturn, Print, Lock, TypedFor, UntypedFor, Sequence, Infinite,
-		Variable, Variables, Vartype, AllocatedVariable,
-		Null, IntConst, RealConst, StrConst, BoolConst, RefConst,  
-		List, Range,
-		Empty,
-		Unknown,
-		 
-	}
-
 	@FunctionalInterface
 	interface WalkCallback {
-		ContinueMode process(NodeEnterMode mode, SyntaxTreeNode node);
+		ContinueMode process(NodeEnterMode mode, MercSyntaxTreeNode node);
 	}
 	
-	int					row, col;
-	SyntaxTreeNodeType	type = SyntaxTreeNodeType.Unknown;
-	long				value = -1;
-	Object				cargo = null;
-	SyntaxTreeNode[]	children = null;
-
-	SyntaxTreeNode() {
-		
+	MercSyntaxTreeNode() {
+		super(0,0,MercSyntaxTreeNodeType.Unknown,-1,null);
 	}
 
-	SyntaxTreeNode(final SyntaxTreeNode from) {
-		this.row = from.row;
-		this.col = from.col;
-		this.type = from.type;
-		this.value = from.value;
-		this.cargo = from.cargo;
-		this.children = from.children != null ? from.children.clone() : null;
+	MercSyntaxTreeNode(final MercSyntaxTreeNode from) {
+		super(from.row, from.col, from.type, from.value, from.cargo, from.children != null ? from.children.clone() : null);
 	}
 
-	SyntaxTreeNode(final SyntaxTreeNodeType type, final long value, final Object cargo, final SyntaxTreeNode... children) {
+	MercSyntaxTreeNode(final MercSyntaxTreeNodeType type, final long value, final Object cargo, final MercSyntaxTreeNode... children) {
 		this(0, 0, type, value, cargo, children);
 	}
 	
-	SyntaxTreeNode(final int row, final int col, final SyntaxTreeNodeType type, final long value, final Object cargo, final SyntaxTreeNode... children) {
-		this.row = row;
-		this.col = col;
-		this.type = type;
-		this.value = value;
-		this.cargo = cargo;
-		this.children = children;
+	MercSyntaxTreeNode(final int row, final int col, final MercSyntaxTreeNodeType type, final long value, final Object cargo, final MercSyntaxTreeNode... children) {
+		super(row, col, type, value, cargo, children);
 	}
 	
-	SyntaxTreeNode.SyntaxTreeNodeType getType() {
-		return type;
-	}
-
-	void rewrite(SyntaxTreeNode from) {
+	void rewrite(MercSyntaxTreeNode from) {
 		
 	}
 
@@ -85,8 +41,8 @@ class SyntaxTreeNode {
 		
 		switch (cont = callback.process(NodeEnterMode.ENTER,this)) {
 			case CONTINUE		:
-				if (cargo instanceof SyntaxTreeNode) {
-					switch (cont = ((SyntaxTreeNode)cargo).walk(callback)) {
+				if (cargo instanceof MercSyntaxTreeNode) {
+					switch (cont = ((MercSyntaxTreeNode)cargo).walk(callback)) {
 						case CONTINUE		:
 							break;
 						case PARENT_ONLY	:
@@ -105,7 +61,7 @@ class SyntaxTreeNode {
 					}
 				}
 				if (children != null) {
-loop:				for (SyntaxTreeNode item : children) {
+loop:				for (MercSyntaxTreeNode item : children) {
 						switch (item.walk(callback)) {
 							case CONTINUE		:
 								break;
@@ -142,7 +98,7 @@ loop:				for (SyntaxTreeNode item : children) {
 		}
 	}
 	
-	public void assign(final SyntaxTreeNode another) {
+	public void assign(final MercSyntaxTreeNode another) {
 		this.row = another.row;
 		this.col = another.col;
 		this.type = another.type;
@@ -151,73 +107,73 @@ loop:				for (SyntaxTreeNode item : children) {
 		this.children = another.children == null ? null : another.children.clone();
 	}
 	
-	public void assignVarDefs(final int row, final int col, final SyntaxTreeNode[] array) {
+	public void assignVarDefs(final int row, final int col, final MercSyntaxTreeNode[] array) {
 		this.row = row;
 		this.col = col;
-		this.type = SyntaxTreeNodeType.Variables;
+		this.type = MercSyntaxTreeNodeType.Variables;
 		this.value = -1;
 		this.cargo = null;
 		this.children = array.clone();
 	}
 
-	public void assignHeader(final int row, final int col, final long name, final SyntaxTreeNode... parms) {
+	public void assignHeader(final int row, final int col, final long name, final MercSyntaxTreeNode... parms) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Header;
+		type = MercSyntaxTreeNodeType.Header;
 		value = name;
 		cargo = null;
 		children = parms.clone();
 	}
 
-	public void assignHeaderWithReturned(final int row, final int col, final long name, final Class<?> returned, final SyntaxTreeNode... parms) {
+	public void assignHeaderWithReturned(final int row, final int col, final long name, final Class<?> returned, final MercSyntaxTreeNode... parms) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.HeaderWithReturned;
+		type = MercSyntaxTreeNodeType.HeaderWithReturned;
 		value = name;
 		cargo = returned;
 		children = parms.clone();
 	}
 	
-	public void assignBrick(final int row, final int col, final SyntaxTreeNode head, final SyntaxTreeNode body) {
+	public void assignBrick(final int row, final int col, final MercSyntaxTreeNode head, final MercSyntaxTreeNode body) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Brick;
+		type = MercSyntaxTreeNodeType.Brick;
 		value = -1;
 		cargo = head;
-		children = body.getType() == SyntaxTreeNodeType.Sequence ? body.children.clone() : new SyntaxTreeNode[]{body};
+		children = body.getType() == MercSyntaxTreeNodeType.Sequence ? body.children.clone() : new MercSyntaxTreeNode[]{body};
 	}
 
-	public void assignFunc(final int row, final int col, final SyntaxTreeNode head, final SyntaxTreeNode body) {
+	public void assignFunc(final int row, final int col, final MercSyntaxTreeNode head, final MercSyntaxTreeNode body) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Function;
+		type = MercSyntaxTreeNodeType.Function;
 		value = -1;
 		cargo = head;
-		children = body.getType() == SyntaxTreeNodeType.Sequence ? body.children.clone() : new SyntaxTreeNode[]{body};
+		children = body.getType() == MercSyntaxTreeNodeType.Sequence ? body.children.clone() : new MercSyntaxTreeNode[]{body};
 	}
 
-	public void assignProgram(final int row, final int col, final SyntaxTreeNode main, final SyntaxTreeNode[] funcs) {
+	public void assignProgram(final int row, final int col, final MercSyntaxTreeNode main, final MercSyntaxTreeNode[] funcs) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Program;
+		type = MercSyntaxTreeNodeType.Program;
 		value = -1;
 		cargo = main;
 		children = funcs;
 	}
 	
-	public void assignField(final int row, final int col, final VarDescriptor desc, final SyntaxTreeNode owner, final SyntaxTreeNode field) {
+	public void assignField(final int row, final int col, final VarDescriptor desc, final MercSyntaxTreeNode owner, final MercSyntaxTreeNode field) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.InstanceField;
+		type = MercSyntaxTreeNodeType.InstanceField;
 		value = -1;
 		cargo = desc;
-		children = new SyntaxTreeNode[]{owner,field};
+		children = new MercSyntaxTreeNode[]{owner,field};
 	}
 
 	public void assignName(final int row, final int col, final long intval) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.StandaloneName;
+		type = MercSyntaxTreeNodeType.StandaloneName;
 		value = intval;
 		cargo = null;
 		children = null;
@@ -226,19 +182,19 @@ loop:				for (SyntaxTreeNode item : children) {
 	public void assignPredefinedName(final int row, final int col, final LexemaSubtype subtype) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.PredefinedName;
+		type = MercSyntaxTreeNodeType.PredefinedName;
 		value = -1;
 		cargo = subtype;
 		children = null;
 	}
 
-	public void assignNameIndiced(final int row, final int col, final long name, final SyntaxTreeNode indices) {
+	public void assignNameIndiced(final int row, final int col, final long name, final MercSyntaxTreeNode indices) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.IndicedName;
+		type = MercSyntaxTreeNodeType.IndicedName;
 		value = name;
 		cargo = null;
-		if (indices.getType() != SyntaxTreeNodeType.List) {
+		if (indices.getType() != MercSyntaxTreeNodeType.List) {
 			throw new IllegalArgumentException("Indices must be list!");
 		}
 		else {
@@ -249,51 +205,51 @@ loop:				for (SyntaxTreeNode item : children) {
 	public void assignVarDefinition(final int row, final int col, final long nameId, final VarDescriptor desc) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Variable;
+		type = MercSyntaxTreeNodeType.Variable;
 		value = nameId;
 		cargo = desc;
-		children = new SyntaxTreeNode[0];
+		children = new MercSyntaxTreeNode[0];
 	}
 	
-	public void assignVarDefinition(final int row, final int col, final long nameId, final VarDescriptor desc, final SyntaxTreeNode initial) {
+	public void assignVarDefinition(final int row, final int col, final long nameId, final VarDescriptor desc, final MercSyntaxTreeNode initial) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Variable;
+		type = MercSyntaxTreeNodeType.Variable;
 		value = nameId;
 		cargo = desc;
-		children = new SyntaxTreeNode[]{initial};
+		children = new MercSyntaxTreeNode[]{initial};
 	}
 	
-	public void assignCall(final int row, final int col, final long name, final VarDescriptor desc, final SyntaxTreeNode item, final SyntaxTreeNode parm) {
+	public void assignCall(final int row, final int col, final long name, final VarDescriptor desc, final MercSyntaxTreeNode item, final MercSyntaxTreeNode parm) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Call;
+		type = MercSyntaxTreeNodeType.Call;
 		value = name;
 		cargo = desc;
-		if (parm.getType() != SyntaxTreeNodeType.List) {
+		if (parm.getType() != MercSyntaxTreeNodeType.List) {
 			throw new IllegalArgumentException("Parameters must be list!");
 		}
 		else {
-			children = new SyntaxTreeNode[]{item,parm};
+			children = new MercSyntaxTreeNode[]{item,parm};
 		}
 	}
 
-	public void assignCall(final int row, final int col, final long name, final VarDescriptor desc, final SyntaxTreeNode item) {
+	public void assignCall(final int row, final int col, final long name, final VarDescriptor desc, final MercSyntaxTreeNode item) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Call;
+		type = MercSyntaxTreeNodeType.Call;
 		value = name;
 		cargo = desc;
-		children = new SyntaxTreeNode[]{item};
+		children = new MercSyntaxTreeNode[]{item};
 	}
 	
-	public void assignConversion(final int row, final int col, final LexemaSubtype conv, final SyntaxTreeNode inner) {
+	public void assignConversion(final int row, final int col, final LexemaSubtype conv, final MercSyntaxTreeNode inner) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Conversion;
+		type = MercSyntaxTreeNodeType.Conversion;
 		value = -1;
 		cargo = conv;
-		if (inner.getType() != SyntaxTreeNodeType.List) {
+		if (inner.getType() != MercSyntaxTreeNodeType.List) {
 			throw new IllegalArgumentException("Parameters must be list!");
 		}
 		else {
@@ -304,7 +260,7 @@ loop:				for (SyntaxTreeNode item : children) {
 	public void assignStr(final int row, final int col, final char[] strval) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.StrConst;
+		type = MercSyntaxTreeNodeType.StrConst;
 		value = -1;
 		cargo = strval;
 		children = null;
@@ -313,7 +269,7 @@ loop:				for (SyntaxTreeNode item : children) {
 	public void assignRefConst(final int row, final int col, final Object refval) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.RealConst;
+		type = MercSyntaxTreeNodeType.RealConst;
 		value = -1;
 		cargo = refval;
 		children = null;
@@ -322,7 +278,7 @@ loop:				for (SyntaxTreeNode item : children) {
 	public void assignReal(final int row, final int col, final double realval) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.RealConst;
+		type = MercSyntaxTreeNodeType.RealConst;
 		value = Double.doubleToLongBits(realval);
 		cargo = null;
 		children = null;
@@ -331,7 +287,7 @@ loop:				for (SyntaxTreeNode item : children) {
 	public void assignNull(final int row, final int col) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Null;
+		type = MercSyntaxTreeNodeType.Null;
 		value = -1;
 		cargo = null;
 		children = null;
@@ -340,7 +296,7 @@ loop:				for (SyntaxTreeNode item : children) {
 	public void assignInt(final int row, final int col, final long intval) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.IntConst;
+		type = MercSyntaxTreeNodeType.IntConst;
 		value = intval;
 		cargo = null;
 		children = null;
@@ -349,52 +305,52 @@ loop:				for (SyntaxTreeNode item : children) {
 	public void assignBoolean(final int row, final int col, final boolean boolval) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.BoolConst;
+		type = MercSyntaxTreeNodeType.BoolConst;
 		value = boolval ? 1 : 0;
 		cargo = null;
 		children = null;
 	}
 
-	void assignIf(final int row, final int col, final SyntaxTreeNode cond, final SyntaxTreeNode thenBody) {
+	void assignIf(final int row, final int col, final MercSyntaxTreeNode cond, final MercSyntaxTreeNode thenBody) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.ShortIf;
+		type = MercSyntaxTreeNodeType.ShortIf;
 		value = -1;
 		cargo = cond;
-		children = new SyntaxTreeNode[]{thenBody};
+		children = new MercSyntaxTreeNode[]{thenBody};
 	}
 
-	void assignIf(final int row, final int col, final SyntaxTreeNode cond, final SyntaxTreeNode thenBody, final SyntaxTreeNode elseBody) {
+	void assignIf(final int row, final int col, final MercSyntaxTreeNode cond, final MercSyntaxTreeNode thenBody, final MercSyntaxTreeNode elseBody) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.LongIf;
+		type = MercSyntaxTreeNodeType.LongIf;
 		value = -1;
 		cargo = cond;
-		children = new SyntaxTreeNode[]{thenBody,elseBody};
+		children = new MercSyntaxTreeNode[]{thenBody,elseBody};
 	}
 	
-	void assignWhile(final int row, final int col, final SyntaxTreeNode cond, final SyntaxTreeNode body) {
+	void assignWhile(final int row, final int col, final MercSyntaxTreeNode cond, final MercSyntaxTreeNode body) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.While;
+		type = MercSyntaxTreeNodeType.While;
 		value = -1;
 		cargo = cond;
-		children = new SyntaxTreeNode[]{body};
+		children = new MercSyntaxTreeNode[]{body};
 	}
 	
-	void assignUntil(final int row, final int col, final SyntaxTreeNode cond, final SyntaxTreeNode body) {
+	void assignUntil(final int row, final int col, final MercSyntaxTreeNode cond, final MercSyntaxTreeNode body) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Until;
+		type = MercSyntaxTreeNodeType.Until;
 		value = -1;
 		cargo = cond;
-		children = new SyntaxTreeNode[]{body};
+		children = new MercSyntaxTreeNode[]{body};
 	}
 
 	void assignBreak(final int row, final int col, final int depth) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Break;
+		type = MercSyntaxTreeNodeType.Break;
 		value = depth;
 		cargo = null;
 		children = null;
@@ -403,7 +359,7 @@ loop:				for (SyntaxTreeNode item : children) {
 	void assignContinue(final int row, final int col, final int depth) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Continue;
+		type = MercSyntaxTreeNodeType.Continue;
 		value = depth;
 		cargo = null;
 		children = null;
@@ -412,28 +368,28 @@ loop:				for (SyntaxTreeNode item : children) {
 	void assignReturn(final int row, final int col) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.ShortReturn;
+		type = MercSyntaxTreeNodeType.ShortReturn;
 		value = -1;
 		cargo = null;
 		children = null;
 	}
 
-	void assignReturn(final int row, final int col, final SyntaxTreeNode returnExpression) {
+	void assignReturn(final int row, final int col, final MercSyntaxTreeNode returnExpression) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.LongReturn;
+		type = MercSyntaxTreeNodeType.LongReturn;
 		value = -1;
 		cargo = null;
-		children = new SyntaxTreeNode[]{returnExpression};
+		children = new MercSyntaxTreeNode[]{returnExpression};
 	}
 
-	void assignPrint(final int row, final int col, final SyntaxTreeNode expressions) {
+	void assignPrint(final int row, final int col, final MercSyntaxTreeNode expressions) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Print;
+		type = MercSyntaxTreeNodeType.Print;
 		value = -1;
 		cargo = null;
-		if (expressions.getType() == SyntaxTreeNodeType.List) {
+		if (expressions.getType() == MercSyntaxTreeNodeType.List) {
 			children = expressions.children.clone();
 		}
 		else {
@@ -441,82 +397,82 @@ loop:				for (SyntaxTreeNode item : children) {
 		}
 	}
 
-	void assignLock(final int row, final int col, final SyntaxTreeNode lockExpression, final SyntaxTreeNode lockBody) {
+	void assignLock(final int row, final int col, final MercSyntaxTreeNode lockExpression, final MercSyntaxTreeNode lockBody) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Lock;
+		type = MercSyntaxTreeNodeType.Lock;
 		value = -1;
 		cargo = lockExpression;
-		children = new SyntaxTreeNode[]{lockBody};
+		children = new MercSyntaxTreeNode[]{lockBody};
 	}
 
 	void assignType(final int row, final int col, final LexemaSubtype varType) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Vartype;
+		type = MercSyntaxTreeNodeType.Vartype;
 		value = -1;
 		cargo = varType;
-		children = new SyntaxTreeNode[0];
+		children = new MercSyntaxTreeNode[0];
 	}
 
-	void assignFor(final int row, final int col, final SyntaxTreeNode forName, final SyntaxTreeNode forType, final SyntaxTreeNode forList, final SyntaxTreeNode forBody) {
+	void assignFor(final int row, final int col, final MercSyntaxTreeNode forName, final MercSyntaxTreeNode forType, final MercSyntaxTreeNode forList, final MercSyntaxTreeNode forBody) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.TypedFor;
+		type = MercSyntaxTreeNodeType.TypedFor;
 		value = -1;
 		cargo = null;
-		children = new SyntaxTreeNode[]{forName,forType,forList,forBody};
+		children = new MercSyntaxTreeNode[]{forName,forType,forList,forBody};
 	}
 
-	void assignFor(final int row, final int col, final SyntaxTreeNode forName, final SyntaxTreeNode forList, final SyntaxTreeNode forBody) {
+	void assignFor(final int row, final int col, final MercSyntaxTreeNode forName, final MercSyntaxTreeNode forList, final MercSyntaxTreeNode forBody) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.UntypedFor;
+		type = MercSyntaxTreeNodeType.UntypedFor;
 		value = -1;
 		cargo = null;
-		children = new SyntaxTreeNode[]{forName,forList,forBody};
+		children = new MercSyntaxTreeNode[]{forName,forList,forBody};
 	}
 	
-	public void assignSequence(final int row, final int col, final SyntaxTreeNode... array) {
+	public void assignSequence(final int row, final int col, final MercSyntaxTreeNode... array) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Sequence;
+		type = MercSyntaxTreeNodeType.Sequence;
 		value = -1;
 		cargo = null;
 		children = array.clone();
 	}
 
-	void assignRange(final int row, final int col, final SyntaxTreeNode itemFrom, final SyntaxTreeNode itemTo) {
+	void assignRange(final int row, final int col, final MercSyntaxTreeNode itemFrom, final MercSyntaxTreeNode itemTo) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Range;
+		type = MercSyntaxTreeNodeType.Range;
 		value = -1;
 		cargo = null;
-		children = new SyntaxTreeNode[]{itemFrom,itemTo};
+		children = new MercSyntaxTreeNode[]{itemFrom,itemTo};
 	}
 
-	void assignList(final int row, final int col, SyntaxTreeNode... array) {
+	void assignList(final int row, final int col, MercSyntaxTreeNode... array) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.List;
+		type = MercSyntaxTreeNodeType.List;
 		value = -1;
 		cargo = null;
 		children = array.clone();
 	}
 
-	void assignUnary(final int row, final int col, final SyntaxTreeNodeType subtype, final SyntaxTreeNode node) {
+	void assignUnary(final int row, final int col, final MercSyntaxTreeNodeType subtype, final MercSyntaxTreeNode node) {
 		this.row = row;
 		this.col = col;
 		type = subtype;
 		value = -1;
 		cargo = null;
-		children = new SyntaxTreeNode[]{node};
+		children = new MercSyntaxTreeNode[]{node};
 	}
 
-	void assignBinary(final int row, final int col, final long prty, final LexemaSubtype[] operations, SyntaxTreeNode[] operands) {
+	void assignBinary(final int row, final int col, final long prty, final LexemaSubtype[] operations, MercSyntaxTreeNode[] operands) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.OrdinalBinary;
+		type = MercSyntaxTreeNodeType.OrdinalBinary;
 		value = prty;
 		if (operations.length != operands.length) {
 			throw new IllegalArgumentException("Operations list length differ from operands one"); 
@@ -527,21 +483,21 @@ loop:				for (SyntaxTreeNode item : children) {
 		}
 	}
 
-	void assignAssignment(final int row, final int col, final SyntaxTreeNode left, final SyntaxTreeNode right) {
+	void assignAssignment(final int row, final int col, final MercSyntaxTreeNode left, final MercSyntaxTreeNode right) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Assign;
+		type = MercSyntaxTreeNodeType.Assign;
 		value = -1;
 		cargo = null;
-		children = new SyntaxTreeNode[]{left,right};
+		children = new MercSyntaxTreeNode[]{left,right};
 	}
 
-	void assignPipe(final int row, final int col, final SyntaxTreeNode startPipe, final SyntaxTreeNode[] intermediate, final SyntaxTreeNode endPipe) {
+	void assignPipe(final int row, final int col, final MercSyntaxTreeNode startPipe, final MercSyntaxTreeNode[] intermediate, final MercSyntaxTreeNode endPipe) {
 		this.row = row;
 		this.col = col;
-		type = SyntaxTreeNodeType.Pipe;
+		type = MercSyntaxTreeNodeType.Pipe;
 		value = -1;
-		cargo = new SyntaxTreeNode[]{startPipe,endPipe};
+		cargo = new MercSyntaxTreeNode[]{startPipe,endPipe};
 		children = intermediate.clone();
 	}
 
@@ -579,11 +535,11 @@ loop:				for (SyntaxTreeNode item : children) {
 				break;
 			case Brick		:
 				sb.append(prefix).append("brick:\n");
-				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(((MercSyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
 				if (children.length > 0) {
 					before = "body\n";
 					sb.append(prefix).append(before);
-					for (SyntaxTreeNode item : children) {
+					for (MercSyntaxTreeNode item : children) {
 						sb.append(item.toString(prefix+STAIRWAY_STEP,names));
 					}
 				}
@@ -596,7 +552,7 @@ loop:				for (SyntaxTreeNode item : children) {
 				if (children.length > 0) {
 					sb.append(prefix).append("with :\n");
 					before = "";
-					for (SyntaxTreeNode item : children) {
+					for (MercSyntaxTreeNode item : children) {
 						sb.append(before).append(item.toString(prefix+STAIRWAY_STEP,names));
 						before = prefix+STAIRWAY_STEP+",\n";
 					}
@@ -609,7 +565,7 @@ loop:				for (SyntaxTreeNode item : children) {
 			case Conversion	:
 				sb.append(prefix).append("convert to ").append(cargo).append("\n");
 				before = "";
-				for (SyntaxTreeNode item : children) {
+				for (MercSyntaxTreeNode item : children) {
 					sb.append(before).append(item.toString(prefix+STAIRWAY_STEP,names));
 					before = prefix+STAIRWAY_STEP+",\n";
 				}
@@ -617,11 +573,11 @@ loop:				for (SyntaxTreeNode item : children) {
 				break;
 			case Function	:
 				sb.append(prefix).append("func:\n");
-				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(((MercSyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
 				if (children.length > 0) {
 					before = "body\n";
 					sb.append(prefix).append(before);
-					for (SyntaxTreeNode item : children) {
+					for (MercSyntaxTreeNode item : children) {
 						sb.append(item.toString(prefix+STAIRWAY_STEP,names));
 					}
 				}
@@ -630,7 +586,7 @@ loop:				for (SyntaxTreeNode item : children) {
 			case Header		:
 				sb.append(prefix).append("header ").append(names.getName(value)).append(":\n");
 				before = "";
-				for (SyntaxTreeNode item : children) {
+				for (MercSyntaxTreeNode item : children) {
 					sb.append(before).append(item.toString(prefix+STAIRWAY_STEP,names));
 					before = prefix+",\n";
 				}
@@ -639,7 +595,7 @@ loop:				for (SyntaxTreeNode item : children) {
 			case HeaderWithReturned	:
 				sb.append(prefix).append("header ").append(names.getName(value)).append(":\n");
 				before = "";
-				for (SyntaxTreeNode item : children) {
+				for (MercSyntaxTreeNode item : children) {
 					sb.append(before).append(item.toString(prefix+STAIRWAY_STEP,names));
 					before = prefix+",\n";
 				}
@@ -650,7 +606,7 @@ loop:				for (SyntaxTreeNode item : children) {
 			case IndicedName:
 				sb.append(prefix).append(names.getName(value)).append("[\n");
 				before = "";
-				for (SyntaxTreeNode item : children) {
+				for (MercSyntaxTreeNode item : children) {
 					sb.append(before).append(item.toString(prefix+STAIRWAY_STEP,names));
 					before = prefix+STAIRWAY_STEP+",\n";
 				}
@@ -669,7 +625,7 @@ loop:				for (SyntaxTreeNode item : children) {
 			case List		:
 				sb.append(prefix).append("(\n");
 				before = "";
-				for (SyntaxTreeNode item : children) {
+				for (MercSyntaxTreeNode item : children) {
 					sb.append(before);
 					sb.append(item.toString(prefix+STAIRWAY_STEP,names));
 					before = prefix+",\n"; 
@@ -678,14 +634,14 @@ loop:				for (SyntaxTreeNode item : children) {
 				break;
 			case Lock		:
 				sb.append(prefix).append("lock\n");
-				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(((MercSyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("--->\n");
 				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("end lock\n");
 				break;
 			case LongIf		: 
 				sb.append(prefix).append("if\n");
-				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(((MercSyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("then\n");
 				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("else\n");
@@ -714,7 +670,7 @@ loop:				for (SyntaxTreeNode item : children) {
 				sb.append(prefix).append("binary list (\n");
 				for (int index = 0; index < children.length; index++) {
 					if (index > 0) {
-						sb.append(prefix).append(((SyntaxTreeNodeType[])cargo)[index]).append('\n');
+						sb.append(prefix).append(((MercSyntaxTreeNodeType[])cargo)[index]).append('\n');
 					}
 					sb.append(children[index].toString(prefix+STAIRWAY_STEP,names));
 				}
@@ -723,17 +679,17 @@ loop:				for (SyntaxTreeNode item : children) {
 			case Pipe	:
 				sb.append(prefix).append("pipe:\n");
 				sb.append(prefix+STAIRWAY_STEP).append("from\n");
-				sb.append(((SyntaxTreeNode[])cargo)[0].toString(prefix+STAIRWAY_STEP+STAIRWAY_STEP,names));
+				sb.append(((MercSyntaxTreeNode[])cargo)[0].toString(prefix+STAIRWAY_STEP+STAIRWAY_STEP,names));
 				if (children.length > 0) {
 					before = "thru\n";
 					sb.append(prefix+STAIRWAY_STEP).append(before);
-					for (SyntaxTreeNode item : children) {
+					for (MercSyntaxTreeNode item : children) {
 						sb.append(item.toString(prefix+STAIRWAY_STEP+STAIRWAY_STEP,names));
 					}
 					before = "----\n";
 				}
 				sb.append(prefix+STAIRWAY_STEP).append("to\n");
-				sb.append(((SyntaxTreeNode[])cargo)[1].toString(prefix+STAIRWAY_STEP+STAIRWAY_STEP,names));
+				sb.append(((MercSyntaxTreeNode[])cargo)[1].toString(prefix+STAIRWAY_STEP+STAIRWAY_STEP,names));
 				sb.append(prefix).append("end pipe\n");
 				break;
 			case PostDec	:
@@ -761,15 +717,15 @@ loop:				for (SyntaxTreeNode item : children) {
 				break;
 			case Print	:
 				sb.append(prefix).append("print\n");
-				for (SyntaxTreeNode item : children) {
+				for (MercSyntaxTreeNode item : children) {
 					sb.append(item.toString(prefix+STAIRWAY_STEP,names));
 				}
 				sb.append(prefix).append("end print\n");
 				break;
 			case Program	:
 				sb.append(prefix).append("program\n");
-				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
-				for (SyntaxTreeNode item : children) {
+				sb.append(((MercSyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				for (MercSyntaxTreeNode item : children) {
 					sb.append(prefix).append("function/brick\n");
 					sb.append(item.toString(prefix+STAIRWAY_STEP,names));
 				}
@@ -789,14 +745,14 @@ loop:				for (SyntaxTreeNode item : children) {
 				break;
 			case Sequence	:
 				sb.append(prefix).append("{\n");
-				for (SyntaxTreeNode item : children) {
+				for (MercSyntaxTreeNode item : children) {
 					sb.append(item.toString(prefix+STAIRWAY_STEP,names));
 				}
 				sb.append(prefix).append("}\n");
 				break;
 			case ShortIf	:
 				sb.append(prefix).append("if\n");
-				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(((MercSyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("then\n");
 				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("end if\n");
@@ -825,7 +781,7 @@ loop:				for (SyntaxTreeNode item : children) {
 				sb.append(prefix).append("do\n");
 				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("until\n");
-				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(((MercSyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("end until\n");
 				break;
 			case UntypedFor	:
@@ -838,7 +794,7 @@ loop:				for (SyntaxTreeNode item : children) {
 				sb.append(prefix).append("end for\n");
 				break;
 			case Variables	:
-				for (SyntaxTreeNode item : children) {
+				for (MercSyntaxTreeNode item : children) {
 					sb.append(item.toString(prefix,names));
 				}
 				break;
@@ -858,7 +814,7 @@ loop:				for (SyntaxTreeNode item : children) {
 				break;
 			case While:
 				sb.append(prefix).append("while\n");
-				sb.append(((SyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
+				sb.append(((MercSyntaxTreeNode)cargo).toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("do\n");
 				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("end while\n");

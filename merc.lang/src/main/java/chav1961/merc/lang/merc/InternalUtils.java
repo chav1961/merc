@@ -147,7 +147,7 @@ public class InternalUtils {
 		}
 	}
 	
-	public static Class<?> resolveNodeType(final SyntaxTreeNode node) throws SyntaxException {
+	public static Class<?> resolveNodeType(final MercSyntaxTreeNode node) throws SyntaxException {
 		if (node == null) {
 			throw new NullPointerException("Node can't be null");
 		}
@@ -166,7 +166,7 @@ public class InternalUtils {
 				case Conversion	:
 					return ((VarDescriptor)node.cargo).getNameTrueType();
 				case Function	:
-					return resolveNodeType(((SyntaxTreeNode)node.cargo));
+					return resolveNodeType(((MercSyntaxTreeNode)node.cargo));
 				case Header	:
 					return void.class;
 				case HeaderWithReturned	:
@@ -180,7 +180,7 @@ public class InternalUtils {
 				case List : case Range :
 					final List<Class<?>>	content = new ArrayList<>();
 					
-					for (SyntaxTreeNode item : node.children) {
+					for (MercSyntaxTreeNode item : node.children) {
 						content.add(resolveNodeType(item));
 					}
 					return extractDominatingType(content.toArray(new Class[content.size()]));

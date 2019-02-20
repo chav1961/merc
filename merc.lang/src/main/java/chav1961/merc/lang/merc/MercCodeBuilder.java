@@ -20,13 +20,13 @@ import chav1961.merc.api.Track;
 import chav1961.merc.api.TrackKeeper;
 import chav1961.merc.api.interfaces.front.AvailableForTrack;
 import chav1961.merc.api.interfaces.front.Entity;
-import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.interfaces.CharDataOutput;
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.PreparationException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
+import chav1961.purelib.cdb.SyntaxNodeUtils;
 import chav1961.purelib.enumerations.ContinueMode;
 import chav1961.purelib.enumerations.NodeEnterMode;
 import chav1961.purelib.streams.char2byte.asm.CompilerUtils;
@@ -106,14 +106,14 @@ class MercCodeBuilder {
 	}
 	
 	
-	static void printHead(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) {
+	static void printHead(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
 		// TODO Auto-generated method stub
-		
+		writer.writeln(" writePrologue");
 	}
 
-	static void printFields(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
+	static void printFields(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
 		node.walk((mode,entity)->{
-			if (mode == NodeEnterMode.ENTER && entity.getType() == SyntaxTreeNodeType.Variable) {
+			if (mode == NodeEnterMode.ENTER && entity.getType() == MercSyntaxTreeNodeType.Variable) {
 				try{writer.write(names.getName(entity.value)).write(" .field ").write(((VarDescriptor)entity.cargo).getNameType().getCanonicalName());
 					if (((VarDescriptor)entity.cargo).isArray()) {
 						for (int index = 0, maxIndex = ((VarDescriptor)entity.cargo).howManyDimensions(); index < maxIndex; index++) {
@@ -129,46 +129,50 @@ class MercCodeBuilder {
 		});
 	}
 
-	static void printFieldInitials(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
+	static void printConstructor(final MercSyntaxTreeNode root, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
+		writer.writeln(" writeConstructor");
+	}
+	
+	static void printFieldInitials(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
 		node.walk((mode,entity)->{
-			if (mode == NodeEnterMode.ENTER && entity.getType() == SyntaxTreeNodeType.Variable) {
-				try{writer.writeln(" aload this");					
-					switch (InternalUtils.defineSimplifiedType(((VarDescriptor)node.cargo).getNameType())) {
+			if (mode == NodeEnterMode.ENTER && entity.getType() == MercSyntaxTreeNodeType.Variable) {
+				try{writer.writeln(" aload this");			
+					switch (InternalUtils.defineSimplifiedType(((VarDescriptor)entity.cargo).getNameType())) {
 						case AreaType	:
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_AREA_KEEPER));
-							if (node.children.length != 0) {
+							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(node.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0], names, classes, vars, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(AREA_KEEPER_SETVALUE));
 							}
 							break;
 						case BooleanType:
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_BOOLEAN_KEEPER));
-							if (node.children.length != 0) {
+							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(node.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0].children[0], names, classes, vars, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(BOOLEAN_KEEPER_SETVALUE));
 							}
 							break;
 						case DoubleType	:
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_KEEPER));
-							if (node.children.length != 0) {
+							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(node.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0].children[0], names, classes, vars, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(DOUBLE_KEEPER_SETVALUE));
 							}
 							break;
 						case LongType	:
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_KEEPER));
-							if (node.children.length != 0) {
+							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(node.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0].children[0], names, classes, vars, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(LONG_KEEPER_SETVALUE));
 							}
 							break;
 						case OtherType	:
-							if (node.children.length != 0) {
-								printExpression(node.children[0], names, classes, vars, writer);
+							if (entity.children.length != 0) {
+								printExpression(entity.children[0], names, classes, vars, writer);
 							}
 							else {
 								writer.writeln(" aconst_null");
@@ -176,39 +180,39 @@ class MercCodeBuilder {
 							break;
 						case PointType	:
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_POINT_KEEPER));
-							if (node.children.length != 0) {
+							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(node.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0], names, classes, vars, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(POINT_KEEPER_SETVALUE));
 							}
 							break;
 						case SizeType	:
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_SIZE_KEEPER));
-							if (node.children.length != 0) {
+							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(node.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0], names, classes, vars, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(SIZE_KEEPER_SETVALUE));
 							}
 							break;
 						case StringType	:
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_STRING_KEEPER));
-							if (node.children.length != 0) {
+							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(node.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0].children[0], names, classes, vars, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(STRING_KEEPER_SETVALUE));
 							}
 							break;
 						case TrackType	:
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_TRACK_KEEPER));
-							if (node.children.length != 0) {
+							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(node.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0], names, classes, vars, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(TRACK_KEEPER_SETVALUE));
 							}
 							break;
-						default	: throw new UnsupportedOperationException("Simplified type ["+InternalUtils.defineSimplifiedType(((VarDescriptor)node.cargo).getNameType())+"] is not supported yet"); 
+						default	: throw new UnsupportedOperationException("Simplified type ["+InternalUtils.defineSimplifiedType(((VarDescriptor)entity.cargo).getNameType())+"] is not supported yet"); 
 					}
-					writer.write(" putfield ").writeln(names.getName(node.value));
+					writer.write(" putfield ").writeln(names.getName(entity.value));
 				} catch (IOException | SyntaxException e) {
 					return ContinueMode.STOP;
 				}
@@ -220,29 +224,33 @@ class MercCodeBuilder {
 		});
 	}
 	
-	static void printMain(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
-		// TODO Auto-generated method stub
-		for (SyntaxTreeNode item : node.children) {
+	static void printConstructorEnd(final MercSyntaxTreeNode root, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
+		writer.writeln(" endWriteConstructor");
+	}
+	
+	static void printMain(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
+		writer.writeln(" writeExecutor");
+		for (MercSyntaxTreeNode item : node.children) {
+			printOperator(item,names,classes,vars,writer);
+		}
+		writer.writeln(" endWriteExecutor");
+	}
+
+	static void printFunc(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
+		printParametersAndVars(((MercSyntaxTreeNode)node.cargo),names,classes,vars,writer);
+		for (MercSyntaxTreeNode item : node.children) {
 			printOperator(item,names,classes,vars,writer);
 		}
 	}
 
-	static void printFunc(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
-		printParametersAndVars(((SyntaxTreeNode)node.cargo),names,classes,vars,writer);
-		for (SyntaxTreeNode item : node.children) {
-			printOperator(item,names,classes,vars,writer);
-		}
+	static void printTail(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
+		writer.writeln(" writeEpilogue");
 	}
 
-	static void printTail(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	static void printParametersAndVars(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) {
+	static void printParametersAndVars(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) {
 		// TODO Auto-generated method stub
 		node.walk((mode,entity)->{
-			if (mode == NodeEnterMode.ENTER && entity.getType() == SyntaxTreeNodeType.Variable) {
+			if (mode == NodeEnterMode.ENTER && entity.getType() == MercSyntaxTreeNodeType.Variable) {
 				try{writer.write(names.getName(entity.value)).write(" .field \n");
 				} catch (IOException e) {
 					return ContinueMode.STOP;
@@ -252,7 +260,7 @@ class MercCodeBuilder {
 		});
 	}
 	
-	static void printOperator(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
+	static void printOperator(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
 		// TODO Auto-generated method stub
 		switch (node.getType()) {
 			case Assign		:
@@ -268,6 +276,7 @@ class MercCodeBuilder {
 			case LongReturn	:
 				break;
 			case Print		:
+				printPrintOperator(node, names, classes, vars, writer);
 				break;
 			case Sequence	:
 				break;
@@ -288,9 +297,9 @@ class MercCodeBuilder {
 		}
 	}
 
-	static void printPrintOperator(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
+	static void printPrintOperator(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
 		writer.writeln(" aload writer");
-		for (SyntaxTreeNode item : node.children) {
+		for (MercSyntaxTreeNode item : node.children) {
 			writer.writeln(" dup");
 			printExpression(item,names,classes,vars,writer);
 			final Class<?>	resultClass = inferenceExpressionType(item);
@@ -327,7 +336,7 @@ class MercCodeBuilder {
 		writer.writeln(" invokevirtual java.io.PrintWriter.println()V");
 	}
 	
-	static void printExpression(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
+	static void printExpression(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
 		switch (node.getType()) {
 			case BitInv	:
 				printExpression(node.children[0], names, classes, vars, writer);
@@ -352,7 +361,7 @@ class MercCodeBuilder {
 					int		count = 0;
 					
 					callList = new Class[node.children[1].children.length];
-					for (SyntaxTreeNode item : node.children[1].children) {
+					for (MercSyntaxTreeNode item : node.children[1].children) {
 						printExpression(item, names, classes, vars, writer);
 						callList[count++] = inferenceExpressionType(item);
 					}
@@ -372,7 +381,7 @@ class MercCodeBuilder {
 				break;
 			case IndicedName	:
 				printExpression(node.children[0], names, classes, vars, writer);
-				for (SyntaxTreeNode item : node.children[1].children) {
+				for (MercSyntaxTreeNode item : node.children[1].children) {
 					printExpression(item, names, classes, vars, writer);
 					writer.write(" aaload");
 				}
@@ -483,7 +492,7 @@ class MercCodeBuilder {
 		}		
 	}
 
-	static void printConversion(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
+	static void printConversion(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
 		switch (InternalUtils.defineSimplifiedType(((VarDescriptor)node.cargo).getNameType())) {
 			case AreaType	:
 				switch (node.children.length) {
@@ -500,7 +509,7 @@ class MercCodeBuilder {
 						break;
 					case 4 :
 						newAndDup(writer,Area.class);
-						for (SyntaxTreeNode item : node.children) {
+						for (MercSyntaxTreeNode item : node.children) {
 							printExpression(item, names, classes, vars, writer);
 							writer.writeln(" l2i");
 						}
@@ -519,7 +528,7 @@ class MercCodeBuilder {
 						break;
 					case 2 :
 						newAndDup(writer,Point.class);
-						for (SyntaxTreeNode item : node.children) {
+						for (MercSyntaxTreeNode item : node.children) {
 							printExpression(item, names, classes, vars, writer);
 							writer.writeln(" l2i");
 						}
@@ -535,7 +544,7 @@ class MercCodeBuilder {
 						break;
 					case 2 :
 						newAndDup(writer,Size.class);
-						for (SyntaxTreeNode item : node.children) {
+						for (MercSyntaxTreeNode item : node.children) {
 							printExpression(item, names, classes, vars, writer);
 							writer.writeln(" l2i");
 						}
@@ -553,7 +562,7 @@ class MercCodeBuilder {
 				}
 				if (innerNodeTypes.length == 2) {
 					if (innerNodeTypes[0] == long.class && innerNodeTypes[1] == long.class) {
-						for (SyntaxTreeNode item : node.children) {
+						for (MercSyntaxTreeNode item : node.children) {
 							printExpression(item, names, classes, vars, writer);
 							writer.writeln(" l2i");
 						}
@@ -561,7 +570,7 @@ class MercCodeBuilder {
 						return;
 					}
 					else if (innerNodeTypes[0] == Point.class && innerNodeTypes[1] == Size.class) {
-						for (SyntaxTreeNode item : node.children) {
+						for (MercSyntaxTreeNode item : node.children) {
 							printExpression(item, names, classes, vars, writer);
 						}
 						writer.writeln(CompilerUtils.buildConstructorCall(TRACK_CONSTRUCTOR_POINTSIZE));
@@ -570,7 +579,7 @@ class MercCodeBuilder {
 				}
 				if (innerNodeTypes.length == 4) {
 					if (innerNodeTypes[0] == long.class && innerNodeTypes[1] == long.class && innerNodeTypes[2] == long.class && innerNodeTypes[3] == long.class) {
-						for (SyntaxTreeNode item : node.children) {
+						for (MercSyntaxTreeNode item : node.children) {
 							printExpression(item, names, classes, vars, writer);
 							writer.writeln(" l2i");
 						}
@@ -594,7 +603,7 @@ class MercCodeBuilder {
 	}
 	
 	
-	static void printOrdinalBinaryExpression(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
+	static void printOrdinalBinaryExpression(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
 		final LexemaSubtype[]	operators = (LexemaSubtype[])node.cargo;
 		final Class<?>			firstClass = inferenceExpressionType(node.children[0]); 
 		
@@ -605,7 +614,7 @@ class MercCodeBuilder {
 					writer.writeln(" ldc 0");
 					writer.writeln(" istore arr_len");
 
-					for (SyntaxTreeNode item : node.children) {
+					for (MercSyntaxTreeNode item : node.children) {
 						printExpression(item, names, classes, vars, writer);
 						writer.writeln(" dup");
 						writer.writeln(" arraylength");
@@ -738,7 +747,7 @@ class MercCodeBuilder {
 		}
 	}
 	
-	static void printPredefinedName(final SyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
+	static void printPredefinedName(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
 		switch ((LexemaSubtype)node.cargo) {
 			case Robo		:
 				writer.writeln(" aload	world");
@@ -768,15 +777,15 @@ class MercCodeBuilder {
 	}
 	
 	
-	static boolean isConstantExpression(final SyntaxTreeNode node) {
+	static boolean isConstantExpression(final MercSyntaxTreeNode node) {
 		return false;
 	}
 	
-	static SyntaxTreeNode calculateConstanExpression(final SyntaxTreeNode node) {
+	static MercSyntaxTreeNode calculateConstanExpression(final MercSyntaxTreeNode node) {
 		return null;
 	}
 	
-	static Class<?> inferenceExpressionType(final SyntaxTreeNode node) {
+	static Class<?> inferenceExpressionType(final MercSyntaxTreeNode node) {
 		switch (node.getType()) {
 			case AllocatedVariable:
 				break;
@@ -889,4 +898,5 @@ class MercCodeBuilder {
 	private static void newAndDup(final CharDataOutput writer, final Class<?> clazz) throws IOException {
 		writer.write(" new ").writeln(CompilerUtils.buildClassPath(clazz)).writeln(" dup");
 	}
+
 }

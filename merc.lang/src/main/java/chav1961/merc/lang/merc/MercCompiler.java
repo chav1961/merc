@@ -1,15 +1,19 @@
 package chav1961.merc.lang.merc;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 
 import chav1961.merc.api.AreaKeeper;
 import chav1961.merc.api.BooleanKeeper;
@@ -20,7 +24,6 @@ import chav1961.merc.api.SizeKeeper;
 import chav1961.merc.api.StringKeeper;
 import chav1961.merc.api.TrackKeeper;
 import chav1961.merc.lang.merc.MercScriptEngine.Lexema;
-import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.interfaces.CharDataOutput;
 import chav1961.merc.lang.merc.interfaces.LexemaType;
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
@@ -29,8 +32,6 @@ import chav1961.purelib.basic.CharUtils;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
-import chav1961.purelib.enumerations.ContinueMode;
-import chav1961.purelib.streams.JsonStaxParser.LexType;
 import chav1961.purelib.streams.char2byte.AsmWriter;
 
 class MercCompiler {
@@ -51,7 +52,7 @@ class MercCompiler {
 	static final int	PRTY_PIPE = 14;
 
 	private static final SyntaxTreeInterface<Lexema>			KEYWORDS = new AndOrTree<>();
-	private static final Map<LexemaSubtype,SyntaxTreeNodeType>	CONVERSIONS = new HashMap<>();
+	private static final Map<LexemaSubtype,MercSyntaxTreeNodeType>	CONVERSIONS = new HashMap<>();
 	
 	static {
 		KEYWORDS.placeName("if",new Lexema(0,0,0,LexemaType.If));
@@ -93,11 +94,11 @@ class MercCompiler {
 		KEYWORDS.placeName("market",new Lexema(0,0,0,LexemaType.PredefinedName,LexemaSubtype.Market));
 		KEYWORDS.placeName("teleport",new Lexema(0,0,0,LexemaType.PredefinedName,LexemaSubtype.Teleport));
 
-		CONVERSIONS.put(LexemaSubtype.Neg,SyntaxTreeNodeType.Negation);
-		CONVERSIONS.put(LexemaSubtype.Inc,SyntaxTreeNodeType.PreInc);
-		CONVERSIONS.put(LexemaSubtype.Dec,SyntaxTreeNodeType.PreDec);
-		CONVERSIONS.put(LexemaSubtype.BitInv,SyntaxTreeNodeType.BitInv);
-		CONVERSIONS.put(LexemaSubtype.Not,SyntaxTreeNodeType.Not);
+		CONVERSIONS.put(LexemaSubtype.Neg,MercSyntaxTreeNodeType.Negation);
+		CONVERSIONS.put(LexemaSubtype.Inc,MercSyntaxTreeNodeType.PreInc);
+		CONVERSIONS.put(LexemaSubtype.Dec,MercSyntaxTreeNodeType.PreDec);
+		CONVERSIONS.put(LexemaSubtype.BitInv,MercSyntaxTreeNodeType.BitInv);
+		CONVERSIONS.put(LexemaSubtype.Not,MercSyntaxTreeNodeType.Not);
 	}
 	
 	static void processLine(final long displacement, final int lineNo, final char[] data, final int from, final int length, final boolean parseForHighlight, final SyntaxTreeInterface<?> names, final List<Lexema> lexemas) throws IOException, SyntaxException {
@@ -351,35 +352,57 @@ class MercCompiler {
 	static void compile(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final OutputStream target) throws SyntaxException, IOException {
 		final MercClassRepo		classes = new MercClassRepo(names,current);
 		final MercNameRepo		vars = new MercNameRepo();
-		final SyntaxTreeNode	root = new SyntaxTreeNode();
+		final MercSyntaxTreeNode	root = new MercSyntaxTreeNode();
 		final int				lastParsed = buildSyntaxTree(lexemas,0,names,classes,vars,root); 
 	
 		if (lexemas[lastParsed].type != LexemaType.EOF) {
 			throw new SyntaxException(lexemas[lastParsed].row,lexemas[lastParsed].col,"Unparsed tail in the program!");
 		}
 		else {
-			try(final AsmWriter			writer = new AsmWriter(target)) {
-				try(final InputStream	is = MercCompiler.class.getResourceAsStream("macros.txt");
-					final Reader		rdr = new InputStreamReader(is)) {
-					
-					Utils.copyStream(rdr,writer);
-				}
-				final CharDataOutput	out = null;
+			try(final JarOutputStream	jos = new JarOutputStream(target)) {
+				JarEntry	je = new JarEntry("META-INF/manifest.mf"){{setMethod(JarEntry.DEFLATED);}};
 				
-				MercCodeBuilder.printHead(root,names,classes,vars,out);
-				MercCodeBuilder.printFields(((SyntaxTreeNode)root.cargo),names,classes,vars,out);
-				MercCodeBuilder.printMain(((SyntaxTreeNode)root.cargo),names,classes,vars,out);
-				for (SyntaxTreeNode item : root.children) {
-					MercCodeBuilder.printFunc(((SyntaxTreeNode)item.cargo),names,classes,vars,out);
+				jos.putNextEntry(je);
+				jos.write((Attributes.Name.MAIN_CLASS.toString()+": chav1961.merc.lang.merc.MercProgram\n").getBytes());
+				jos.flush();					
+				jos.closeEntry();					
+
+				je = new JarEntry("/chav1961/merc/lang/merc/MercProgram.class"){{setMethod(JarEntry.DEFLATED);}};
+				jos.putNextEntry(je);
+			
+				try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream();
+					final AsmWriter			writer = new AsmWriter(baos)) {
+					try(final InputStream	is = MercCompiler.class.getResourceAsStream("macros.txt");
+						final Reader		rdr = new InputStreamReader(is)) {
+						
+						Utils.copyStream(rdr,writer);
+					}
+					
+					try(final Writer			wr = writer.clone(jos)) {
+						final CharDataOutput	out = new WriterCharDataOutput(wr);
+						
+						MercCodeBuilder.printHead(root,names,classes,vars,out);
+						MercCodeBuilder.printFields(((MercSyntaxTreeNode)root.cargo),names,classes,vars,out);
+						MercCodeBuilder.printConstructor(root,names,classes,vars,out);
+						MercCodeBuilder.printFieldInitials(((MercSyntaxTreeNode)root.cargo),names,classes,vars,out);
+						MercCodeBuilder.printConstructorEnd(root,names,classes,vars,out);
+						MercCodeBuilder.printMain(((MercSyntaxTreeNode)root.cargo),names,classes,vars,out);
+						for (MercSyntaxTreeNode item : root.children) {
+							MercCodeBuilder.printFunc(((MercSyntaxTreeNode)item.cargo),names,classes,vars,out);
+						}
+						MercCodeBuilder.printTail(root,names,classes,vars,out);
+						wr.flush();
+						jos.flush();					
+						jos.closeEntry();					
+					}
 				}
-				MercCodeBuilder.printTail(root,names,classes,vars,out);
 			}
 		}
 	}
 
-	static int buildSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final SyntaxTreeNode node) throws SyntaxException {
-		final SyntaxTreeNode		main = new SyntaxTreeNode();
-		final List<SyntaxTreeNode>	funcs = new ArrayList<>();
+	static int buildSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final MercSyntaxTreeNode node) throws SyntaxException {
+		final MercSyntaxTreeNode		main = new MercSyntaxTreeNode();
+		final List<MercSyntaxTreeNode>	funcs = new ArrayList<>();
 		final int[]					allocation = new int[]{0};
 		
 		buildGlobalReferences(lexemas,0,names,classes,vars,allocation);	// Collect functions and bricks 
@@ -390,7 +413,7 @@ class MercCompiler {
 			pos++;
 		}
 		while (lexemas[pos].type == LexemaType.Func || lexemas[pos].type == LexemaType.Brick) {
-			final SyntaxTreeNode	temp = new SyntaxTreeNode();
+			final MercSyntaxTreeNode	temp = new MercSyntaxTreeNode();
 			
 			switch (lexemas[pos].type) {
 				case Func 	:
@@ -412,7 +435,7 @@ class MercCompiler {
 			throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Unparsed tail in the program!");
 		}
 		else {
-			node.assignProgram(0,0,main,funcs.toArray(new SyntaxTreeNode[funcs.size()]));
+			node.assignProgram(0,0,main,funcs.toArray(new MercSyntaxTreeNode[funcs.size()]));
 			return pos;
 		}
 	}
@@ -421,13 +444,13 @@ class MercCompiler {
 		for (int index = current, maxIndex = lexemas.length; index < maxIndex; index++) {
 			switch (lexemas[index].type) {
 				case Func 	:
-					final SyntaxTreeNode	funcNode = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	funcNode = new MercSyntaxTreeNode();
 					
 					index = buildHeadSyntaxTree(lexemas,index+1,names,classes,vars,true,new int[]{0},funcNode);
 					vars.addLocalVar(new VarDescriptorImpl(allocation[0]++,funcNode.value,extractHeadParameters(funcNode.children),(Class<?>)funcNode.cargo,0));
 					break;
 				case Brick	:
-					final SyntaxTreeNode	brickNode = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	brickNode = new MercSyntaxTreeNode();
 					
 					index = buildHeadSyntaxTree(lexemas,index+1,names,classes,vars,false,new int[]{0},brickNode); 
 					vars.addLocalVar(new VarDescriptorImpl(allocation[0]++,brickNode.value,extractHeadParameters(brickNode.children),void.class,0));
@@ -437,23 +460,23 @@ class MercCompiler {
 		}
 	}
 
-	static int buildMainBlockSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final int[] allocation, final SyntaxTreeNode node) throws SyntaxException {
-		final List<SyntaxTreeNode>	list = new ArrayList<>();
+	static int buildMainBlockSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final int[] allocation, final MercSyntaxTreeNode node) throws SyntaxException {
+		final List<MercSyntaxTreeNode>	list = new ArrayList<>();
 		int		pos = current-1;	// To skip missing ';' at the same first statement
 		
-		do {final SyntaxTreeNode	temp = new SyntaxTreeNode();
+		do {final MercSyntaxTreeNode	temp = new MercSyntaxTreeNode();
 			
 			pos = buildBodySyntaxTree(lexemas,pos+1,names,classes,vars,allocation,temp);
 			list.add(temp);
 		} while(lexemas[pos].type == LexemaType.Semicolon);
 		
-		node.assignSequence(lexemas[current].row,lexemas[current].col,list.toArray(new SyntaxTreeNode[list.size()]));
+		node.assignSequence(lexemas[current].row,lexemas[current].col,list.toArray(new MercSyntaxTreeNode[list.size()]));
 		list.clear();
 		return pos;
 	}
 
-	static int buildFuncSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final int[] allocation, final SyntaxTreeNode node) throws SyntaxException {
-		final SyntaxTreeNode	head = new SyntaxTreeNode(), body = new SyntaxTreeNode();
+	static int buildFuncSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final int[] allocation, final MercSyntaxTreeNode node) throws SyntaxException {
+		final MercSyntaxTreeNode	head = new MercSyntaxTreeNode(), body = new MercSyntaxTreeNode();
 		int		pos = current;
 		
 		pos = buildHeadSyntaxTree(lexemas, pos+1, names, classes, vars, true, allocation, head);
@@ -468,8 +491,8 @@ class MercCompiler {
 		return pos;
 	}
 
-	static int buildBrickSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final int[] allocation, final SyntaxTreeNode node) throws SyntaxException {
-		final SyntaxTreeNode	head = new SyntaxTreeNode(), body = new SyntaxTreeNode();
+	static int buildBrickSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final int[] allocation, final MercSyntaxTreeNode node) throws SyntaxException {
+		final MercSyntaxTreeNode	head = new MercSyntaxTreeNode(), body = new MercSyntaxTreeNode();
 		int		pos = current;
 		
 		pos = buildHeadSyntaxTree(lexemas, pos+1, names, classes, vars, false, allocation, head);
@@ -484,11 +507,11 @@ class MercCompiler {
 		return pos;
 	}
 
-	static int buildHeadSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final boolean hasReturnedValue, final int[] allocation, final SyntaxTreeNode node) throws SyntaxException {
+	static int buildHeadSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final boolean hasReturnedValue, final int[] allocation, final MercSyntaxTreeNode node) throws SyntaxException {
 		int		pos = current;
 		
 		if (lexemas[pos].type == LexemaType.Name) {
-			final List<SyntaxTreeNode>	parms = new ArrayList<>();
+			final List<MercSyntaxTreeNode>	parms = new ArrayList<>();
 			final long	name = lexemas[pos++].intval;
 			
 			vars.pushLevel(name);
@@ -499,7 +522,7 @@ class MercCompiler {
 				else {
 					do {pos++;
 						if (lexemas[pos].type == LexemaType.Var || lexemas[pos].type == LexemaType.Name) {
-							final SyntaxTreeNode	parm = new SyntaxTreeNode();
+							final MercSyntaxTreeNode	parm = new MercSyntaxTreeNode();
 							
 							pos = buildNameDef(lexemas, pos, names, classes, vars, true, false, allocation, parm);
 							parms.add(parm);
@@ -519,7 +542,7 @@ class MercCompiler {
 				if (hasReturnedValue) {
 					if (lexemas[pos].type == LexemaType.Colon) {
 						if (lexemas[pos+1].type == LexemaType.Type) {
-							node.assignHeaderWithReturned(lexemas[current].row,lexemas[current].col,name,subtype2Class(lexemas[pos+1].subtype),parms.toArray(new SyntaxTreeNode[parms.size()]));
+							node.assignHeaderWithReturned(lexemas[current].row,lexemas[current].col,name,subtype2Class(lexemas[pos+1].subtype),parms.toArray(new MercSyntaxTreeNode[parms.size()]));
 							pos += 2;
 						}
 						else {
@@ -531,7 +554,7 @@ class MercCompiler {
 					}							
 				}
 				else {
-					node.assignHeader(lexemas[current].row,lexemas[current].col,name,parms.toArray(new SyntaxTreeNode[parms.size()]));
+					node.assignHeader(lexemas[current].row,lexemas[current].col,name,parms.toArray(new MercSyntaxTreeNode[parms.size()]));
 				}
 				parms.clear();
 			}
@@ -542,7 +565,7 @@ class MercCompiler {
 		}
 	}
 	
-	static int buildNameDef(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final boolean useVar, final boolean useInitial, final int[] allocation, final SyntaxTreeNode parm) throws SyntaxException {
+	static int buildNameDef(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final boolean useVar, final boolean useInitial, final int[] allocation, final MercSyntaxTreeNode parm) throws SyntaxException {
 		boolean			isVar = false;
 		long			nameId = -1;
 		LexemaSubtype	nameType;
@@ -560,7 +583,7 @@ class MercCompiler {
 					 
 					 if (lexemas[++pos].type == LexemaType.Open) {
 						 if (useInitial) {
-							final SyntaxTreeNode	initial = new SyntaxTreeNode();
+							final MercSyntaxTreeNode	initial = new MercSyntaxTreeNode();
 							
 							pos = buildListSyntaxTree(lexemas, pos+1, names, classes, vars, false, initial);
 							if (lexemas[pos].type == LexemaType.Close) {
@@ -610,20 +633,20 @@ class MercCompiler {
 		return pos;
 	}
 
-	static int buildBodySyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final int[] allocation, final SyntaxTreeNode node) throws SyntaxException {
+	static int buildBodySyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final int[] allocation, final MercSyntaxTreeNode node) throws SyntaxException {
 		int						pos = current;
 		
 		switch (lexemas[pos].type) {
 			case Var		:	// 'var' (<name> ':' <type>[<dimensions>] ['('<initial>')'])','...
-				final List<SyntaxTreeNode>	varDefs = new ArrayList<>();
+				final List<MercSyntaxTreeNode>	varDefs = new ArrayList<>();
 				
-				do {final SyntaxTreeNode	varNode = new SyntaxTreeNode();
+				do {final MercSyntaxTreeNode	varNode = new MercSyntaxTreeNode();
 				
 					pos = buildNameDef(lexemas,pos+1, names, classes, vars, false, true, allocation, varNode);
 					varDefs.add(varNode);
 				} while (lexemas[pos].type == LexemaType.Div);
 				
-				node.assignVarDefs(lexemas[current].row,lexemas[current].col,varDefs.toArray(new SyntaxTreeNode[varDefs.size()]));
+				node.assignVarDefs(lexemas[current].row,lexemas[current].col,varDefs.toArray(new MercSyntaxTreeNode[varDefs.size()]));
 				varDefs.clear();
 				break;
 			case TypeDef	:	// 'type' (<name> ':' <java.class.name>)','...
@@ -639,15 +662,15 @@ class MercCompiler {
 				pos = buildNameSyntaxTree(lexemas, pos, names, classes, vars, node);
 				break;
 			case If			:	// 'if' <condition> 'then' <operator> ['else' <operator>]
-				final SyntaxTreeNode	ifCond = new SyntaxTreeNode();
+				final MercSyntaxTreeNode	ifCond = new MercSyntaxTreeNode();
 				
 				pos = buildExpressionSyntaxTree(PRTY_ASSIGN, lexemas, pos+1, names, classes, vars, ifCond);
 				if (lexemas[pos].type == LexemaType.Then) {
-					final SyntaxTreeNode	thenBody = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	thenBody = new MercSyntaxTreeNode();
 					
 					pos = buildBodySyntaxTree(lexemas, pos+1, names, classes, vars, allocation, thenBody);
 					if (lexemas[pos].type == LexemaType.Else) {
-						final SyntaxTreeNode	elseBody = new SyntaxTreeNode();
+						final MercSyntaxTreeNode	elseBody = new MercSyntaxTreeNode();
 						
 						pos = buildBodySyntaxTree(lexemas, pos+1, names, classes, vars, allocation, elseBody);
 						node.assignIf(lexemas[current].row,lexemas[current].col,ifCond,thenBody,elseBody);
@@ -658,11 +681,11 @@ class MercCompiler {
 				}
 				break;
 			case Do			:	// 'do' <operator> 'while' <condition>
-				final SyntaxTreeNode	untilBody = new SyntaxTreeNode();
+				final MercSyntaxTreeNode	untilBody = new MercSyntaxTreeNode();
 				
 				pos = buildBodySyntaxTree(lexemas, pos+1, names, classes, vars, allocation, untilBody);
 				if (lexemas[pos].type == LexemaType.While) {
-					final SyntaxTreeNode	untilCond = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	untilCond = new MercSyntaxTreeNode();
 					
 					pos = buildExpressionSyntaxTree(PRTY_ASSIGN, lexemas, pos+1, names, classes, vars, untilCond);
 					node.assignUntil(lexemas[current].row,lexemas[current].col,untilCond,untilBody);
@@ -672,11 +695,11 @@ class MercCompiler {
 				}
 				break;
 			case While		:	// 'while' <condition> 'do' <operator>
-				final SyntaxTreeNode	whileCond = new SyntaxTreeNode();
+				final MercSyntaxTreeNode	whileCond = new MercSyntaxTreeNode();
 				
 				pos = buildExpressionSyntaxTree(PRTY_ASSIGN, lexemas, pos+1, names, classes, vars, whileCond);
 				if (lexemas[pos].type == LexemaType.Do) {
-					final SyntaxTreeNode	whileBody = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	whileBody = new MercSyntaxTreeNode();
 					
 					pos = buildBodySyntaxTree(lexemas, pos+1, names, classes, vars, allocation, whileBody);
 					node.assignWhile(lexemas[current].row,lexemas[current].col,whileCond,whileBody);
@@ -686,14 +709,14 @@ class MercCompiler {
 				}
 				break;
 			case For		: 	// 'for' <name> [':' <type>] 'in' <list> 'do' <operator>
-				final SyntaxTreeNode	forName = new SyntaxTreeNode();
-				final SyntaxTreeNode	forType = new SyntaxTreeNode();
+				final MercSyntaxTreeNode	forName = new MercSyntaxTreeNode();
+				final MercSyntaxTreeNode	forType = new MercSyntaxTreeNode();
 				boolean					typePresents = false;
 
 				vars.pushLevel();
 				pos = buildNameSyntaxTree(lexemas, pos+1, names, classes, vars, forName);
 				if (lexemas[pos].type == LexemaType.Colon) {
-					if (forName.getType() == SyntaxTreeNodeType.StandaloneName) {
+					if (forName.getType() == MercSyntaxTreeNodeType.StandaloneName) {
 						if (lexemas[pos+1].type == LexemaType.Type) {
 							forType.assignType(lexemas[current].row,lexemas[current].col,lexemas[pos+1].subtype);
 							typePresents = true;
@@ -708,11 +731,11 @@ class MercCompiler {
 					}
 				}
 				if (lexemas[pos].type == LexemaType.In) {
-					final SyntaxTreeNode	forList = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	forList = new MercSyntaxTreeNode();
 					
 					pos = buildListSyntaxTree(lexemas, pos+1, names, classes, vars, true, forList);
 					if (lexemas[pos].type == LexemaType.Do) {
-						final SyntaxTreeNode	forBody = new SyntaxTreeNode();
+						final MercSyntaxTreeNode	forBody = new MercSyntaxTreeNode();
 						
 						pos = buildBodySyntaxTree(lexemas, pos+1, names, classes, vars, allocation, forBody);
 						if (typePresents) {
@@ -752,7 +775,7 @@ class MercCompiler {
 				}
 				break;
 			case Return		:	// 'return' [<expression>]
-				final SyntaxTreeNode	returnExpression = new SyntaxTreeNode();
+				final MercSyntaxTreeNode	returnExpression = new MercSyntaxTreeNode();
 				int						oldPos = pos;
 				
 				try{pos = buildExpressionSyntaxTree(PRTY_ASSIGN, lexemas, pos+1, names, classes, vars, returnExpression);
@@ -764,17 +787,17 @@ class MercCompiler {
 				}
 				break;
 			case Print		:	// 'print' (<expression>)','...
-				final SyntaxTreeNode	printExpression = new SyntaxTreeNode();
+				final MercSyntaxTreeNode	printExpression = new MercSyntaxTreeNode();
 				
 				pos = buildListSyntaxTree(lexemas, pos+1, names, classes, vars, false, printExpression);
 				node.assignPrint(lexemas[current].row,lexemas[current].col,printExpression);
 				break;
 			case Lock		:	// 'lock' <list> ':' <operator>
-				final SyntaxTreeNode	lockExpression = new SyntaxTreeNode();
+				final MercSyntaxTreeNode	lockExpression = new MercSyntaxTreeNode();
 				
 				pos = buildListSyntaxTree(lexemas, pos+1, names, classes, vars, true,lockExpression);
 				if (lexemas[pos].type == LexemaType.Colon) {
-					final SyntaxTreeNode	lockBody = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	lockBody = new MercSyntaxTreeNode();
 					
 					pos = buildBodySyntaxTree(lexemas, pos+1, names, classes, vars, allocation, lockBody);
 					node.assignLock(lexemas[current].row,lexemas[current].col,lockExpression,lockBody);
@@ -784,10 +807,10 @@ class MercCompiler {
 				}
 				break;
 			case OpenF		:	// '{' <operator>[';'...] '}'
-				final List<SyntaxTreeNode>	list = new ArrayList<>();				
+				final List<MercSyntaxTreeNode>	list = new ArrayList<>();				
 				
 				vars.pushLevel();
-				do {final SyntaxTreeNode	temp = new SyntaxTreeNode();
+				do {final MercSyntaxTreeNode	temp = new MercSyntaxTreeNode();
 					
 					pos = buildBodySyntaxTree(lexemas, pos+1, names, classes, vars, allocation, temp);
 					list.add(temp);
@@ -795,7 +818,7 @@ class MercCompiler {
 				vars.popLevel();
 				
 				if (lexemas[pos].type == LexemaType.CloseF) {
-					node.assignSequence(lexemas[current].row,lexemas[current].col,list.toArray(new SyntaxTreeNode[list.size()]));
+					node.assignSequence(lexemas[current].row,lexemas[current].col,list.toArray(new MercSyntaxTreeNode[list.size()]));
 					list.clear();
 					pos++;
 				}
@@ -814,7 +837,7 @@ class MercCompiler {
 		return pos;
 	}
 
-	static int buildNameSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final SyntaxTreeNode node) throws SyntaxException {
+	static int buildNameSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final MercSyntaxTreeNode node) throws SyntaxException {
 		int 	pos = current;
 		long	nameId = lexemas[pos].intval;
 
@@ -829,8 +852,9 @@ class MercCompiler {
 		}
 		else {
 			node.assignName(lexemas[current].row,lexemas[current].col,nameId);
+			node.cargo = vars.getName(nameId);
 			if (lexemas[pos+1].type == LexemaType.OpenB) {
-				final SyntaxTreeNode	indices = new SyntaxTreeNode();
+				final MercSyntaxTreeNode	indices = new MercSyntaxTreeNode();
 				
 				pos = buildListSyntaxTree(lexemas, pos+2, names, classes, vars, false, indices);
 				if (lexemas[pos].type == LexemaType.CloseB) {
@@ -845,8 +869,8 @@ class MercCompiler {
 				pos++;
 			}
 			if (lexemas[pos].type == LexemaType.Open) {
-				final SyntaxTreeNode	call = new SyntaxTreeNode(node);	
-				final SyntaxTreeNode	parms = new SyntaxTreeNode();
+				final MercSyntaxTreeNode	call = new MercSyntaxTreeNode(node);	
+				final MercSyntaxTreeNode	parms = new MercSyntaxTreeNode();
 				
 				if (lexemas[pos+1].type == LexemaType.Close) {
 					node.assignCall(lexemas[current].row,lexemas[current].col,nameId,null,call);
@@ -865,8 +889,8 @@ class MercCompiler {
 			}
 		}
 		if (lexemas[pos].type == LexemaType.Dot) {
-			final SyntaxTreeNode	owner = new SyntaxTreeNode(node);
-			final SyntaxTreeNode	field = new SyntaxTreeNode();
+			final MercSyntaxTreeNode	owner = new MercSyntaxTreeNode(node);
+			final MercSyntaxTreeNode	field = new MercSyntaxTreeNode();
 			
 			pos = buildNameSyntaxTree(lexemas, pos+1, names, classes, vars, field);
 			node.assignField(lexemas[current].row,lexemas[current].col,null,owner,field);
@@ -874,7 +898,7 @@ class MercCompiler {
 		return pos;
 	}
 	
-	static int buildExpressionSyntaxTree(final int level, final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final SyntaxTreeNode node) throws SyntaxException {
+	static int buildExpressionSyntaxTree(final int level, final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final MercSyntaxTreeNode node) throws SyntaxException {
 		int	pos = current;
 		
 		switch (level) {
@@ -921,7 +945,7 @@ class MercCompiler {
 						final LexemaSubtype	conv = lexemas[pos].subtype;
 						
 						if (lexemas[pos+1].type == LexemaType.Open) {
-							final SyntaxTreeNode	inner = new SyntaxTreeNode();
+							final MercSyntaxTreeNode	inner = new MercSyntaxTreeNode();
 							
 							pos = buildListSyntaxTree(lexemas, pos+2, names, classes, vars, false, inner);
 							if (lexemas[pos].type == LexemaType.Close) {
@@ -942,7 +966,7 @@ class MercCompiler {
 				break;
 			case PRTY_INCDEC	:
 				if (lexemas[pos].type == LexemaType.Operator && inList(lexemas[pos].subtype,LexemaSubtype.Inc,LexemaSubtype.Dec)) {
-					final SyntaxTreeNode	child = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	child = new MercSyntaxTreeNode();
 					final LexemaSubtype		oper = lexemas[pos].subtype;
 					
 					pos = buildExpressionSyntaxTree(level-1, lexemas, pos+1, names, classes, vars, child);
@@ -956,10 +980,10 @@ class MercCompiler {
 				else {
 					pos = buildExpressionSyntaxTree(level-1, lexemas, pos, names, classes, vars, node);
 					if (lexemas[pos].type == LexemaType.Operator && inList(lexemas[pos].subtype,LexemaSubtype.Inc,LexemaSubtype.Dec)) {
-						final SyntaxTreeNode	child = new SyntaxTreeNode(node);
+						final MercSyntaxTreeNode	child = new MercSyntaxTreeNode(node);
 						
 						if (testLeftPart(child)) {
-							node.assignUnary(lexemas[current].row,lexemas[current].col,lexemas[pos].subtype == LexemaSubtype.Inc ? SyntaxTreeNodeType.PostInc : SyntaxTreeNodeType.PostDec, child);
+							node.assignUnary(lexemas[current].row,lexemas[current].col,lexemas[pos].subtype == LexemaSubtype.Inc ? MercSyntaxTreeNodeType.PostInc : MercSyntaxTreeNodeType.PostDec, child);
 							pos++;
 						}
 						else {
@@ -992,19 +1016,19 @@ class MercCompiler {
 			case PRTY_COMPARISON	:
 				pos = buildExpressionSyntaxTree(level-1, lexemas, pos, names, classes, vars, node);
 				if (lexemas[pos].type == LexemaType.Operator && inList(lexemas[pos].subtype,LexemaSubtype.EQ,LexemaSubtype.NE,LexemaSubtype.LT,LexemaSubtype.LE,LexemaSubtype.GT,LexemaSubtype.GE,LexemaSubtype.LIKE)){
-					final SyntaxTreeNode	left = new SyntaxTreeNode(node);
-					final SyntaxTreeNode	right = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	left = new MercSyntaxTreeNode(node);
+					final MercSyntaxTreeNode	right = new MercSyntaxTreeNode();
 					final LexemaSubtype		oper = lexemas[pos].subtype;
 					
 					pos = buildExpressionSyntaxTree(level-1, lexemas, pos+1, names, classes, vars, right);
-					node.assignBinary(lexemas[current].row,lexemas[current].col,PRTY_COMPARISON,new LexemaSubtype[]{LexemaSubtype.Undefined,oper},new SyntaxTreeNode[]{left,right});
+					node.assignBinary(lexemas[current].row,lexemas[current].col,PRTY_COMPARISON,new LexemaSubtype[]{LexemaSubtype.Undefined,oper},new MercSyntaxTreeNode[]{left,right});
 				}
 				else if (lexemas[pos].type == LexemaType.In) {
-					final SyntaxTreeNode	left = new SyntaxTreeNode(node);
-					final SyntaxTreeNode	right = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	left = new MercSyntaxTreeNode(node);
+					final MercSyntaxTreeNode	right = new MercSyntaxTreeNode();
 					
 					pos = buildListSyntaxTree(lexemas, pos+1, names, classes, vars, true, right);
-					node.assignBinary(lexemas[current].row,lexemas[current].col,PRTY_COMPARISON,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.InList},new SyntaxTreeNode[]{left,right});
+					node.assignBinary(lexemas[current].row,lexemas[current].col,PRTY_COMPARISON,new LexemaSubtype[]{LexemaSubtype.Undefined,LexemaSubtype.InList},new MercSyntaxTreeNode[]{left,right});
 				}
 				break;
 			case PRTY_NOT		:
@@ -1020,7 +1044,7 @@ class MercCompiler {
 				pos = buildExpressionSyntaxTree(level-1, lexemas, pos, names, classes, vars, node);
 				if (lexemas[pos].type == LexemaType.Operator && lexemas[pos].subtype == LexemaSubtype.Assign) {
 					if (testLeftPart(node)) {
-						final SyntaxTreeNode	left = new SyntaxTreeNode(node), right = new SyntaxTreeNode();
+						final MercSyntaxTreeNode	left = new MercSyntaxTreeNode(node), right = new MercSyntaxTreeNode();
 						
 						pos = buildExpressionSyntaxTree(level, lexemas, pos+1, names, classes, vars, right);
 						node.assignAssignment(lexemas[current].row,lexemas[current].col,left,right);
@@ -1033,18 +1057,18 @@ class MercCompiler {
 			case PRTY_PIPE		:
 				pos = buildExpressionSyntaxTree(level-1, lexemas, pos, names, classes, vars, node);
 				if (lexemas[pos].type == LexemaType.Pipe) {
-					final SyntaxTreeNode		startPipe = new SyntaxTreeNode(node);
-					final List<SyntaxTreeNode>	collection = new ArrayList<>();
+					final MercSyntaxTreeNode		startPipe = new MercSyntaxTreeNode(node);
+					final List<MercSyntaxTreeNode>	collection = new ArrayList<>();
 					
-					do {final SyntaxTreeNode	item = new SyntaxTreeNode();
+					do {final MercSyntaxTreeNode	item = new MercSyntaxTreeNode();
 					
 						pos = buildExpressionSyntaxTree(level-1, lexemas, pos+1, names, classes, vars, item);
 						collection.add(item);
 					} while (lexemas[pos].type == LexemaType.Pipe);
 					
-					final SyntaxTreeNode		endPipe = collection.remove(collection.size()-1);
+					final MercSyntaxTreeNode		endPipe = collection.remove(collection.size()-1);
 					
-					node.assignPipe(lexemas[current].row,lexemas[current].col,startPipe,collection.toArray(new SyntaxTreeNode[collection.size()]),endPipe);
+					node.assignPipe(lexemas[current].row,lexemas[current].col,startPipe,collection.toArray(new MercSyntaxTreeNode[collection.size()]),endPipe);
 					collection.clear();
 				}
 				break;
@@ -1054,12 +1078,12 @@ class MercCompiler {
 		return pos;
 	}
 
-	private static int buildUnary(final int level, final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final SyntaxTreeNode node, final LexemaSubtype... operations) throws SyntaxException {
+	private static int buildUnary(final int level, final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final MercSyntaxTreeNode node, final LexemaSubtype... operations) throws SyntaxException {
 		int		pos = current;
 		
 		if (lexemas[pos].type == LexemaType.Operator && inList(lexemas[pos].subtype,operations)) {
 			final LexemaSubtype		oper = lexemas[pos].subtype == LexemaSubtype.Sub ? LexemaSubtype.Neg : lexemas[pos].subtype;
-			final SyntaxTreeNode	subNode = new SyntaxTreeNode();
+			final MercSyntaxTreeNode	subNode = new MercSyntaxTreeNode();
 			
 			pos = buildExpressionSyntaxTree(level-1,lexemas, pos+1, names, classes, vars, subNode);
 			node.assignUnary(lexemas[current].row,lexemas[current].col,convert2TreeNodeType(oper),subNode);
@@ -1070,19 +1094,19 @@ class MercCompiler {
 		return pos;
 	}
 	
-	private static int buildBinary(final int level, final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final SyntaxTreeNode node, final boolean repeatable, final LexemaSubtype... operations) throws SyntaxException {
+	private static int buildBinary(final int level, final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final MercSyntaxTreeNode node, final boolean repeatable, final LexemaSubtype... operations) throws SyntaxException {
 		int		pos = current;
 		
 		pos = buildExpressionSyntaxTree(level-1, lexemas, pos, names, classes, vars, node);
 		if (lexemas[pos].type == LexemaType.Operator && inList(lexemas[pos].subtype,operations)) {
-			final List<SyntaxTreeNode>	nodeCollection = new ArrayList<>();
+			final List<MercSyntaxTreeNode>	nodeCollection = new ArrayList<>();
 			final List<LexemaSubtype>	operCollection = new ArrayList<>();
 			
-			nodeCollection.add(new SyntaxTreeNode(node));
+			nodeCollection.add(new MercSyntaxTreeNode(node));
 			operCollection.add(LexemaSubtype.Undefined);
 			while (lexemas[pos].type == LexemaType.Operator && inList(lexemas[pos].subtype,operations)) {
 				final LexemaSubtype		oper  = lexemas[pos].subtype;
-				final SyntaxTreeNode	item = new SyntaxTreeNode(node);
+				final MercSyntaxTreeNode	item = new MercSyntaxTreeNode(node);
 				
 				pos = buildExpressionSyntaxTree(level-1, lexemas, pos+1, names, classes, vars, item);
 				nodeCollection.add(item);
@@ -1091,7 +1115,7 @@ class MercCompiler {
 					break;
 				}
 			}
-			node.assignBinary(lexemas[current].row,lexemas[current].col,level,operCollection.toArray(new LexemaSubtype[operCollection.size()]),nodeCollection.toArray(new SyntaxTreeNode[nodeCollection.size()]));
+			node.assignBinary(lexemas[current].row,lexemas[current].col,level,operCollection.toArray(new LexemaSubtype[operCollection.size()]),nodeCollection.toArray(new MercSyntaxTreeNode[nodeCollection.size()]));
 			nodeCollection.clear();
 			operCollection.clear();
 		}
@@ -1107,16 +1131,16 @@ class MercCompiler {
 		return false;
 	}
 
-	static int buildListSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final boolean supportRanges, final SyntaxTreeNode node) throws SyntaxException {
-		final List<SyntaxTreeNode>	collection = new ArrayList<>();
+	static int buildListSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final boolean supportRanges, final MercSyntaxTreeNode node) throws SyntaxException {
+		final List<MercSyntaxTreeNode>	collection = new ArrayList<>();
 		int	pos = current-1;	// To skip first ',' missing
 		
-		do {final SyntaxTreeNode	itemNode = new SyntaxTreeNode();
+		do {final MercSyntaxTreeNode	itemNode = new MercSyntaxTreeNode();
 			
 			pos = buildExpressionSyntaxTree(PRTY_ASSIGN, lexemas, pos+1, names, classes, vars, itemNode);
 			if (lexemas[pos].type == LexemaType.Period) {
 				if (supportRanges) {
-					final SyntaxTreeNode	nextNode = new SyntaxTreeNode(), rangeNode = new SyntaxTreeNode();
+					final MercSyntaxTreeNode	nextNode = new MercSyntaxTreeNode(), rangeNode = new MercSyntaxTreeNode();
 					
 					pos = buildExpressionSyntaxTree(PRTY_ASSIGN, lexemas, pos+1, names, classes, vars, nextNode);
 					rangeNode.assignRange(lexemas[current].row,lexemas[current].col,itemNode,nextNode);
@@ -1131,19 +1155,19 @@ class MercCompiler {
 			}
 		} while (lexemas[pos].type == LexemaType.Div);
 
-		node.assignList(lexemas[current].row,lexemas[current].col,collection.toArray(new SyntaxTreeNode[collection.size()]));
+		node.assignList(lexemas[current].row,lexemas[current].col,collection.toArray(new MercSyntaxTreeNode[collection.size()]));
 		collection.clear();
 		return pos;
 	}
 	
-	private static boolean testLeftPart(final SyntaxTreeNode node) {
-		final SyntaxTreeNodeType	val = node.getType(); 
+	private static boolean testLeftPart(final MercSyntaxTreeNode node) {
+		final MercSyntaxTreeNodeType	val = node.getType(); 
 		
-		return val == SyntaxTreeNodeType.StandaloneName || val == SyntaxTreeNodeType.IndicedName || val == SyntaxTreeNodeType.InstanceField;
+		return val == MercSyntaxTreeNodeType.StandaloneName || val == MercSyntaxTreeNodeType.IndicedName || val == MercSyntaxTreeNodeType.InstanceField;
 	}
 
-	private static SyntaxTreeNodeType convert2TreeNodeType(final LexemaSubtype subtype) {
-		final SyntaxTreeNodeType	result = CONVERSIONS.get(subtype);
+	private static MercSyntaxTreeNodeType convert2TreeNodeType(final LexemaSubtype subtype) {
+		final MercSyntaxTreeNodeType	result = CONVERSIONS.get(subtype);
 		
 		if (result != null) {
 			return result;
@@ -1167,7 +1191,7 @@ class MercCompiler {
 		}
 	}
 
-	private static VarDescriptor[] extractHeadParameters(final SyntaxTreeNode[] node) {
+	private static VarDescriptor[] extractHeadParameters(final MercSyntaxTreeNode[] node) {
 		final VarDescriptor[]	result = new VarDescriptor[node.length];
 		
 		for (int index = 0; index < result.length; index++) {
@@ -1175,4 +1199,5 @@ class MercCompiler {
 		}
 		return result;
 	}
+	
 }

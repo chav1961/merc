@@ -142,21 +142,21 @@ public class MercCompilerTest {
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		
-		SyntaxTreeNode	node = new SyntaxTreeNode();
+		MercSyntaxTreeNode	node = new MercSyntaxTreeNode();
 		MercCompiler.buildNameSyntaxTree(callParser("x",false,true,names),0,names,classes,vars,node);
 		Assert.assertEquals("x\n",node.toString(names));
 		MercCompiler.buildNameSyntaxTree(callParser("x[1]",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("x[\n"+SyntaxTreeNode.STAIRWAY_STEP+"1\n]\n",node.toString(names));
+		Assert.assertEquals("x[\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"1\n]\n",node.toString(names));
 		MercCompiler.buildNameSyntaxTree(callParser("x[1,2]",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("x[\n"+SyntaxTreeNode.STAIRWAY_STEP+"1\n"+SyntaxTreeNode.STAIRWAY_STEP+",\n"+SyntaxTreeNode.STAIRWAY_STEP+"2\n]\n",node.toString(names));
+		Assert.assertEquals("x[\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"1\n"+MercSyntaxTreeNode.STAIRWAY_STEP+",\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"2\n]\n",node.toString(names));
 		MercCompiler.buildNameSyntaxTree(callParser("x()",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("Call\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nend call\n",node.toString(names));
+		Assert.assertEquals("Call\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nend call\n",node.toString(names));
 		MercCompiler.buildNameSyntaxTree(callParser("x(1)",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("Call\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nwith :\n"+SyntaxTreeNode.STAIRWAY_STEP+"1\nend call\n",node.toString(names));
+		Assert.assertEquals("Call\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nwith :\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"1\nend call\n",node.toString(names));
 		MercCompiler.buildNameSyntaxTree(callParser("x.y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("field\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n--->\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\nend field\n",node.toString(names));
+		Assert.assertEquals("field\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n--->\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\nend field\n",node.toString(names));
 		MercCompiler.buildNameSyntaxTree(callParser("x[1,2]().y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("field\n"+SyntaxTreeNode.STAIRWAY_STEP+"Call\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x[\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"1\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+",\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"2\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"]\n"+SyntaxTreeNode.STAIRWAY_STEP+"end call\n--->\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\nend field\n",node.toString(names));
+		Assert.assertEquals("field\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"Call\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x[\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"1\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+",\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"2\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"]\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end call\n--->\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\nend field\n",node.toString(names));
 
 		try{MercCompiler.buildNameSyntaxTree(callParser("x[1,2",false,true,names),0,names,classes,vars,node);
 			Assert.fail("Mandatory exception was not detected (closed ']' missing)");
@@ -182,7 +182,7 @@ public class MercCompilerTest {
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		
-		SyntaxTreeNode	node = new SyntaxTreeNode();
+		MercSyntaxTreeNode	node = new MercSyntaxTreeNode();
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_TERM,callParser("true",false,true,names),0,names,classes,vars,node);
 		Assert.assertEquals("true\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_TERM,callParser("false",false,true,names),0,names,classes,vars,node);
@@ -200,7 +200,7 @@ public class MercCompilerTest {
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_TERM,callParser("\"test\"",false,true,names),0,names,classes,vars,node);
 		Assert.assertEquals("\"test\"\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_TERM,callParser("int(10)",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("convert to Int\n"+SyntaxTreeNode.STAIRWAY_STEP+"10\n)\n",node.toString(names));
+		Assert.assertEquals("convert to Int\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"10\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_TERM,callParser("(123)",false,true,names),0,names,classes,vars,node);
 		Assert.assertEquals("123\n",node.toString(names));
 		
@@ -228,13 +228,13 @@ public class MercCompilerTest {
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		
-		SyntaxTreeNode	node = new SyntaxTreeNode();
+		MercSyntaxTreeNode	node = new MercSyntaxTreeNode();
 		MercCompiler.buildListSyntaxTree(callParser("x",false,true,names),0,names,classes,vars,false,node);
-		Assert.assertEquals("(\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
+		Assert.assertEquals("(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
 		MercCompiler.buildListSyntaxTree(callParser("x,y",false,true,names),0,names,classes,vars,false,node);
-		Assert.assertEquals("(\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n,\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n,\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildListSyntaxTree(callParser("x..y",false,true,names),0,names,classes,vars,true,node);
-		Assert.assertEquals("(\n"+SyntaxTreeNode.STAIRWAY_STEP+"(\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"..\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"y\n"+SyntaxTreeNode.STAIRWAY_STEP+")\n)\n",node.toString(names));
+		Assert.assertEquals("(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"..\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n"+MercSyntaxTreeNode.STAIRWAY_STEP+")\n)\n",node.toString(names));
 
 		try{MercCompiler.buildListSyntaxTree(callParser("x..y",false,true,names),0,names,classes,vars,false,node);
 			Assert.fail("Mandatory exception was not detected (ranges not allowed)");
@@ -248,21 +248,21 @@ public class MercCompilerTest {
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		
-		SyntaxTreeNode	node = new SyntaxTreeNode();
+		MercSyntaxTreeNode	node = new MercSyntaxTreeNode();
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_NEGATION,callParser("-x",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("- (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
+		Assert.assertEquals("- (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_INCDEC,callParser("++x",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("++ (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
+		Assert.assertEquals("++ (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_INCDEC,callParser("--x",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("-- (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
+		Assert.assertEquals("-- (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_INCDEC,callParser("x++",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("(\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n) ++\n",node.toString(names));
+		Assert.assertEquals("(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n) ++\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_INCDEC,callParser("x--",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("(\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n) --\n",node.toString(names));
+		Assert.assertEquals("(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n) --\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_BITINV,callParser("~x",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("~ (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
+		Assert.assertEquals("~ (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_NOT,callParser("!x",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("not (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
+		Assert.assertEquals("not (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n)\n",node.toString(names));
 
 		try{MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_INCDEC,callParser("++1",false,true,names),0,names,classes,vars,node);
 			Assert.fail("Mandatory exception was not detected (not left-part)");
@@ -288,51 +288,51 @@ public class MercCompilerTest {
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		
-		SyntaxTreeNode	node = new SyntaxTreeNode();
+		MercSyntaxTreeNode	node = new MercSyntaxTreeNode();
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x || y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nOr\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nOr\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_AND,callParser("x && y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nAnd\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nAnd\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x + y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nAdd\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nAdd\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x - y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nSub\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nSub\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x * y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nMul\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nMul\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x / y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nDiv\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nDiv\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x % y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nRem\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nRem\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x << y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nShl\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nShl\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x >> y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nShr\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nShr\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x >>> y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nShra\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nShra\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x | y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nBitOr\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nBitOr\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x & y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nBitAnd\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nBitAnd\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x < y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nLT\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nLT\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x <= y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nLE\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nLE\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x > y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nGT\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nGT\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x >= y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nGE\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nGE\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x == y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nEQ\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nEQ\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x != y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nNE\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nNE\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x like y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nLike\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nLike\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_OR,callParser("x in y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("binary list (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nInList\n"+SyntaxTreeNode.STAIRWAY_STEP+"(\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"y\n"+SyntaxTreeNode.STAIRWAY_STEP+")\n)\n",node.toString(names));
+		Assert.assertEquals("binary list (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nInList\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n"+MercSyntaxTreeNode.STAIRWAY_STEP+")\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_ASSIGN,callParser("x = y",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("assign (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n<---\n"+SyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
+		Assert.assertEquals("assign (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n<---\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n)\n",node.toString(names));
 		MercCompiler.buildExpressionSyntaxTree(MercCompiler.PRTY_PIPE,callParser("x -> y -> z",false,true,names),0,names,classes,vars,node);
-		Assert.assertEquals("pipe:\n"+SyntaxTreeNode.STAIRWAY_STEP+"from\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"thru\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"y\n"+SyntaxTreeNode.STAIRWAY_STEP+"to\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"z\nend pipe\n",node.toString(names));
+		Assert.assertEquals("pipe:\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"from\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"thru\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"to\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"z\nend pipe\n",node.toString(names));
 	}
 
 	@Test
@@ -342,13 +342,13 @@ public class MercCompilerTest {
 		final MercNameRepo					vars = new MercNameRepo();
 		final int[]							allocation = new int[]{0};
 		
-		SyntaxTreeNode	node = new SyntaxTreeNode();
+		MercSyntaxTreeNode	node = new MercSyntaxTreeNode();
 		MercCompiler.buildNameDef(callParser("x : int",false,true,names),0,names,classes,vars,false,false,allocation,node);
 		Assert.assertEquals("name x : class chav1961.merc.api.LongKeeper\n",node.toString(names));
 		MercCompiler.buildNameDef(callParser("var y : int",false,true,names),0,names,classes,vars,true,false,allocation,node);
 		Assert.assertEquals("variable name y : class chav1961.merc.api.LongKeeper\n",node.toString(names));
 		MercCompiler.buildNameDef(callParser("z : int(10)",false,true,names),0,names,classes,vars,false,true,allocation,node);
-		Assert.assertEquals("name z : class chav1961.merc.api.LongKeeper(\n"+SyntaxTreeNode.STAIRWAY_STEP+"(\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"10\n"+SyntaxTreeNode.STAIRWAY_STEP+")\n)\n",node.toString(names));
+		Assert.assertEquals("name z : class chav1961.merc.api.LongKeeper(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"10\n"+MercSyntaxTreeNode.STAIRWAY_STEP+")\n)\n",node.toString(names));
 		
 		try{MercCompiler.buildNameDef(callParser("x : int(10)",false,true,names),0,names,classes,vars,false,false,allocation,node);
 			Assert.fail("Mandatory exception was not detected (initials not available)");
@@ -367,21 +367,21 @@ public class MercCompilerTest {
 		final MercNameRepo					vars = new MercNameRepo();
 		final int[]							allocation = new int[]{0};
 		
-		SyntaxTreeNode	node = new SyntaxTreeNode();
+		MercSyntaxTreeNode	node = new MercSyntaxTreeNode();
 		MercCompiler.buildBodySyntaxTree(callParser("print x",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("print\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nend print\n",node.toString(names));
+		Assert.assertEquals("print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nend print\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("if true then print x",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("if\n"+SyntaxTreeNode.STAIRWAY_STEP+"true\nthen\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\nend if\n",node.toString(names));
+		Assert.assertEquals("if\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"true\nthen\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\nend if\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("if true then print x else print y",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("if\n"+SyntaxTreeNode.STAIRWAY_STEP+"true\nthen\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\nelse\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"y\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\nend if\n",node.toString(names));
+		Assert.assertEquals("if\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"true\nthen\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\nelse\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\nend if\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("do print x while true",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("do\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\nuntil\n"+SyntaxTreeNode.STAIRWAY_STEP+"true\nend until\n",node.toString(names));
+		Assert.assertEquals("do\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\nuntil\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"true\nend until\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("while true do print x ",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("while\n"+SyntaxTreeNode.STAIRWAY_STEP+"true\ndo\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\nend while\n",node.toString(names));
+		Assert.assertEquals("while\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"true\ndo\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\nend while\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("for x in 1 do print x ",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("for\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nin\n"+SyntaxTreeNode.STAIRWAY_STEP+"(\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"1\n"+SyntaxTreeNode.STAIRWAY_STEP+")\ndo\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\nend for\n",node.toString(names));
+		Assert.assertEquals("for\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nin\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"1\n"+MercSyntaxTreeNode.STAIRWAY_STEP+")\ndo\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\nend for\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("for x : int in 1 do print x ",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("for\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\ntyped\n"+SyntaxTreeNode.STAIRWAY_STEP+"Int\nin\n"+SyntaxTreeNode.STAIRWAY_STEP+"(\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"1\n"+SyntaxTreeNode.STAIRWAY_STEP+")\ndo\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\nend for\n",node.toString(names));
+		Assert.assertEquals("for\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\ntyped\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"Int\nin\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"1\n"+MercSyntaxTreeNode.STAIRWAY_STEP+")\ndo\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\nend for\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("break",false,true,names),0,names,classes,vars,allocation,node);
 		Assert.assertEquals("break\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("break 1",false,true,names),0,names,classes,vars,allocation,node);
@@ -393,15 +393,15 @@ public class MercCompilerTest {
 		MercCompiler.buildBodySyntaxTree(callParser("return",false,true,names),0,names,classes,vars,allocation,node);
 		Assert.assertEquals("return\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("return 1",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("return\n"+SyntaxTreeNode.STAIRWAY_STEP+"1\nend return\n",node.toString(names));
+		Assert.assertEquals("return\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"1\nend return\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("lock x : print x",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("lock\n"+SyntaxTreeNode.STAIRWAY_STEP+"(\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+")\n--->\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\nend lock\n",node.toString(names));
+		Assert.assertEquals("lock\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"(\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+")\n--->\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\nend lock\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("{print x; print y}",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("{\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"y\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\n}\n",node.toString(names));
+		Assert.assertEquals("{\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"y\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\n}\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("x = 0",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("assign (\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\n<---\n"+SyntaxTreeNode.STAIRWAY_STEP+"0\n)\n",node.toString(names));
+		Assert.assertEquals("assign (\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n<---\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"0\n)\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("robo.x",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("field\n"+SyntaxTreeNode.STAIRWAY_STEP+"Robo\n--->\n"+SyntaxTreeNode.STAIRWAY_STEP+"x\nend field\n",node.toString(names));
+		Assert.assertEquals("field\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"Robo\n--->\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"x\nend field\n",node.toString(names));
 		MercCompiler.buildBodySyntaxTree(callParser("var x : int",false,true,names),0,names,classes,vars,allocation,node);
 		Assert.assertEquals("name x : class chav1961.merc.api.LongKeeper\n",node.toString(names));
 	}
@@ -413,22 +413,22 @@ public class MercCompilerTest {
 		final MercNameRepo					vars = new MercNameRepo();
 		final int[]							allocation = new int[]{0};
 
-		SyntaxTreeNode	node = new SyntaxTreeNode();
+		MercSyntaxTreeNode	node = new MercSyntaxTreeNode();
 		MercCompiler.buildHeadSyntaxTree(callParser("x()",false,true,names),0,names,classes,vars,false,allocation,node);
 		Assert.assertEquals("header x:\nend header\n",node.toString(names));
 		MercCompiler.buildHeadSyntaxTree(callParser("x(var y : int, z : str)",false,true,names),0,names,classes,vars,false,allocation,node);
-		Assert.assertEquals("header x:\n"+SyntaxTreeNode.STAIRWAY_STEP+"variable name y : class chav1961.merc.api.LongKeeper\n,\n"+SyntaxTreeNode.STAIRWAY_STEP+"name z : class chav1961.merc.api.StringKeeper\nend header\n",node.toString(names));
+		Assert.assertEquals("header x:\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"variable name y : class chav1961.merc.api.LongKeeper\n,\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"name z : class chav1961.merc.api.StringKeeper\nend header\n",node.toString(names));
 		MercCompiler.buildHeadSyntaxTree(callParser("x(var y : int, z : str) : int",false,true,names),0,names,classes,vars,true,allocation,node);
-		Assert.assertEquals("header x:\n"+SyntaxTreeNode.STAIRWAY_STEP+"variable name y : class chav1961.merc.api.LongKeeper\n,\n"+SyntaxTreeNode.STAIRWAY_STEP+"name z : class chav1961.merc.api.StringKeeper\nreturned\n"+SyntaxTreeNode.STAIRWAY_STEP+"class chav1961.merc.api.LongKeeper\nend header\n",node.toString(names));
+		Assert.assertEquals("header x:\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"variable name y : class chav1961.merc.api.LongKeeper\n,\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"name z : class chav1961.merc.api.StringKeeper\nreturned\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"class chav1961.merc.api.LongKeeper\nend header\n",node.toString(names));
 
 		MercCompiler.buildFuncSyntaxTree(callParser("func x() : int; print x",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("func:\n"+SyntaxTreeNode.STAIRWAY_STEP+"header x:\n"+SyntaxTreeNode.STAIRWAY_STEP+"returned\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"class chav1961.merc.api.LongKeeper\n"+SyntaxTreeNode.STAIRWAY_STEP+"end header\nbody\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\nend func\n",node.toString(names));
+		Assert.assertEquals("func:\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"header x:\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"returned\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"class chav1961.merc.api.LongKeeper\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end header\nbody\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\nend func\n",node.toString(names));
 
 		MercCompiler.buildBrickSyntaxTree(callParser("brick x(); print x",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("brick:\n"+SyntaxTreeNode.STAIRWAY_STEP+"header x:\n"+SyntaxTreeNode.STAIRWAY_STEP+"end header\nbody\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\nend brick\n",node.toString(names));
+		Assert.assertEquals("brick:\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"header x:\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end header\nbody\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\nend brick\n",node.toString(names));
 
 		MercCompiler.buildMainBlockSyntaxTree(callParser("print x",false,true,names),0,names,classes,vars,allocation,node);
-		Assert.assertEquals("{\n"+SyntaxTreeNode.STAIRWAY_STEP+"print\n"+SyntaxTreeNode.STAIRWAY_STEP+SyntaxTreeNode.STAIRWAY_STEP+"x\n"+SyntaxTreeNode.STAIRWAY_STEP+"end print\n}\n",node.toString(names));
+		Assert.assertEquals("{\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"print\n"+MercSyntaxTreeNode.STAIRWAY_STEP+MercSyntaxTreeNode.STAIRWAY_STEP+"x\n"+MercSyntaxTreeNode.STAIRWAY_STEP+"end print\n}\n",node.toString(names));
 
 		Assert.assertEquals(19,MercCompiler.buildSyntaxTree(callParser("print x; func x() : int; return 0; brick y(); return",false,true,names),0,names,classes,vars,node));
 	}	

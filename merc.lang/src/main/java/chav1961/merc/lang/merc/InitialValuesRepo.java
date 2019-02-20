@@ -3,8 +3,6 @@ package chav1961.merc.lang.merc;
 import java.util.ArrayList;
 import java.util.List;
 
-import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
-
 class InitialValuesRepo {
 	private final List<ValuesContainer>	repo = new ArrayList<>();
 	private final int	repoPrefix;
@@ -16,10 +14,10 @@ class InitialValuesRepo {
 	
 	@FunctionalInterface
 	interface WalkCallback {
-		void process(String identifier, SyntaxTreeNode node, Class<?> clazz, Object value);
+		void process(String identifier, MercSyntaxTreeNode node, Class<?> clazz, Object value);
 	}
 	
-	boolean isValuePresent(final SyntaxTreeNode node) {
+	boolean isValuePresent(final MercSyntaxTreeNode node) {
 		for (ValuesContainer item : repo) {
 			if (item.isEquals(node)) {
 				return true;
@@ -28,7 +26,7 @@ class InitialValuesRepo {
 		return false;
 	}
 	
-	void addValue(final SyntaxTreeNode node, final Class<?> clazz) {
+	void addValue(final MercSyntaxTreeNode node, final Class<?> clazz) {
 		for (ValuesContainer item : repo) {
 			if (item.isEquals(node)) {
 				item.count++;
@@ -38,7 +36,7 @@ class InitialValuesRepo {
 		repo.add(new ValuesContainer(clazz.getSimpleName()+"_"+repoPrefix+"_"+uniqueCounter++, node, clazz));
 	}
 
-	void removeValue(final SyntaxTreeNode node) {
+	void removeValue(final MercSyntaxTreeNode node) {
 		for (ValuesContainer item : repo) {
 			if (item.isEquals(node)) {
 				item.count--;
@@ -47,7 +45,7 @@ class InitialValuesRepo {
 		}
 	}
 
-	<T> Class<T> getClass(final SyntaxTreeNode node) {
+	<T> Class<T> getClass(final MercSyntaxTreeNode node) {
 		for (ValuesContainer item : repo) {
 			if (item.isEquals(node)) {
 				return (Class<T>) item.clazz;
@@ -56,7 +54,7 @@ class InitialValuesRepo {
 		return null;
 	}
 	
-	<T> T getValue(final SyntaxTreeNode node) {
+	<T> T getValue(final MercSyntaxTreeNode node) {
 		for (ValuesContainer item : repo) {
 			if (item.isEquals(node)) {
 				return null;
@@ -65,7 +63,7 @@ class InitialValuesRepo {
 		return null;
 	}
 
-	String getIdentifier(final SyntaxTreeNode node) {
+	String getIdentifier(final MercSyntaxTreeNode node) {
 		for (ValuesContainer item : repo) {
 			if (item.isEquals(node)) {
 				return item.identifier;
@@ -82,11 +80,11 @@ class InitialValuesRepo {
 		}
 	}
 
-	private static <T> T buildByClassAndNode(final SyntaxTreeNode node, final Class<T> clazz) {
-		if (node.getType() == SyntaxTreeNodeType.Conversion) {
+	private static <T> T buildByClassAndNode(final MercSyntaxTreeNode node, final Class<T> clazz) {
+		if (node.getType() == MercSyntaxTreeNodeType.Conversion) {
 			return buildByClassAndNode((LexemaSubtype)node.cargo,node.children);
 		}
-		else if (node.getType() == SyntaxTreeNodeType.Vartype) {
+		else if (node.getType() == MercSyntaxTreeNodeType.Vartype) {
 			return buildByClassAndNode(null,node.children);
 		}
 		else {
@@ -94,7 +92,7 @@ class InitialValuesRepo {
 		}
 	}
 
-	private static <T> T buildByClassAndNode(final LexemaSubtype subtype, final SyntaxTreeNode[] initials) {
+	private static <T> T buildByClassAndNode(final LexemaSubtype subtype, final MercSyntaxTreeNode[] initials) {
 		switch (subtype) {
 			case Area	:
 				break;
@@ -114,18 +112,18 @@ class InitialValuesRepo {
 	
 	private static class ValuesContainer {
 		final String			identifier;
-		final SyntaxTreeNode	node;
+		final MercSyntaxTreeNode	node;
 		final Class<?>			clazz;
 		int						count = 0;
 		Object					value = null;
 		
-		ValuesContainer(final String identifier, final SyntaxTreeNode node, final Class<?> clazz) {
+		ValuesContainer(final String identifier, final MercSyntaxTreeNode node, final Class<?> clazz) {
 			this.identifier = identifier;
 			this.node = node;
 			this.clazz = clazz;
 		}
 		
-		boolean isEquals(final SyntaxTreeNode another) {
+		boolean isEquals(final MercSyntaxTreeNode another) {
 			return true;
 		}
 

@@ -23,7 +23,6 @@ import chav1961.merc.api.TrackKeeper;
 import chav1961.merc.api.TrackWalkCallback;
 import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.merc.api.interfaces.front.World;
-import chav1961.merc.lang.merc.SyntaxTreeNode.SyntaxTreeNodeType;
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 
@@ -79,7 +78,7 @@ class MercOptimizer {
 		
 	}
 	
-	static Class<?> processTypeConversions(final SyntaxTreeNode node, final Class<?> preferredClass, final Class<?> returnedClass, final MercClassRepo repo, List<SyntaxTreeNode> staticInitials) throws SyntaxException {
+	static Class<?> processTypeConversions(final MercSyntaxTreeNode node, final Class<?> preferredClass, final Class<?> returnedClass, final MercClassRepo repo, List<MercSyntaxTreeNode> staticInitials) throws SyntaxException {
  		// TODO:
 		switch (node.getType()) {
 			case AllocatedVariable:
@@ -151,14 +150,14 @@ class MercOptimizer {
 					return convertValueTypeTo(node,preferredClass,repo,staticInitials);
 				}
 			case Brick:
-				for (SyntaxTreeNode item : node.children) {
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,null,null,repo,staticInitials); 
 				}
 				return null;
 			case Function:
-				final Class<?>	returned = resolveType4Value((Class<?>)((SyntaxTreeNode)((SyntaxTreeNode)node.cargo).cargo).cargo);
+				final Class<?>	returned = resolveType4Value((Class<?>)((MercSyntaxTreeNode)((MercSyntaxTreeNode)node.cargo).cargo).cargo);
 				
-				for (SyntaxTreeNode item : node.children) {
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,null,returned,repo,staticInitials); 
 				}
 				return null;
@@ -180,7 +179,7 @@ class MercOptimizer {
 			case HeaderWithReturned:
 				return null;
 			case IndicedName:
-				for (SyntaxTreeNode item : node.children) {
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,long.class,returnedClass,repo,staticInitials); 
 				}
 				if (preferredClass == null) {
@@ -193,7 +192,7 @@ class MercOptimizer {
 					return convertValueTypeTo(node,preferredClass,repo,staticInitials);
 				}
 			case Infinite:
-				for (SyntaxTreeNode item : node.children) {
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,null,returnedClass,repo,staticInitials); 
 				}
 				return null;
@@ -221,33 +220,33 @@ class MercOptimizer {
 				if (preferredClass == null) {
 					final List<Class<?>>	memberClasses = new ArrayList<>(); 
 							
-					for (SyntaxTreeNode item : node.children) {
+					for (MercSyntaxTreeNode item : node.children) {
 						memberClasses.add(processTypeConversions(item,null,returnedClass,repo,staticInitials)); 
 					}
 					final Class<?>			dominated = InternalUtils.extractDominatingType(memberClasses.toArray(new Class[memberClasses.size()]));
 					
-					for (SyntaxTreeNode item : node.children) {
+					for (MercSyntaxTreeNode item : node.children) {
 						memberClasses.add(processTypeConversions(item,dominated,returnedClass,repo,staticInitials)); 
 					}
 					return dominated;
 				}
 				else {
-					for (SyntaxTreeNode item : node.children) {
+					for (MercSyntaxTreeNode item : node.children) {
 						processTypeConversions(item,preferredClass,returnedClass,repo,staticInitials); 
 					}
 					return preferredClass;
 				}
 			case Lock:
-				final Class<?>			dominated = processTypeConversions(((SyntaxTreeNode)node.cargo),null,returnedClass,repo,staticInitials);
+				final Class<?>			dominated = processTypeConversions(((MercSyntaxTreeNode)node.cargo),null,returnedClass,repo,staticInitials);
 				
 				if (POINT_CLASSES.contains(dominated)) {
-					processTypeConversions(((SyntaxTreeNode)node.cargo),dominated,returnedClass,repo,staticInitials);
+					processTypeConversions(((MercSyntaxTreeNode)node.cargo),dominated,returnedClass,repo,staticInitials);
 				}
 				else {
 					throw new UnsupportedOperationException("Unsupported conversion from [long] to ["+preferredClass.getCanonicalName()+"]");
 				}
 				
-				for (SyntaxTreeNode item : node.children) {
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,null,returnedClass,repo,staticInitials); 
 				}
 				return null;
@@ -298,19 +297,19 @@ class MercOptimizer {
 				if (preferredClass == null) {
 					switch ((int)node.value) {
 						case MercCompiler.PRTY_BITAND : case MercCompiler.PRTY_BITORXOR : case MercCompiler.PRTY_SHIFT :
-							for (SyntaxTreeNode item : node.children) {
+							for (MercSyntaxTreeNode item : node.children) {
 								processTypeConversions(item,long.class,returnedClass,repo,staticInitials); 
 							}
 							return long.class;
 						case MercCompiler.PRTY_MUL : case MercCompiler.PRTY_ADD	:
 							final List<Class<?>>	mulClasses = new ArrayList<>();
 							
-							for (SyntaxTreeNode item : node.children) {
+							for (MercSyntaxTreeNode item : node.children) {
 								mulClasses.add(resolveType4Value(processTypeConversions(item,null,returnedClass,repo,staticInitials)));
 							}
 							final Class<?>			mulRequired = InternalUtils.extractDominatingType(mulClasses.toArray(new Class[mulClasses.size()]));
 							
-							for (SyntaxTreeNode item : node.children) {
+							for (MercSyntaxTreeNode item : node.children) {
 								processTypeConversions(item,mulRequired,returnedClass,repo,staticInitials); 
 							}
 							return mulRequired;
@@ -325,7 +324,7 @@ class MercOptimizer {
 							}
 							return boolean.class;
 						case MercCompiler.PRTY_AND : case MercCompiler.PRTY_OR :
-							for (SyntaxTreeNode item : node.children) {
+							for (MercSyntaxTreeNode item : node.children) {
 								processTypeConversions(item,boolean.class,returnedClass,repo,staticInitials); 
 							}
 							return boolean.class;
@@ -336,7 +335,7 @@ class MercOptimizer {
 					switch ((int)node.value) {
 						case MercCompiler.PRTY_BITAND : case MercCompiler.PRTY_BITORXOR : case MercCompiler.PRTY_SHIFT :
 						case MercCompiler.PRTY_MUL : case MercCompiler.PRTY_ADD	:
-							for (SyntaxTreeNode item : node.children) {
+							for (MercSyntaxTreeNode item : node.children) {
 								processTypeConversions(item,long.class,returnedClass,repo,staticInitials); 
 							}
 							if (preferredClass != long.class) {
@@ -360,7 +359,7 @@ class MercOptimizer {
 							}
 							return preferredClass;
 						case MercCompiler.PRTY_AND : case MercCompiler.PRTY_OR :
-							for (SyntaxTreeNode item : node.children) {
+							for (MercSyntaxTreeNode item : node.children) {
 								processTypeConversions(item,boolean.class,returnedClass,repo,staticInitials); 
 							}
 							if (preferredClass != boolean.class) {
@@ -371,10 +370,10 @@ class MercOptimizer {
 					}
 				}
 			case Pipe:
-				for (SyntaxTreeNode item : ((SyntaxTreeNode[])node.cargo)) {
+				for (MercSyntaxTreeNode item : ((MercSyntaxTreeNode[])node.cargo)) {
 					processTypeConversions(item,null,returnedClass,repo,staticInitials); 
 				}
-				for (SyntaxTreeNode item : node.children) {
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,null,returnedClass,repo,staticInitials); 
 				}
 				return null;
@@ -389,13 +388,13 @@ class MercOptimizer {
 					throw new UnsupportedOperationException("Unsupported conversion from ["+PREDEFINED_CLASSES.get((LexemaSubtype)node.cargo)+"] to ["+preferredClass.getCanonicalName()+"]");
 				}
 			case Print:
-				for (SyntaxTreeNode item : node.children) {
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,null,returnedClass,repo,staticInitials); 
 				}
 				return null;
 			case Program:
-				processTypeConversions(((SyntaxTreeNode)node.cargo),null,returnedClass,repo,staticInitials); 
-				for (SyntaxTreeNode item : node.children) {
+				processTypeConversions(((MercSyntaxTreeNode)node.cargo),null,returnedClass,repo,staticInitials); 
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,null,returnedClass,repo,staticInitials); 
 				}
 				return null;
@@ -407,7 +406,7 @@ class MercOptimizer {
 					return rangeLeft;
 				}
 				else {
-					for (SyntaxTreeNode item : node.children) {
+					for (MercSyntaxTreeNode item : node.children) {
 						processTypeConversions(item,preferredClass,returnedClass,repo,staticInitials); 
 					}
 					return preferredClass;
@@ -425,13 +424,13 @@ class MercOptimizer {
 			case RefConst:
 				break;
 			case Sequence:
-				for (SyntaxTreeNode item : node.children) {
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,null,returnedClass,repo,staticInitials); 
 				}
 				return null;
 			case LongIf : case ShortIf :
-				processTypeConversions((SyntaxTreeNode)node.cargo,boolean.class,returnedClass,repo,staticInitials);
-				for (SyntaxTreeNode item : node.children) {
+				processTypeConversions((MercSyntaxTreeNode)node.cargo,boolean.class,returnedClass,repo,staticInitials);
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,null,returnedClass,repo,staticInitials); 
 				}
 				return null;
@@ -474,7 +473,7 @@ class MercOptimizer {
 			case Variable 	:
 				final VarDescriptor	varDesc = (VarDescriptor)node.cargo;
 				
-				for (SyntaxTreeNode item : node.children) {
+				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,varDesc.getNameType(),returnedClass,repo,staticInitials); 
 				}
 				return varDesc.getNameType();
@@ -492,19 +491,19 @@ class MercOptimizer {
 	}
 
 
-	static void processSpeculativeAssignments(final SyntaxTreeNode node) {
+	static void processSpeculativeAssignments(final MercSyntaxTreeNode node) {
 		// TODO:
 	}
 	
-	static void processConstantExpressions(final SyntaxTreeNode node) {
+	static void processConstantExpressions(final MercSyntaxTreeNode node) {
 		if (isConstantValue(node)) {
 			node.assign(buildConstantValue(node));
 		}
 		else {
 			switch(node.getType()) {
 				case LongIf		:
-					if (isConstantValue((SyntaxTreeNode)node.cargo)) {
-						final SyntaxTreeNode	value = buildConstantValue(node);
+					if (isConstantValue((MercSyntaxTreeNode)node.cargo)) {
+						final MercSyntaxTreeNode	value = buildConstantValue(node);
 						
 						if (value.value == 1) {	// Always true
 							processConstantExpressions(node.children[0]);
@@ -520,15 +519,15 @@ class MercOptimizer {
 					}
 					break;
 				case ShortIf	:
-					if (isConstantValue((SyntaxTreeNode)node.cargo)) {
-						final SyntaxTreeNode	value = buildConstantValue(node);
+					if (isConstantValue((MercSyntaxTreeNode)node.cargo)) {
+						final MercSyntaxTreeNode	value = buildConstantValue(node);
 						
 						if (value.value == 1) {	// Always true
 							processConstantExpressions(node.children[0]);
 							node.assign(node.children[0]);
 						}
 						else {
-							node.assign(new SyntaxTreeNode(node.row,node.col,SyntaxTreeNodeType.Empty,0,null,new SyntaxTreeNode[0]));
+							node.assign(new MercSyntaxTreeNode(node.row,node.col,MercSyntaxTreeNodeType.Empty,0,null,new MercSyntaxTreeNode[0]));
 						}
 					}
 					else {
@@ -536,15 +535,15 @@ class MercOptimizer {
 					}
 					break;
 				case While : case Until	:
-					if (isConstantValue((SyntaxTreeNode)node.cargo)) {
-						final SyntaxTreeNode	value = buildConstantValue(node);
+					if (isConstantValue((MercSyntaxTreeNode)node.cargo)) {
+						final MercSyntaxTreeNode	value = buildConstantValue(node);
 						
 						if (value.value == 1) {	// Always true
 							processConstantExpressions(node.children[0]);
-							node.assign(new SyntaxTreeNode(node.row,node.col,SyntaxTreeNodeType.Infinite,0,null,new SyntaxTreeNode[]{node.children[0]}));
+							node.assign(new MercSyntaxTreeNode(node.row,node.col,MercSyntaxTreeNodeType.Infinite,0,null,new MercSyntaxTreeNode[]{node.children[0]}));
 						}
 						else {
-							node.assign(new SyntaxTreeNode(node.row,node.col,SyntaxTreeNodeType.Empty,0,null,new SyntaxTreeNode[0]));
+							node.assign(new MercSyntaxTreeNode(node.row,node.col,MercSyntaxTreeNodeType.Empty,0,null,new MercSyntaxTreeNode[0]));
 						}
 					}
 					else {
@@ -557,25 +556,25 @@ class MercOptimizer {
 		}
 	}
 	
-	private static void simpleWalkConstantExpressionNode(SyntaxTreeNode node) {
-		if (node.cargo instanceof SyntaxTreeNode) {
-			processConstantExpressions((SyntaxTreeNode)node.cargo);
+	private static void simpleWalkConstantExpressionNode(MercSyntaxTreeNode node) {
+		if (node.cargo instanceof MercSyntaxTreeNode) {
+			processConstantExpressions((MercSyntaxTreeNode)node.cargo);
 		}
-		for (SyntaxTreeNode item : node.children) {
+		for (MercSyntaxTreeNode item : node.children) {
 			processConstantExpressions(item);
 		}
 	}
 
-	private static void simpleWalkTypeConversionsNode(final SyntaxTreeNode node, final Class<?> returnedClass, final MercClassRepo repo, final List<SyntaxTreeNode> staticInitials) throws SyntaxException {
-		if (node.cargo instanceof SyntaxTreeNode) {
-			processTypeConversions((SyntaxTreeNode)node.cargo,boolean.class,returnedClass,repo,staticInitials);
+	private static void simpleWalkTypeConversionsNode(final MercSyntaxTreeNode node, final Class<?> returnedClass, final MercClassRepo repo, final List<MercSyntaxTreeNode> staticInitials) throws SyntaxException {
+		if (node.cargo instanceof MercSyntaxTreeNode) {
+			processTypeConversions((MercSyntaxTreeNode)node.cargo,boolean.class,returnedClass,repo,staticInitials);
 		}
-		for (SyntaxTreeNode item : node.children) {
+		for (MercSyntaxTreeNode item : node.children) {
 			processTypeConversions(item,null,returnedClass,repo,staticInitials); 
 		}
 	}
 	
-	private static boolean isConstantValue(final SyntaxTreeNode node) {
+	private static boolean isConstantValue(final MercSyntaxTreeNode node) {
 		switch (node.getType()) {
 			case BoolConst : case IntConst : case RealConst : case StrConst : case Null : case RefConst:
 				return true;
@@ -586,7 +585,7 @@ class MercOptimizer {
 			case Negation : case BitInv : case Not :
 				return isConstantValue(node.children[0]);
 			case Conversion : case List : case Range : case OrdinalBinary:
-				for (SyntaxTreeNode item : node.children) {
+				for (MercSyntaxTreeNode item : node.children) {
 					if (!isConstantValue(item)) {
 						return false;
 					}
@@ -596,8 +595,8 @@ class MercOptimizer {
 		}
 	}
 
-	private static SyntaxTreeNode buildConstantValue(final SyntaxTreeNode node) {
-		SyntaxTreeNode	child;
+	private static MercSyntaxTreeNode buildConstantValue(final MercSyntaxTreeNode node) {
+		MercSyntaxTreeNode	child;
 		LexemaSubtype[]	operators;
 		long			longValue;
 		double			doubleValue;
@@ -607,7 +606,7 @@ class MercOptimizer {
 				return node;
 			case Negation : 
 				child = buildConstantValue(node.children[0]);
-				if (child.getType() == SyntaxTreeNodeType.RealConst) {
+				if (child.getType() == MercSyntaxTreeNodeType.RealConst) {
 					child.value = Double.doubleToLongBits(-Double.longBitsToDouble(child.value));
 				}
 				else {
@@ -663,7 +662,7 @@ class MercOptimizer {
 					case MercCompiler.PRTY_MUL		:
 						child = buildConstantValue(node.children[0]);
 						operators = (LexemaSubtype[])node.cargo;
-						if (child.getType() == SyntaxTreeNodeType.RealConst) {
+						if (child.getType() == MercSyntaxTreeNodeType.RealConst) {
 							doubleValue = Double.longBitsToDouble(child.value);
 							for (int index = 1; index < node.children.length; index++) {
 								if (operators[index] == LexemaSubtype.Mul) {
@@ -697,7 +696,7 @@ class MercOptimizer {
 					case MercCompiler.PRTY_ADD		:
 						child = buildConstantValue(node.children[0]);
 						operators = (LexemaSubtype[])node.cargo;
-						if (child.getType() == SyntaxTreeNodeType.RealConst) {
+						if (child.getType() == MercSyntaxTreeNodeType.RealConst) {
 							doubleValue = Double.longBitsToDouble(child.value);
 							for (int index = 1; index < node.children.length; index++) {
 								if (operators[index] == LexemaSubtype.Add) {
@@ -709,7 +708,7 @@ class MercOptimizer {
 							}
 							node.assignReal(node.row,node.col,doubleValue);
 						}
-						else if (child.getType() == SyntaxTreeNodeType.IntConst) {
+						else if (child.getType() == MercSyntaxTreeNodeType.IntConst) {
 							longValue = child.value;
 							for (int index = 1; index < node.children.length; index++) {
 								if (operators[index] == LexemaSubtype.Add) {
@@ -764,8 +763,8 @@ class MercOptimizer {
 								node.assignBoolean(node.row,node.col,Pattern.matches(new String((char[])buildConstantValue(node.children[1]).cargo), new String((char[])child.cargo)));
 								return node;
 							case InList	:
-								for (SyntaxTreeNode item : node.children[1].children) {
-									if (item.getType() == SyntaxTreeNodeType.Range) {
+								for (MercSyntaxTreeNode item : node.children[1].children) {
+									if (item.getType() == MercSyntaxTreeNodeType.Range) {
 										if (compareConstants(child,buildConstantValue(item.children[0])) >= 0 && compareConstants(child,buildConstantValue(item.children[1])) <= 0) {
 											node.assignBoolean(node.row,node.col,true);
 											return node;
@@ -803,7 +802,7 @@ class MercOptimizer {
 		}
 	}
 
-	private static int compareConstants(final SyntaxTreeNode left, final SyntaxTreeNode right) {
+	private static int compareConstants(final MercSyntaxTreeNode left, final MercSyntaxTreeNode right) {
 		switch (left.getType()) {
 			case BoolConst : case IntConst :
 				return (int)(left.value - right.value);
@@ -815,7 +814,7 @@ class MercOptimizer {
 		}
 	}
 
-	static Class<?> convertValueTypeTo(final SyntaxTreeNode node, final Class<?> preferredClass, final MercClassRepo repo, final List<SyntaxTreeNode> staticInitials) throws SyntaxException {
+	static Class<?> convertValueTypeTo(final MercSyntaxTreeNode node, final Class<?> preferredClass, final MercClassRepo repo, final List<MercSyntaxTreeNode> staticInitials) throws SyntaxException {
 		switch (node.getType()) {
 			case BoolConst 		:
 				if (preferredClass == char[].class) {
@@ -884,10 +883,10 @@ class MercOptimizer {
 		}
 	}
 
-	private static Class<?> insertConversion(final SyntaxTreeNode node, final Class<?> sourceClass, final Class<?> preferredClass) {
+	private static Class<?> insertConversion(final MercSyntaxTreeNode node, final Class<?> sourceClass, final Class<?> preferredClass) {
 		if (CONVERSION_TYPE.containsKey(preferredClass)) {
-			final SyntaxTreeNode	inner = new SyntaxTreeNode(node);
-			final SyntaxTreeNode	innerList = new SyntaxTreeNode();
+			final MercSyntaxTreeNode	inner = new MercSyntaxTreeNode(node);
+			final MercSyntaxTreeNode	innerList = new MercSyntaxTreeNode();
 			
 			innerList.assignList(node.row,node.col,inner);							
 			node.assignConversion(node.row,node.col,CONVERSION_TYPE.get(preferredClass),innerList);
@@ -904,15 +903,15 @@ class MercOptimizer {
 		return converted != null ? converted : sourceClass;
 	}
 
-	private static Class<?> insertValueGetter(final SyntaxTreeNode node, final Class<?> preferredClass, final MercClassRepo repo) throws SyntaxException {
+	private static Class<?> insertValueGetter(final MercSyntaxTreeNode node, final Class<?> preferredClass, final MercClassRepo repo) throws SyntaxException {
 		final Class<?>		varType = ((VarDescriptor)node.cargo).getNameType();
 		final VarDescriptor	desc = repo.byClass(varType);
 		final long			getValueId = repo.getNames().seekName("getValue");
 		
 		for (VarDescriptor item : desc.contentFields()) {
 			if (item.getNameId() == getValueId) {
-				final SyntaxTreeNode	getter = new SyntaxTreeNode();
-				final SyntaxTreeNode	callMethod = new SyntaxTreeNode();
+				final MercSyntaxTreeNode	getter = new MercSyntaxTreeNode();
+				final MercSyntaxTreeNode	callMethod = new MercSyntaxTreeNode();
 				
 				callMethod.assignVarDefinition(node.row, node.col, getValueId, item);
 				getter.assignField(node.row,node.col,(VarDescriptor)callMethod.cargo,node,callMethod);

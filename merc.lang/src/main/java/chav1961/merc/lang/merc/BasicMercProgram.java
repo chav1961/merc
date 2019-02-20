@@ -8,6 +8,7 @@ import chav1961.merc.api.PointKeeper;
 import chav1961.merc.api.SizeKeeper;
 import chav1961.merc.api.StringKeeper;
 import chav1961.merc.api.TrackKeeper;
+import chav1961.merc.api.interfaces.front.World;
 
 public class BasicMercProgram {
 	public static int _concat_(final char[] source, final char[] target, final int before) {

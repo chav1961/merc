@@ -1,0 +1,95 @@
+; ---------------------------------
+
+writePrologue	.macro
+		.line	manual
+		.package chav1961.merc.lang.merc
+		.import	chav1961.merc.api.Constants
+		.import	chav1961.merc.lang.merc.BasicMercProgram
+		.import	chav1961.merc.lang.merc.interfaces.CallProgram
+		.import	chav1961.merc.api.exceptions.MercContentException
+		.import	chav1961.merc.api.exceptions.MercEnvironmentException
+		.import	chav1961.merc.api.interfaces.front.World
+		.import	chav1961.merc.api.interfaces.front.Entity
+		.import	chav1961.merc.api.interfaces.front.RuntimeInterface
+		.import	chav1961.merc.api.interfaces.front.RuntimeInterface$MarketInterface
+		.import	chav1961.merc.api.interfaces.front.RuntimeInterface$TeleportInterface
+		.import	chav1961.merc.api.interfaces.front.AvailableForTrack
+		.import	chav1961.merc.api.LongKeeper
+		.import	chav1961.merc.api.DoubleKeeper
+		.import	chav1961.merc.api.StringKeeper
+		.import	chav1961.merc.api.BooleanKeeper
+		.import	chav1961.merc.api.Point
+		.import	chav1961.merc.api.Size
+		.import	chav1961.merc.api.Area
+		.import	chav1961.merc.api.Track
+		.import	chav1961.merc.api.PointKeeper
+		.import	chav1961.merc.api.SizeKeeper
+		.import	chav1961.merc.api.AreaKeeper
+		.import	chav1961.merc.api.TrackKeeper
+		.import	chav1961.merc.core.robots.UniversalRobotInstance
+		.import	java.util.UUID
+		.import	java.io.PrintWriter
+		.import	javax.script.Bindings		
+
+MercProgram	.class	public extends chav1961.merc.lang.merc.BasicMercProgram implements chav1961.merc.lang.merc.interfaces.CallProgram
+				.mend
+				
+; ---------------------------------
+
+writeConstructor	.macro
+MercProgram	.method	void public
+		.stack	pessimistic
+		aload	this
+		invokespecial	chav1961.merc.lang.merc.BasicMercProgram.BasicMercProgram()V
+					.mend
+				
+; ---------------------------------
+
+endWriteConstructor	.macro
+		return
+MercProgram	.end
+					.mend
+				
+; ---------------------------------
+				
+writeExecutor	.macro
+execute	.method	int public throws chav1961.merc.api.exceptions.MercEnvironmentException, chav1961.merc.api.exceptions.MercContentException
+world	.parameter chav1961.merc.api.interfaces.front.World final
+writer	.parameter java.io.PrintWriter final
+		.stack pessimistic
+arr_len	.var	int
+arr_ref	.var	char[]
+counter	.var	long
+		ldc2_w	1L
+		lstore	counter
+		ldc		0
+		istore	arr_len
+				.mend						
+; ---------------------------------
+
+endWriteExecutor	.macro
+		ldc	0
+		ireturn
+execute	.end
+				.mend
+
+; ---------------------------------
+
+writeEpilogue	.macro
+main	.method void public static
+arg0	.parameter java.lang.String[] 
+		.stack	optimistic
+		return
+main	.end
+main	.method java.lang.Class public static
+arg0	.parameter javax.script.Bindings 
+arg1	.parameter java.lang.String[] 
+		.stack	optimistic
+		ldc		chav1961.merc.lang.merc.MercProgram.class
+		areturn
+main	.end
+MercProgram	.end
+				.mend
+
+; ---------------------------------
+

@@ -11,15 +11,15 @@ import chav1961.purelib.basic.AbstractScriptEngineFactory;
 
 
 public class MercScriptEngineFactory extends AbstractScriptEngineFactory {
-	public static final String	ENGINE_NAME = "MerLan (MERcurian LANguage)";
+	public static final String	ENGINE_NAME = "MerLan";
 	public static final String	ENGINE_VERSION = "0.0.1";
 	public static final String	ENGINE_MIME_1 = "text/merlan";
 	public static final String	ENGINE_MIME_2 = "application/merlan";
 	public static final String	LANGUAGE = "MerLan";
 	public static final String	LANGUAGE_VERSION = "0.1";
-	public static final String	LANGUAGE_EXT = "mer";
+	public static final String	LANGUAGE_EXT = "MerLan";
 
-	public MercScriptEngineFactory(List<String> languageSynonyms) throws MimeTypeParseException {
+	public MercScriptEngineFactory() throws MimeTypeParseException {
 		super(ENGINE_NAME, ENGINE_VERSION, Arrays.asList(new MimeType(ENGINE_MIME_1),new MimeType(ENGINE_MIME_2)), LANGUAGE, LANGUAGE_VERSION, Arrays.asList(LANGUAGE_EXT));
 	}
 
