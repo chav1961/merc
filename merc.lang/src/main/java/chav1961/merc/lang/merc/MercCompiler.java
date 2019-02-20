@@ -359,6 +359,12 @@ class MercCompiler {
 			throw new SyntaxException(lexemas[lastParsed].row,lexemas[lastParsed].col,"Unparsed tail in the program!");
 		}
 		else {
+			final List<MercSyntaxTreeNode>	staticInitials = new ArrayList<>();
+			
+			MercOptimizer.processConstantExpressions(root);
+			MercOptimizer.processTypeConversions(root, null, null, classes, staticInitials);
+			MercOptimizer.processSpeculativeAssignments(root);
+			
 			try(final JarOutputStream	jos = new JarOutputStream(target)) {
 				JarEntry	je = new JarEntry("META-INF/manifest.mf"){{setMethod(JarEntry.DEFLATED);}};
 				

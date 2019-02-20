@@ -78,7 +78,7 @@ class MercOptimizer {
 		
 	}
 	
-	static Class<?> processTypeConversions(final MercSyntaxTreeNode node, final Class<?> preferredClass, final Class<?> returnedClass, final MercClassRepo repo, List<MercSyntaxTreeNode> staticInitials) throws SyntaxException {
+	static Class<?> processTypeConversions(final MercSyntaxTreeNode node, final Class<?> preferredClass, final Class<?> returnedClass, final MercClassRepo repo, final List<MercSyntaxTreeNode> staticInitials) throws SyntaxException {
  		// TODO:
 		switch (node.getType()) {
 			case AllocatedVariable:
@@ -389,7 +389,12 @@ class MercOptimizer {
 				}
 			case Print:
 				for (MercSyntaxTreeNode item : node.children) {
-					processTypeConversions(item,null,returnedClass,repo,staticInitials); 
+					final Class<?>	sourceClass = processTypeConversions(item,null,returnedClass,repo,staticInitials);
+					final Class<?>	possibleValue = resolveType4Value(sourceClass);
+					
+					if (possibleValue != sourceClass) {
+						insertValueGetter(item,possibleValue,repo);
+					}
 				}
 				return null;
 			case Program:
@@ -473,9 +478,6 @@ class MercOptimizer {
 			case Variable 	:
 				final VarDescriptor	varDesc = (VarDescriptor)node.cargo;
 				
-				for (MercSyntaxTreeNode item : node.children) {
-					processTypeConversions(item,varDesc.getNameType(),returnedClass,repo,staticInitials); 
-				}
 				return varDesc.getNameType();
 			case Variables	:
 				simpleWalkTypeConversionsNode(node, returnedClass, repo, staticInitials);
@@ -560,8 +562,10 @@ class MercOptimizer {
 		if (node.cargo instanceof MercSyntaxTreeNode) {
 			processConstantExpressions((MercSyntaxTreeNode)node.cargo);
 		}
-		for (MercSyntaxTreeNode item : node.children) {
-			processConstantExpressions(item);
+		if (node.children != null) {
+			for (MercSyntaxTreeNode item : node.children) {
+				processConstantExpressions(item);
+			}
 		}
 	}
 
@@ -569,8 +573,10 @@ class MercOptimizer {
 		if (node.cargo instanceof MercSyntaxTreeNode) {
 			processTypeConversions((MercSyntaxTreeNode)node.cargo,boolean.class,returnedClass,repo,staticInitials);
 		}
-		for (MercSyntaxTreeNode item : node.children) {
-			processTypeConversions(item,null,returnedClass,repo,staticInitials); 
+		if (node.children != null) {
+			for (MercSyntaxTreeNode item : node.children) {
+				processTypeConversions(item,null,returnedClass,repo,staticInitials); 
+			}
 		}
 	}
 	
@@ -591,7 +597,8 @@ class MercOptimizer {
 					}
 				}
 				return true;
-			default : throw new UnsupportedOperationException("Node type ["+node.getType()+"] is not supported yet");
+			default :
+				return false;
 		}
 	}
 
@@ -798,7 +805,11 @@ class MercOptimizer {
 				}
 			case Conversion :
 				return node;
-			default : throw new UnsupportedOperationException("Node type ["+node.getType()+"] is not supported yet");
+			default :
+				for (MercSyntaxTreeNode item : node.children) {
+					processConstantExpressions(item);
+				}
+				return node;				
 		}
 	}
 
@@ -903,19 +914,24 @@ class MercOptimizer {
 		return converted != null ? converted : sourceClass;
 	}
 
-	private static Class<?> insertValueGetter(final MercSyntaxTreeNode node, final Class<?> preferredClass, final MercClassRepo repo) throws SyntaxException {
+	static Class<?> insertValueGetter(final MercSyntaxTreeNode node, final Class<?> preferredClass, final MercClassRepo repo) throws SyntaxException {
 		final Class<?>		varType = ((VarDescriptor)node.cargo).getNameType();
 		final VarDescriptor	desc = repo.byClass(varType);
 		final long			getValueId = repo.getNames().seekName("getValue");
 		
+		System.err.println(node.toString(repo.getNames()));
 		for (VarDescriptor item : desc.contentFields()) {
 			if (item.getNameId() == getValueId) {
 				final MercSyntaxTreeNode	getter = new MercSyntaxTreeNode();
 				final MercSyntaxTreeNode	callMethod = new MercSyntaxTreeNode();
-				
+				final MercSyntaxTreeNode	variable = new MercSyntaxTreeNode(node);
+
 				callMethod.assignVarDefinition(node.row, node.col, getValueId, item);
-				getter.assignField(node.row,node.col,(VarDescriptor)callMethod.cargo,node,callMethod);
+				System.err.println(callMethod.toString(repo.getNames()));
+				getter.assignField(node.row,node.col,(VarDescriptor)callMethod.cargo,variable,callMethod);
+				System.err.println(getter.toString(repo.getNames()));
 				node.assign(getter);
+				System.err.println(getter.toString(repo.getNames()));
 				return ((VarDescriptor)callMethod.cargo).getNameType(); 
 			}
 		}

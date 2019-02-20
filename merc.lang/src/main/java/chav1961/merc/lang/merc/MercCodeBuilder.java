@@ -812,7 +812,7 @@ class MercCodeBuilder {
 			case IndicedName:
 				break;
 			case InstanceField:
-				break;
+				return ((VarDescriptorImpl)node.cargo).getNameType();
 			case IntConst	:
 				return long.class;
 			case List:
