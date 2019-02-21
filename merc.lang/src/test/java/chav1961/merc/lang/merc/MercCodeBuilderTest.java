@@ -390,7 +390,9 @@ public class MercCodeBuilderTest {
 				try{MercCodeBuilder.printFieldInitials(
 						new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Variable,varName1,
 							new VarDescriptorImpl(0,varName1, LongKeeper.class, false, false, 0)
-							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.IntConst,20,null)
+							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.List,0,null
+									,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.IntConst,20,null)
+							)
 						),
 						names,classes,vars,out);
 				} catch (IOException e) {
@@ -429,7 +431,9 @@ public class MercCodeBuilderTest {
 				try{MercCodeBuilder.printFieldInitials(
 						new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Variable,varName1,
 							new VarDescriptorImpl(0,varName1, DoubleKeeper.class, false, false, 0)
-							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.RealConst,Double.doubleToLongBits(20.0),null)
+							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.List,0,null
+									,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.RealConst,Double.doubleToLongBits(20.0),null)
+							)
 						),
 						names,classes,vars,out);
 				} catch (IOException e) {
@@ -468,7 +472,9 @@ public class MercCodeBuilderTest {
 				try{MercCodeBuilder.printFieldInitials(
 						new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Variable,varName1,
 							new VarDescriptorImpl(0,varName1, StringKeeper.class, false, false, 0)
-							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StrConst,0,"test".toCharArray())
+							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.List,0,null
+									,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StrConst,0,"test".toCharArray())
+							)
 						),
 						names,classes,vars,out);
 				} catch (IOException e) {
@@ -507,7 +513,9 @@ public class MercCodeBuilderTest {
 				try{MercCodeBuilder.printFieldInitials(
 						new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Variable,varName1,
 							new VarDescriptorImpl(0,varName1, BooleanKeeper.class, false, false, 0)
-							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BoolConst,1,null)
+							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.List,0,null
+									,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BoolConst,1,null)
+							)
 						),
 						names,classes,vars,out);
 				} catch (IOException e) {
@@ -712,7 +720,7 @@ public class MercCodeBuilderTest {
 			));
 
 		/* Track */
-		Assert.assertEquals("Track [(5,5),(10,20),(10,21),(11,20),(11,21)]  ", executeFull(uniqueName++, null,
+		Assert.assertEquals("Track [(5,5),(10,20),(10,21),(11,20),(11,21)] ", executeFull(uniqueName++, null,
 			(out)->{
 				try{MercCodeBuilder.printFields(
 						new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Variable,varName1,

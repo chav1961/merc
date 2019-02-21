@@ -1,5 +1,7 @@
 package chav1961.merc.lang.merc;
 
+import java.util.Arrays;
+
 import chav1961.merc.api.AreaKeeper;
 import chav1961.merc.api.BooleanKeeper;
 import chav1961.merc.api.DoubleKeeper;
@@ -8,43 +10,63 @@ import chav1961.merc.api.PointKeeper;
 import chav1961.merc.api.SizeKeeper;
 import chav1961.merc.api.StringKeeper;
 import chav1961.merc.api.TrackKeeper;
-import chav1961.merc.api.interfaces.front.World;
+import chav1961.purelib.basic.CharUtils;
 
 public class BasicMercProgram {
-	public static int _concat_(final char[] source, final char[] target, final int before) {
+	private static final char[]		TRUE = "true".toCharArray();
+	private static final char[]		FALSE = "false".toCharArray();
+	private static final char[]		temporary = new char[100];
+	
+	protected static int _concat_(final char[] source, final char[] target, final int before) {
 		System.arraycopy(source,0,target,before-source.length,source.length);
 		return before - source.length;
 	}
 	
-	public static AreaKeeper _newAreaKeeper_() {
+	protected static AreaKeeper _newAreaKeeper_() {
 		return new AreaKeeper();
 	}
 
-	public static BooleanKeeper _newBooleanKeeper_() {
+	protected static BooleanKeeper _newBooleanKeeper_() {
 		return new BooleanKeeper();
 	}
 
-	public static DoubleKeeper _newDoubleKeeper_() {
+	protected static DoubleKeeper _newDoubleKeeper_() {
 		return new DoubleKeeper();
 	}
 
-	public static LongKeeper _newLongKeeper_() {
+	protected static LongKeeper _newLongKeeper_() {
 		return new LongKeeper();
 	}
 
-	public static PointKeeper _newPointKeeper_() {
+	protected static PointKeeper _newPointKeeper_() {
 		return new PointKeeper();
 	}
 
-	public static SizeKeeper _newSizeKeeper_() {
+	protected static SizeKeeper _newSizeKeeper_() {
 		return new SizeKeeper();
 	}
 
-	public static StringKeeper _newStringKeeper_() {
+	protected static StringKeeper _newStringKeeper_() {
 		return new StringKeeper();
 	}
 
-	public static TrackKeeper _newTrackKeeper_() {
+	protected static TrackKeeper _newTrackKeeper_() {
 		return new TrackKeeper();
+	}
+	
+	protected static final char[] _toStr_(final long value) {
+		final int 	len = CharUtils.printLong(temporary,0,value,true);
+		
+		return Arrays.copyOfRange(temporary,0,len);
+	}
+
+	protected static final char[] _toStr_(final double value) {
+		final int 	len = CharUtils.printDouble(temporary,0,value,true);
+		
+		return Arrays.copyOfRange(temporary,0,len);
+	}
+
+	protected static final char[] _toStr_(final boolean value) {
+		return value ? TRUE.clone() : FALSE.clone();
 	}
 }

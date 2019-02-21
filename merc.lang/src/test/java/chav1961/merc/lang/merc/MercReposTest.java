@@ -16,7 +16,7 @@ public class MercReposTest {
 		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
 		final MercClassRepo					repo = new MercClassRepo(names,0);
 		
-		Assert.assertEquals(MercClassRepo.BUILTIN.length,repo.size());
+		Assert.assertEquals(MercClassRepo.BUILTIN.length+4,repo.size());
 		
 		Assert.assertNotNull(repo.byName("PointKeeper"));
 		Assert.assertNotNull(repo.byClass(PointKeeper.class));

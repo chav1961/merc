@@ -4,7 +4,7 @@ writePrologue	.macro
 		.line	manual
 		.package chav1961.merc.lang.merc
 		.import	chav1961.merc.api.Constants
-		.import	chav1961.merc.lang.merc.BasicMercProgram
+		.import	chav1961.merc.lang.merc.BasicMercProgram protected
 		.import	chav1961.merc.lang.merc.interfaces.CallProgram
 		.import	chav1961.merc.api.exceptions.MercContentException
 		.import	chav1961.merc.api.exceptions.MercEnvironmentException

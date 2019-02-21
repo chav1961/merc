@@ -16,7 +16,7 @@ public class MercTotalTest {
 	public void lifeCycleTest() throws ScriptException, MercContentException, MercEnvironmentException, InstantiationException, IllegalAccessException {
 		final ScriptEngineManager	mgr = new ScriptEngineManager();
 		final MercScriptEngine		engine = (MercScriptEngine)mgr.getEngineByName("MerLan");
-		final Class<CallProgram>	built = (Class<CallProgram>)engine.eval("var x : int(20); print \"X=\",x;");
+		final Class<CallProgram>	built = (Class<CallProgram>)engine.eval("var x : int(20); print \"X=\",x + 5.2 + \"7\";");
 		
 		try(final PrintWriter	wr = new PrintWriter(System.out)) {
 			built.newInstance().execute(null,wr);

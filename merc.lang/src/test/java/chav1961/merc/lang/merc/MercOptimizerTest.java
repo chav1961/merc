@@ -849,29 +849,29 @@ public class MercOptimizerTest {
 					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
 					,long.class,null,repo,null
 				);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.type);
-		Assert.assertEquals(long.class,((VarDescriptor)root.children[1].cargo).getNameType());
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.type);
+		Assert.assertEquals(long.class,((VarDescriptor)root.cargo).getNameType());
 
 		MercOptimizer.processTypeConversions(
 					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
 					,double.class,null,repo,null
 				);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.type);
-		Assert.assertEquals(double.class,((VarDescriptor)root.children[1].cargo).getNameType());
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.type);
+		Assert.assertEquals(double.class,((VarDescriptor)root.cargo).getNameType());
 
 		MercOptimizer.processTypeConversions(
 					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
 					,char[].class,null,repo,null
 				);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.type);
-		Assert.assertEquals(char[].class,((VarDescriptor)root.children[1].cargo).getNameType());
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.type);
+		Assert.assertEquals(char[].class,((VarDescriptor)root.cargo).getNameType());
 
 		MercOptimizer.processTypeConversions(
 					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
 					,boolean.class,null,repo,null
 				);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.type);
-		Assert.assertEquals(boolean.class,((VarDescriptor)root.children[1].cargo).getNameType());
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.type);
+		Assert.assertEquals(boolean.class,((VarDescriptor)root.cargo).getNameType());
 
 		Assert.assertEquals(DoubleKeeper.class,
 				MercOptimizer.processTypeConversions(
@@ -887,8 +887,8 @@ public class MercOptimizerTest {
 					,boolean.class,null,repo,null
 				)
 		);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.type);
-		Assert.assertEquals(boolean.class,((VarDescriptor)root.children[1].cargo).getNameType());
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.type);
+		Assert.assertEquals(boolean.class,((VarDescriptor)root.cargo).getNameType());
 	}
  
 	@Test
@@ -1203,8 +1203,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[1].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[1].type);
 
 		Assert.assertEquals(long.class,
 				MercOptimizer.processTypeConversions(
@@ -1227,7 +1227,7 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[0].type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.children[0].children[1].type);
 
 		Assert.assertEquals(long.class,
@@ -1252,7 +1252,7 @@ public class MercOptimizerTest {
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.children[0].children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[1].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[1].type);
 	}
 
 	@Test
@@ -1283,8 +1283,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[1].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[1].type);
 
 		Assert.assertEquals(boolean.class,
 				MercOptimizer.processTypeConversions(
@@ -1308,8 +1308,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[1].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[1].type);
 
 		Assert.assertEquals(boolean.class,
 				MercOptimizer.processTypeConversions(
@@ -1333,7 +1333,7 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[0].type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.children[0].children[1].type);
 	}
 
@@ -1365,8 +1365,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[1].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[1].type);
 
 		Assert.assertEquals(boolean.class,
 				MercOptimizer.processTypeConversions(
@@ -1390,7 +1390,7 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalBinary,root.children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[0].type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.children[0].children[1].type);
 	}
 
@@ -1523,7 +1523,32 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Not,root.children[0].type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.InstanceField,root.children[0].children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[0].type);
 	}
 
+	@Test
+	public void rValueConversionTest() throws SyntaxException {
+		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
+		final MercClassRepo				repo = new MercClassRepo(names,0);
+		MercSyntaxTreeNode	root;
+
+		names.placeName("getValue",null);
+		Assert.assertEquals(long.class,
+				MercOptimizer.insertValueGetter(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+				,long.class,repo)
+		);
+
+		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.getType());
+		
+//		Assert.assertEquals(long.class,
+//				MercOptimizer.processTypeConversions(
+//					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Negation
+//						, -1
+//						,null
+//						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
+//					)
+//					,null,null,repo,null
+//				)
+//		);
+	}
 }

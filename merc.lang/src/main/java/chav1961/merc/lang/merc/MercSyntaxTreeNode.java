@@ -188,12 +188,12 @@ loop:				for (MercSyntaxTreeNode item : children) {
 		children = null;
 	}
 
-	public void assignNameIndiced(final int row, final int col, final long name, final MercSyntaxTreeNode indices) {
+	public void assignNameIndiced(final int row, final int col, final long name, final VarDescriptor desc, final MercSyntaxTreeNode indices) {
 		this.row = row;
 		this.col = col;
 		type = MercSyntaxTreeNodeType.IndicedName;
 		value = name;
-		cargo = null;
+		cargo = desc;
 		if (indices.getType() != MercSyntaxTreeNodeType.List) {
 			throw new IllegalArgumentException("Indices must be list!");
 		}
@@ -243,7 +243,7 @@ loop:				for (MercSyntaxTreeNode item : children) {
 		children = new MercSyntaxTreeNode[]{item};
 	}
 	
-	public void assignConversion(final int row, final int col, final LexemaSubtype conv, final MercSyntaxTreeNode inner) {
+	public void assignConversion(final int row, final int col, final VarDescriptor conv, final MercSyntaxTreeNode inner) {
 		this.row = row;
 		this.col = col;
 		type = MercSyntaxTreeNodeType.Conversion;
@@ -563,7 +563,7 @@ loop:				for (MercSyntaxTreeNode item : children) {
 				sb.append(prefix).append("continue").append(value == 0 ? "" : " "+value).append('\n');
 				break;
 			case Conversion	:
-				sb.append(prefix).append("convert to ").append(cargo).append("\n");
+				sb.append(prefix).append("convert to ").append(((VarDescriptor)cargo).getNameType()).append("\n");
 				before = "";
 				for (MercSyntaxTreeNode item : children) {
 					sb.append(before).append(item.toString(prefix+STAIRWAY_STEP,names));
@@ -670,7 +670,7 @@ loop:				for (MercSyntaxTreeNode item : children) {
 				sb.append(prefix).append("binary list (\n");
 				for (int index = 0; index < children.length; index++) {
 					if (index > 0) {
-						sb.append(prefix).append(((MercSyntaxTreeNodeType[])cargo)[index]).append('\n');
+						sb.append(prefix).append(((LexemaSubtype[])cargo)[index]).append('\n');
 					}
 					sb.append(children[index].toString(prefix+STAIRWAY_STEP,names));
 				}

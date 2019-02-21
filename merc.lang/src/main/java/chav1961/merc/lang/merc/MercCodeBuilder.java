@@ -5,6 +5,8 @@ package chav1961.merc.lang.merc;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import chav1961.merc.api.Area;
 import chav1961.merc.api.AreaKeeper;
@@ -65,16 +67,16 @@ class MercCodeBuilder {
 	private static final Constructor<?>	TRACK_CONSTRUCTOR_IIII;
 	private static final Constructor<?>	TRACK_CONSTRUCTOR_POINTSIZE;
 	private static final Constructor<?>	TRACK_CONSTRUCTOR_LIST;
-	
+
 	static {
-		try{PRODUCE_AREA_KEEPER = BasicMercProgram.class.getMethod("_newAreaKeeper_");
-			PRODUCE_BOOLEAN_KEEPER = BasicMercProgram.class.getMethod("_newBooleanKeeper_");
-			PRODUCE_DOUBLE_KEEPER = BasicMercProgram.class.getMethod("_newDoubleKeeper_");
-			PRODUCE_LONG_KEEPER = BasicMercProgram.class.getMethod("_newLongKeeper_");
-			PRODUCE_POINT_KEEPER = BasicMercProgram.class.getMethod("_newPointKeeper_");
-			PRODUCE_SIZE_KEEPER = BasicMercProgram.class.getMethod("_newSizeKeeper_");
-			PRODUCE_STRING_KEEPER = BasicMercProgram.class.getMethod("_newStringKeeper_");
-			PRODUCE_TRACK_KEEPER = BasicMercProgram.class.getMethod("_newTrackKeeper_");
+		try{PRODUCE_AREA_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newAreaKeeper_");
+			PRODUCE_BOOLEAN_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newBooleanKeeper_");
+			PRODUCE_DOUBLE_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newDoubleKeeper_");
+			PRODUCE_LONG_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newLongKeeper_");
+			PRODUCE_POINT_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newPointKeeper_");
+			PRODUCE_SIZE_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newSizeKeeper_");
+			PRODUCE_STRING_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newStringKeeper_");
+			PRODUCE_TRACK_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newTrackKeeper_");
 			
 			AREA_KEEPER_SETVALUE = AreaKeeper.class.getMethod("setValue",Area.class);
 			BOOLEAN_KEEPER_SETVALUE = BooleanKeeper.class.getMethod("setValue",boolean.class);
@@ -494,6 +496,82 @@ class MercCodeBuilder {
 
 	static void printConversion(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
 		switch (InternalUtils.defineSimplifiedType(((VarDescriptor)node.cargo).getNameType())) {
+			case LongType	:
+				switch (node.children.length) {
+					case 1 :
+						final Class<?>	resolved = MercOptimizer.processTypeConversions(node.children[0],null,null,classes,null);
+						
+						printExpression(node.children[0], names, classes, vars, writer);
+						if (resolved == double.class) {
+							writer.writeln(" d2l");
+						}
+						else if (resolved == char[].class) {
+							writer.writeln(" l2d");
+						}
+						else {
+							throw new SyntaxException(node.row, node.col, "Conversion erorr: source class ["+resolved+"] can't be converted to long");
+						}
+						break;
+					default : throw new UnsupportedOperationException(""); 
+				}
+				break;
+			case DoubleType	:
+				switch (node.children.length) {
+					case 1 :
+						final Class<?>	resolved = MercOptimizer.processTypeConversions(node.children[0],null,null,classes,null);
+						
+						printExpression(node.children[0], names, classes, vars, writer);
+						if (resolved == long.class) {
+							writer.writeln(" l2d");
+						}
+						else if (resolved == char[].class) {
+							writer.writeln(" l2d");
+						}
+						else {
+							throw new SyntaxException(node.row, node.col, "Conversion erorr: source class ["+resolved+"] can't be converted to double");
+						}
+						break;
+					default : throw new UnsupportedOperationException(""); 
+				}
+				break;
+			case StringType	:
+				switch (node.children.length) {
+					case 1 :
+						final Class<?>	resolved = MercOptimizer.processTypeConversions(node.children[0],null,null,classes,null);
+						
+						printExpression(node.children[0], names, classes, vars, writer);
+						if (resolved == long.class) {
+							writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMercProgram._toStr_(J)[C");
+						}
+						else if (resolved == double.class) {
+							writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMercProgram._toStr_(D)[C");
+						}
+						else if (resolved == boolean.class) {
+							writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMercProgram._toStr_(Z)[C");
+						}
+						else {
+							throw new SyntaxException(node.row, node.col, "Conversion erorr: source class ["+resolved+"] can't be converted to char[]");
+						}
+						break;
+					default : throw new UnsupportedOperationException(""); 
+				}
+				break;
+			case BooleanType:				
+				switch (node.children.length) {
+					case 1 :
+						final Class<?>	resolved = MercOptimizer.processTypeConversions(node.children[0],null,null,classes,null);
+						
+						printExpression(node.children[0], names, classes, vars, writer);
+						if (resolved == char[].class) {
+							writer.writeln(" l2d");
+						}
+						else {
+							throw new SyntaxException(node.row, node.col, "Conversion erorr: source class ["+resolved+"] can't be converted to boolean");
+						}
+						break;
+					default : throw new UnsupportedOperationException(""); 
+				}
+				break;
 			case AreaType	:
 				switch (node.children.length) {
 					case 1 :
@@ -802,7 +880,7 @@ class MercCodeBuilder {
 			case Continue:
 				break;
 			case Conversion:
-				break;
+				return ((VarDescriptorImpl)node.cargo).getNameType();
 			case Function:
 				break;
 			case Header:

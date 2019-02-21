@@ -164,7 +164,7 @@ class MercOptimizer {
 			case Break: case Continue:
 				return null;
 			case Call:
-				break;
+				return ((VarDescriptor)node.cargo).getNameType();
 			case Conversion:
 				if (preferredClass == null) {
 					return resolveType4Value((Class<?>)node.cargo);
@@ -900,7 +900,7 @@ class MercOptimizer {
 			final MercSyntaxTreeNode	innerList = new MercSyntaxTreeNode();
 			
 			innerList.assignList(node.row,node.col,inner);							
-			node.assignConversion(node.row,node.col,CONVERSION_TYPE.get(preferredClass),innerList);
+			node.assignConversion(node.row,node.col,new VarDescriptorImpl(0,-1,preferredClass,true,false,0),innerList);
 			return preferredClass;
 		}
 		else {
@@ -919,20 +919,12 @@ class MercOptimizer {
 		final VarDescriptor	desc = repo.byClass(varType);
 		final long			getValueId = repo.getNames().seekName("getValue");
 		
-		System.err.println(node.toString(repo.getNames()));
 		for (VarDescriptor item : desc.contentFields()) {
 			if (item.getNameId() == getValueId) {
-				final MercSyntaxTreeNode	getter = new MercSyntaxTreeNode();
-				final MercSyntaxTreeNode	callMethod = new MercSyntaxTreeNode();
 				final MercSyntaxTreeNode	variable = new MercSyntaxTreeNode(node);
 
-				callMethod.assignVarDefinition(node.row, node.col, getValueId, item);
-				System.err.println(callMethod.toString(repo.getNames()));
-				getter.assignField(node.row,node.col,(VarDescriptor)callMethod.cargo,variable,callMethod);
-				System.err.println(getter.toString(repo.getNames()));
-				node.assign(getter);
-				System.err.println(getter.toString(repo.getNames()));
-				return ((VarDescriptor)callMethod.cargo).getNameType(); 
+				node.assignCall(node.row,node.col,getValueId,item,variable);
+				return ((VarDescriptor)node.cargo).getNameType(); 
 			}
 		}
 		throw new SyntaxException(node.row,node.col,"Variable doesn't contain getValue() method");
