@@ -162,8 +162,23 @@ class MercOptimizer {
 				}
 				return null;
 			case Break: case Continue:
+				if (node.children != null) {
+					for (MercSyntaxTreeNode item : node.children) {
+						processTypeConversions(item,int.class,returnedClass,repo,staticInitials); 
+					}
+				}
 				return null;
 			case Call:
+				final VarDescriptor[]	parameters = ((VarDescriptor)node.cargo).contentFields();
+				
+				if (node.children == null && parameters.length > 0 || node.children.length != parameters.length + 1) {
+					throw new SyntaxException(node.row,node.col,"Method call: wrong number of parameters (awaited ["+parameters.length+"], really ["+(node.children.length-1)+"])");
+				}
+				else {
+					for (int index = 0; index < parameters.length; index++) {
+						processTypeConversions(node.children[index+1],parameters[index].getNameTrueType(),returnedClass,repo,staticInitials);
+					}
+				}
 				return ((VarDescriptor)node.cargo).getNameType();
 			case Conversion:
 				if (preferredClass == null) {
@@ -482,8 +497,6 @@ class MercOptimizer {
 			case Variables	:
 				simpleWalkTypeConversionsNode(node, returnedClass, repo, staticInitials);
 				return null;
-//			case Vartype	:
-//				break;
 			case Until : case While :
 				simpleWalkTypeConversionsNode(node, returnedClass, repo, staticInitials);
 				return null;
