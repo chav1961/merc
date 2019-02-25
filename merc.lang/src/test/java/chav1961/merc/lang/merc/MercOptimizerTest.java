@@ -25,29 +25,29 @@ public class MercOptimizerTest {
 	public void calculateConstantUnaryExprTest() {
 		MercSyntaxTreeNode	root;
 		
-		MercOptimizer.processConstantExpressions(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Negation,20,null,
+		MercOptimizer.processConstantExpressions(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary,LexemaSubtype.Neg.ordinal(),null,
 						new MercSyntaxTreeNode(MercSyntaxTreeNodeType.IntConst,20,null))
 					);
 		Assert.assertEquals(MercSyntaxTreeNodeType.IntConst,root.type);
 		Assert.assertEquals(-20,root.value);
-		MercOptimizer.processConstantExpressions(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Negation,20,null,
+		MercOptimizer.processConstantExpressions(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary,LexemaSubtype.Neg.ordinal(),null,
 						new MercSyntaxTreeNode(MercSyntaxTreeNodeType.RealConst,Double.doubleToLongBits(20),null))
 					);
 		Assert.assertEquals(MercSyntaxTreeNodeType.RealConst,root.type);
 		Assert.assertEquals(-20.0,Double.longBitsToDouble(root.value),0.0001);
 		
-		MercOptimizer.processConstantExpressions(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BitInv,0,null,
+		MercOptimizer.processConstantExpressions(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary,LexemaSubtype.BitInv.ordinal(),null,
 						new MercSyntaxTreeNode(MercSyntaxTreeNodeType.IntConst,1,null))
 					);
 		Assert.assertEquals(MercSyntaxTreeNodeType.IntConst,root.type);
 		Assert.assertEquals(-2,root.value);
 		
-		MercOptimizer.processConstantExpressions(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Not,0,null,
+		MercOptimizer.processConstantExpressions(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary,LexemaSubtype.Not.ordinal(),null,
 						new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BoolConst,1,null))
 					);
 		Assert.assertEquals(MercSyntaxTreeNodeType.BoolConst,root.type);
 		Assert.assertEquals(0,root.value);
-		MercOptimizer.processConstantExpressions(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Not,0,null,
+		MercOptimizer.processConstantExpressions(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary,LexemaSubtype.Not.ordinal(),null,
 						new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BoolConst,0,null))
 					);
 		Assert.assertEquals(MercSyntaxTreeNodeType.BoolConst,root.type);
@@ -1403,8 +1403,8 @@ public class MercOptimizerTest {
 		
 		Assert.assertEquals(long.class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Negation
-						, -1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.Neg.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
 					)
@@ -1413,8 +1413,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(double.class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Negation
-						,-1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.Neg.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
 					)
@@ -1423,8 +1423,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(char[].class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Negation
-						, -1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.Neg.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
 					)
@@ -1432,12 +1432,12 @@ public class MercOptimizerTest {
 				)
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.Negation,root.children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalUnary,root.children[0].type);
 
 		Assert.assertEquals(long.class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BitInv
-						, -1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.BitInv.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
 					)
@@ -1446,8 +1446,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(long.class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BitInv
-						, -1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.BitInv.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
 					)
@@ -1456,8 +1456,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(char[].class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BitInv
-						, -1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.BitInv.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
 					)
@@ -1465,12 +1465,12 @@ public class MercOptimizerTest {
 				)
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.BitInv,root.children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalUnary,root.children[0].type);
 
 		Assert.assertEquals(long.class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.PreInc
-						, -1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.PreInc.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
 					)
@@ -1479,8 +1479,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(double.class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.PreInc
-						, -1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.PreInc.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
 					)
@@ -1489,8 +1489,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(char[].class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.PreInc
-						, -1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.PreInc.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
 	 				)
@@ -1498,13 +1498,13 @@ public class MercOptimizerTest {
 				)
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.PreInc,root.children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalUnary,root.children[0].type);
 		
 		
 		Assert.assertEquals(boolean.class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Not
-						, -1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.Not.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
 					)
@@ -1513,8 +1513,8 @@ public class MercOptimizerTest {
 		);
 		Assert.assertEquals(char[].class,
 				MercOptimizer.processTypeConversions(
-					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Not
-						, -1
+					root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary
+						,LexemaSubtype.Not.ordinal()
 						,null
 						,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
 					)
@@ -1522,64 +1522,7 @@ public class MercOptimizerTest {
 				)
 		);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Conversion,root.type);
-		Assert.assertEquals(MercSyntaxTreeNodeType.Not,root.children[0].type);
+		Assert.assertEquals(MercSyntaxTreeNodeType.OrdinalUnary,root.children[0].type);
 		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.children[0].children[0].type);
-	}
-
-	@Test
-	public void rValueConversionTest() throws SyntaxException {
-		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
-		final MercClassRepo				repo = new MercClassRepo(names,0);
-		MercSyntaxTreeNode	root;
-
-		names.placeName("getValue",null);
-		
-		Assert.assertEquals(long.class,
-				MercOptimizer.insertValueGetter(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],LongKeeper.class,0))
-				,long.class,repo)
-		);
-		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.getType());
-
-		Assert.assertEquals(double.class,
-				MercOptimizer.insertValueGetter(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],DoubleKeeper.class,0))
-				,double.class,repo)
-		);
-		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.getType());
-
-		Assert.assertEquals(char[].class,
-				MercOptimizer.insertValueGetter(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],StringKeeper.class,0))
-				,char[].class,repo)
-		);
-		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.getType());
-
-		Assert.assertEquals(boolean.class,
-				MercOptimizer.insertValueGetter(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],BooleanKeeper.class,0))
-				,boolean.class,repo)
-		);
-		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.getType());
-
-		Assert.assertEquals(Area.class,
-				MercOptimizer.insertValueGetter(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],AreaKeeper.class,0))
-				,Area.class,repo)
-		);
-		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.getType());
-
-		Assert.assertEquals(Point.class,
-				MercOptimizer.insertValueGetter(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],PointKeeper.class,0))
-				,Point.class,repo)
-		);
-		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.getType());
-
-		Assert.assertEquals(Size.class,
-				MercOptimizer.insertValueGetter(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],SizeKeeper.class,0))
-				,Size.class,repo)
-		);
-		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.getType());
-
-		Assert.assertEquals(Track.class,
-				MercOptimizer.insertValueGetter(root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.StandaloneName,-1,new VarDescriptorImpl(0,-1,new VarDescriptor[0],TrackKeeper.class,0))
-				,Track.class,repo)
-		);
-		Assert.assertEquals(MercSyntaxTreeNodeType.Call,root.getType());
 	}
 }

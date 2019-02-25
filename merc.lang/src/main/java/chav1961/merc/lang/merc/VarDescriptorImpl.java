@@ -103,12 +103,7 @@ class VarDescriptorImpl implements VarDescriptor {
 
 	@Override
 	public VarDescriptor[] contentFields() {
-		if (isMethod()) {
-			throw new IllegalStateException("Attempt to get parameters when entity is a method!");
-		}
-		else {
-			return this.content;
-		}
+		return this.content;
 	}
 
 	@Override

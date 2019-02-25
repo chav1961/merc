@@ -5,7 +5,8 @@ import chav1961.purelib.basic.LongIdMap;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 
 class MercNameRepo {
-	private LevelCollection					top = new LevelCollection(); 
+	private LevelCollection	top = new LevelCollection(); 
+	private int				unique = 1;
 	
 	MercNameRepo() {
 	}
@@ -74,6 +75,10 @@ class MercNameRepo {
 		return getName(top,nameId);
 	}
 
+	int getUniqueLabel() {
+		return unique++;
+	}
+	
 	private boolean hasName(final LevelCollection node, final long nameId) {
 		if (node == null) {
 			return false;

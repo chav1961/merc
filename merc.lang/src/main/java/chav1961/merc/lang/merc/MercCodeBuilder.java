@@ -43,6 +43,16 @@ class MercCodeBuilder {
 	private static final Method			PRODUCE_STRING_KEEPER;
 	private static final Method			PRODUCE_TRACK_KEEPER;
 
+	private static final Method			PRODUCE_LONG_INLIST;
+	private static final Method			PRODUCE_DOUBLE_INLIST;
+	private static final Method			PRODUCE_STRING_INLIST;
+	private static final Method			PRODUCE_BOOLEAN_INLIST;
+	private static final Method			PRODUCE_POINT_INLIST;
+	private static final Method			PRODUCE_OBJECT_INLIST;
+
+	private static final Method			PRODUCE_LONG_INCDEC;
+	private static final Method			PRODUCE_DOUBLE_INCDEC;
+	
 	private static final Method			AREA_KEEPER_SETVALUE;
 	private static final Method			BOOLEAN_KEEPER_SETVALUE;
 	private static final Method			DOUBLE_KEEPER_SETVALUE;
@@ -77,6 +87,16 @@ class MercCodeBuilder {
 			PRODUCE_SIZE_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newSizeKeeper_");
 			PRODUCE_STRING_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newStringKeeper_");
 			PRODUCE_TRACK_KEEPER = BasicMercProgram.class.getDeclaredMethod("_newTrackKeeper_");
+
+			PRODUCE_LONG_INLIST = BasicMercProgram.class.getDeclaredMethod("_inList_",long.class,long[].class);
+			PRODUCE_DOUBLE_INLIST = BasicMercProgram.class.getDeclaredMethod("_inList_",double.class,double[].class);
+			PRODUCE_STRING_INLIST = BasicMercProgram.class.getDeclaredMethod("_inList_",char[].class,char[][].class);
+			PRODUCE_BOOLEAN_INLIST = BasicMercProgram.class.getDeclaredMethod("_inList_",boolean.class,boolean[].class);
+			PRODUCE_POINT_INLIST = BasicMercProgram.class.getDeclaredMethod("_inList_",Point.class,Track[].class);
+			PRODUCE_OBJECT_INLIST = BasicMercProgram.class.getDeclaredMethod("_inList_",Object.class,Object[].class);
+
+			PRODUCE_LONG_INCDEC = BasicMercProgram.class.getDeclaredMethod("_incDec_",LongKeeper.class,int.class);
+			PRODUCE_DOUBLE_INCDEC = BasicMercProgram.class.getDeclaredMethod("_incDec_",DoubleKeeper.class,int.class);
 			
 			AREA_KEEPER_SETVALUE = AreaKeeper.class.getMethod("setValue",Area.class);
 			BOOLEAN_KEEPER_SETVALUE = BooleanKeeper.class.getMethod("setValue",boolean.class);
@@ -144,7 +164,7 @@ class MercCodeBuilder {
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_AREA_KEEPER));
 							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(entity.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0], names, classes, vars, 0, 0, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(AREA_KEEPER_SETVALUE));
 							}
 							break;
@@ -152,7 +172,7 @@ class MercCodeBuilder {
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_BOOLEAN_KEEPER));
 							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(entity.children[0].children[0], names, classes, vars, writer);
+								printExpression(entity.children[0].children[0], names, classes, vars, 0, 0, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(BOOLEAN_KEEPER_SETVALUE));
 							}
 							break;
@@ -160,7 +180,7 @@ class MercCodeBuilder {
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_KEEPER));
 							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(entity.children[0].children[0], names, classes, vars, writer);
+								printExpression(entity.children[0].children[0], names, classes, vars, 0, 0, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(DOUBLE_KEEPER_SETVALUE));
 							}
 							break;
@@ -168,13 +188,13 @@ class MercCodeBuilder {
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_KEEPER));
 							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(entity.children[0].children[0], names, classes, vars, writer);
+								printExpression(entity.children[0].children[0], names, classes, vars, 0, 0, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(LONG_KEEPER_SETVALUE));
 							}
 							break;
 						case OtherType	:
 							if (entity.children.length != 0) {
-								printExpression(entity.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0], names, classes, vars, 0, 0, writer);
 							}
 							else {
 								writer.writeln(" aconst_null");
@@ -184,7 +204,7 @@ class MercCodeBuilder {
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_POINT_KEEPER));
 							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(entity.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0], names, classes, vars, 0, 0, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(POINT_KEEPER_SETVALUE));
 							}
 							break;
@@ -192,7 +212,7 @@ class MercCodeBuilder {
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_SIZE_KEEPER));
 							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(entity.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0], names, classes, vars, 0, 0, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(SIZE_KEEPER_SETVALUE));
 							}
 							break;
@@ -200,7 +220,7 @@ class MercCodeBuilder {
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_STRING_KEEPER));
 							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(entity.children[0].children[0], names, classes, vars, writer);
+								printExpression(entity.children[0].children[0], names, classes, vars, 0, 0, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(STRING_KEEPER_SETVALUE));
 							}
 							break;
@@ -208,7 +228,7 @@ class MercCodeBuilder {
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_TRACK_KEEPER));
 							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(entity.children[0], names, classes, vars, writer);
+								printExpression(entity.children[0], names, classes, vars, 0, 0, writer);
 								writer.writeln(CompilerUtils.buildMethodCall(TRACK_KEEPER_SETVALUE));
 							}
 							break;
@@ -303,7 +323,7 @@ class MercCodeBuilder {
 		writer.writeln(" aload writer");
 		for (MercSyntaxTreeNode item : node.children) {
 			writer.writeln(" dup");
-			printExpression(item,names,classes,vars,writer);
+			printExpression(item,names,classes,vars,0,0,writer);
 			final Class<?>	resultClass = inferenceExpressionType(item);
 			
 			switch (Utils.defineClassType(resultClass)) {
@@ -338,18 +358,8 @@ class MercCodeBuilder {
 		writer.writeln(" invokevirtual java.io.PrintWriter.println()V");
 	}
 	
-	static void printExpression(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
+	static void printExpression(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final int trueLabel, final int falseLabel, final CharDataOutput writer) throws IOException, SyntaxException {
 		switch (node.getType()) {
-			case BitInv	:
-				printExpression(node.children[0], names, classes, vars, writer);
-				if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-					writer.writeln(" ldc2_w -1L");
-					writer.writeln(" lxor");
-				}
-				else {
-					throw new IOException(); 
-				}
-				break;
 			case BoolConst	:
 				writer.write(" ldc ").writeln(node.value);
 				break;
@@ -358,13 +368,13 @@ class MercCodeBuilder {
 				final String		methodName = names.getName(node.value);
 				final Class<?>[]	callList;
 				
-				printExpression(node.children[0], names, classes, vars, writer);
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 				if (node.children.length == 2) {
 					int		count = 0;
 					
 					callList = new Class[node.children[1].children.length];
 					for (MercSyntaxTreeNode item : node.children[1].children) {
-						printExpression(item, names, classes, vars, writer);
+						printExpression(item, names, classes, vars, trueLabel, falseLabel, writer);
 						callList[count++] = inferenceExpressionType(item);
 					}
 				}
@@ -379,17 +389,17 @@ class MercCodeBuilder {
 				}
 				break;
 			case Conversion	:
-				printConversion(node, names, classes, vars, writer);
+				printConversion(node, names, classes, vars, trueLabel, falseLabel, writer);
 				break;
 			case IndicedName	:
-				printExpression(node.children[0], names, classes, vars, writer);
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 				for (MercSyntaxTreeNode item : node.children[1].children) {
-					printExpression(item, names, classes, vars, writer);
+					printExpression(item, names, classes, vars, trueLabel, falseLabel, writer);
 					writer.write(" aaload");
 				}
 				break;
 			case InstanceField	:
-				printExpression(node.children[0], names, classes, vars, writer);
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 				writer.write(" getfield ").writeln(names.getName(node.children[1].value));
 				break;
 			case IntConst	:
@@ -398,80 +408,13 @@ class MercCodeBuilder {
 			case LocalName	:
 				writer.write(" aload ").writeln(names.getName(node.children[0].value));
 				break;
-			case Negation	:
-				printExpression(node.children[0], names, classes, vars, writer);
-				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-					writer.writeln(" dneg");
-				}
-				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-					writer.writeln(" lneg");
-				}
-				else {
-					throw new IOException(); 
-				}
-				break;
-			case Not		:
-				printExpression(node.children[0], names, classes, vars, writer);
-				if (boolean.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-					writer.writeln(" ldc 1");
-					writer.writeln(" ixor");
-				}
-				else {
-					throw new IOException(); 
-				}
-				break;
 			case OrdinalBinary	:
-				printOrdinalBinaryExpression(node, names, classes, vars, writer);
+				printOrdinalBinaryExpression(node, names, classes, vars, trueLabel, falseLabel, writer);
+				break;
+			case OrdinalUnary	:
+				printOrdinalUnaryExpression(node, names, classes, vars, trueLabel, falseLabel, writer);
 				break;
 			case Pipe	:
-				break;
-			case PostDec	:
-				printExpression(node.children[0], names, classes, vars, writer);
-//				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-//					writer.writeln(" dneg");
-//				}
-//				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-//					writer.writeln(" lneg");
-//				}
-//				else {
-//					throw new IOException(); 
-//				}
-				break;
-			case PostInc	:
-				printExpression(node.children[0], names, classes, vars, writer);
-//				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-//					writer.writeln(" dneg");
-//				}
-//				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-//					writer.writeln(" lneg");
-//				}
-//				else {
-//					throw new IOException(); 
-//				}
-				break;
-			case PreDec	:
-				printExpression(node.children[0], names, classes, vars, writer);
-//				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-//					writer.writeln(" dneg");
-//				}
-//				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-//					writer.writeln(" lneg");
-//				}
-//				else {
-//					throw new IOException(); 
-//				}
-				break;
-			case PreInc	:
-				printExpression(node.children[0], names, classes, vars, writer);
-//				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-//					writer.writeln(" dneg");
-//				}
-//				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
-//					writer.writeln(" lneg");
-//				}
-//				else {
-//					throw new IOException(); 
-//				}
 				break;
 			case PredefinedName	:
 				printPredefinedName(node, names, classes, vars, writer);
@@ -494,14 +437,14 @@ class MercCodeBuilder {
 		}		
 	}
 
-	static void printConversion(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
+	static void printConversion(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final int trueLabel, final int falseLabel, final CharDataOutput writer) throws IOException, SyntaxException {
 		switch (InternalUtils.defineSimplifiedType(((VarDescriptor)node.cargo).getNameType())) {
 			case LongType	:
 				switch (node.children.length) {
 					case 1 :
 						final Class<?>	resolved = MercOptimizer.processTypeConversions(node.children[0],null,null,classes,null);
 						
-						printExpression(node.children[0], names, classes, vars, writer);
+						printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 						if (resolved == double.class) {
 							writer.writeln(" d2l");
 						}
@@ -520,7 +463,7 @@ class MercCodeBuilder {
 					case 1 :
 						final Class<?>	resolved = MercOptimizer.processTypeConversions(node.children[0],null,null,classes,null);
 						
-						printExpression(node.children[0], names, classes, vars, writer);
+						printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 						if (resolved == long.class) {
 							writer.writeln(" l2d");
 						}
@@ -539,7 +482,7 @@ class MercCodeBuilder {
 					case 1 :
 						final Class<?>	resolved = MercOptimizer.processTypeConversions(node.children[0],null,null,classes,null);
 						
-						printExpression(node.children[0], names, classes, vars, writer);
+						printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 						if (resolved == long.class) {
 							writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMercProgram._toStr_(J)[C");
 						}
@@ -561,7 +504,7 @@ class MercCodeBuilder {
 					case 1 :
 						final Class<?>	resolved = MercOptimizer.processTypeConversions(node.children[0],null,null,classes,null);
 						
-						printExpression(node.children[0], names, classes, vars, writer);
+						printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 						if (resolved == char[].class) {
 							writer.writeln(" l2d");
 						}
@@ -576,19 +519,19 @@ class MercCodeBuilder {
 				switch (node.children.length) {
 					case 1 :
 						newAndDup(writer,Area.class);
-						printExpression(node.children[0], names, classes, vars, writer);
+						printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 						writer.writeln(CompilerUtils.buildConstructorCall(AREA_CONSTRUCTOR_ENTITY));
 						break;
 					case 2 :
 						newAndDup(writer,Area.class);
-						printExpression(node.children[0], names, classes, vars, writer);
-						printExpression(node.children[1], names, classes, vars, writer);
+						printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
+						printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
 						writer.writeln(CompilerUtils.buildConstructorCall(AREA_CONSTRUCTOR_POINTSIZE));
 						break;
 					case 4 :
 						newAndDup(writer,Area.class);
 						for (MercSyntaxTreeNode item : node.children) {
-							printExpression(item, names, classes, vars, writer);
+							printExpression(item, names, classes, vars, trueLabel, falseLabel, writer);
 							writer.writeln(" l2i");
 						}
 						writer.writeln(CompilerUtils.buildConstructorCall(AREA_CONSTRUCTOR_IIII));
@@ -602,12 +545,12 @@ class MercCodeBuilder {
 			case PointType	:
 				switch (node.children.length) {
 					case 1 :
-						printExpression(node.children[0], names, classes, vars, writer);
+						printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 						break;
 					case 2 :
 						newAndDup(writer,Point.class);
 						for (MercSyntaxTreeNode item : node.children) {
-							printExpression(item, names, classes, vars, writer);
+							printExpression(item, names, classes, vars, trueLabel, falseLabel, writer);
 							writer.writeln(" l2i");
 						}
 						writer.writeln(CompilerUtils.buildConstructorCall(POINT_CONSTRUCTOR_II));
@@ -618,12 +561,12 @@ class MercCodeBuilder {
 			case SizeType	:
 				switch (node.children.length) {
 					case 1 :
-						printExpression(node.children[0], names, classes, vars, writer);
+						printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 						break;
 					case 2 :
 						newAndDup(writer,Size.class);
 						for (MercSyntaxTreeNode item : node.children) {
-							printExpression(item, names, classes, vars, writer);
+							printExpression(item, names, classes, vars, trueLabel, falseLabel, writer);
 							writer.writeln(" l2i");
 						}
 						writer.writeln(CompilerUtils.buildConstructorCall(SIZE_CONSTRUCTOR_II));
@@ -641,7 +584,7 @@ class MercCodeBuilder {
 				if (innerNodeTypes.length == 2) {
 					if (innerNodeTypes[0] == long.class && innerNodeTypes[1] == long.class) {
 						for (MercSyntaxTreeNode item : node.children) {
-							printExpression(item, names, classes, vars, writer);
+							printExpression(item, names, classes, vars, trueLabel, falseLabel, writer);
 							writer.writeln(" l2i");
 						}
 						writer.writeln(CompilerUtils.buildConstructorCall(TRACK_CONSTRUCTOR_II));
@@ -649,7 +592,7 @@ class MercCodeBuilder {
 					}
 					else if (innerNodeTypes[0] == Point.class && innerNodeTypes[1] == Size.class) {
 						for (MercSyntaxTreeNode item : node.children) {
-							printExpression(item, names, classes, vars, writer);
+							printExpression(item, names, classes, vars, trueLabel, falseLabel, writer);
 						}
 						writer.writeln(CompilerUtils.buildConstructorCall(TRACK_CONSTRUCTOR_POINTSIZE));
 						return;
@@ -658,7 +601,7 @@ class MercCodeBuilder {
 				if (innerNodeTypes.length == 4) {
 					if (innerNodeTypes[0] == long.class && innerNodeTypes[1] == long.class && innerNodeTypes[2] == long.class && innerNodeTypes[3] == long.class) {
 						for (MercSyntaxTreeNode item : node.children) {
-							printExpression(item, names, classes, vars, writer);
+							printExpression(item, names, classes, vars, trueLabel, falseLabel, writer);
 							writer.writeln(" l2i");
 						}
 						writer.writeln(CompilerUtils.buildConstructorCall(TRACK_CONSTRUCTOR_IIII));
@@ -670,7 +613,7 @@ class MercCodeBuilder {
 				for (int index = 0; index < node.children.length; index++) {
 					writer.writeln(" dup");
 					writer.write(" ldc ").writeln(index);
-					printExpression(node.children[index], names, classes, vars, writer);
+					printExpression(node.children[index], names, classes, vars, trueLabel, falseLabel, writer);
 					writer.write(" checkcast ").writeln(CompilerUtils.buildClassPath(AvailableForTrack.class));
 					writer.writeln(" aastore");
 				}
@@ -679,13 +622,114 @@ class MercCodeBuilder {
 			default : throw new UnsupportedOperationException("Simplified type ["+InternalUtils.defineSimplifiedType(((VarDescriptor)node.cargo).getNameType())+"] is not supported yet");
 		}
 	}
+
+	static void printOrdinalUnaryExpression(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final int trueLabel, final int falseLabel, final CharDataOutput writer) throws SyntaxException, IOException {
+		Class<?>	infer;
+		// TODO Auto-generated method stub
+		switch (LexemaSubtype.values()[(int)node.value]) {
+			case BitInv	:
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
+				if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+					writer.writeln(" ldc2_w -1L");
+					writer.writeln(" lxor");
+				}
+				else {
+					throw new IOException(); 
+				}
+				break;
+			case Neg	:
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
+				if (double.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+					writer.writeln(" dneg");
+				}
+				else if (long.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+					writer.writeln(" lneg");
+				}
+				else {
+					throw new IOException(); 
+				}
+				break;
+			case Not		:
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
+				if (boolean.class.isAssignableFrom(inferenceExpressionType(node.children[0]))) {
+					writer.writeln(" ldc 1");
+					writer.writeln(" ixor");
+				}
+				else {
+					throw new IOException(); 
+				}
+				break;
+			case PostDec	:
+				infer = InternalUtils.resolveType4Value(inferenceExpressionType(node.children[0]));
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
+				if (double.class.isAssignableFrom(infer)) {
+					writer.writeln(" ldc 3");
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_INCDEC));
+				}
+				else if (long.class.isAssignableFrom(infer)) {
+					writer.writeln(" ldc 3");
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_INCDEC));
+				}
+				else {
+					throw new IOException(); 
+				}
+				break;
+			case PostInc	:
+				infer = InternalUtils.resolveType4Value(inferenceExpressionType(node.children[0]));
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
+				if (double.class.isAssignableFrom(infer)) {
+					writer.writeln(" ldc 1");
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_INCDEC));
+				}
+				else if (long.class.isAssignableFrom(infer)) {
+					writer.writeln(" ldc 1");
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_INCDEC));
+				}
+				else {
+					throw new IOException(); 
+				}
+				break;
+			case PreDec	:
+				infer = InternalUtils.resolveType4Value(inferenceExpressionType(node.children[0]));
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
+				if (double.class.isAssignableFrom(infer)) {
+					writer.writeln(" ldc 2");
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_INCDEC));
+				}
+				else if (long.class.isAssignableFrom(infer)) {
+					writer.writeln(" ldc 2");
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_INCDEC));
+				}
+				else {
+					throw new IOException(); 
+				}
+				break;
+			case PreInc	:
+				infer = InternalUtils.resolveType4Value(inferenceExpressionType(node.children[0]));
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
+				if (double.class.isAssignableFrom(infer)) {
+					writer.writeln(" ldc 0");
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_INCDEC));
+				}
+				else if (long.class.isAssignableFrom(infer)) {
+					writer.writeln(" ldc 0");
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_INCDEC));
+				}
+				else {
+					throw new IOException(); 
+				}
+				break;
+		}
+	}
 	
-	
-	static void printOrdinalBinaryExpression(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException, SyntaxException {
+	static void printOrdinalBinaryExpression(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final int trueLabel, final int falseLabel, final CharDataOutput writer) throws IOException, SyntaxException {
 		final LexemaSubtype[]	operators = (LexemaSubtype[])node.cargo;
 		final Class<?>			firstClass = inferenceExpressionType(node.children[0]); 
 		
 		switch ((int)node.value) {
+			case MercCompiler.PRTY_COMPARISON:
+				printComparisonExpression(node,names,classes,vars,trueLabel,falseLabel,writer);
+				break;
 			case MercCompiler.PRTY_ADD		:
 				if (char[].class.isAssignableFrom(firstClass)) {
 					writer.writeln(" iload arr_len");
@@ -693,7 +737,7 @@ class MercCodeBuilder {
 					writer.writeln(" istore arr_len");
 
 					for (MercSyntaxTreeNode item : node.children) {
-						printExpression(item, names, classes, vars, writer);
+						printExpression(item, names, classes, vars, trueLabel, falseLabel, writer);
 						writer.writeln(" dup");
 						writer.writeln(" arraylength");
 						writer.writeln(" iload arr_len");
@@ -718,9 +762,9 @@ class MercCodeBuilder {
 					writer.writeln(" aload arr_ref");
 				}
 				else {
-					printExpression(node.children[0], names, classes, vars, writer);						
+					printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);						
 					for (int index = 1; index < operators.length; index++) {
-						printExpression(node.children[index], names, classes, vars, writer);
+						printExpression(node.children[index], names, classes, vars, trueLabel, falseLabel, writer);
 						switch (operators[index]) {
 							case Add	:
 								if (long.class.isAssignableFrom(firstClass)) {
@@ -744,9 +788,9 @@ class MercCodeBuilder {
 				}
 				break;
 			case MercCompiler.PRTY_MUL		:
-				printExpression(node.children[0], names, classes, vars, writer);						
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
 				for (int index = 1; index < operators.length; index++) {
-					printExpression(node.children[index], names, classes, vars, writer);
+					printExpression(node.children[index], names, classes, vars, trueLabel, falseLabel, writer);
 					switch (operators[index]) {
 						case Mul	:
 							if (long.class.isAssignableFrom(firstClass)) {
@@ -777,9 +821,9 @@ class MercCodeBuilder {
 				}
 				break;
 			case MercCompiler.PRTY_BITORXOR	:
-				printExpression(node.children[0], names, classes, vars, writer);						
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);						
 				for (int index = 1; index < operators.length; index++) {
-					printExpression(node.children[index], names, classes, vars, writer);
+					printExpression(node.children[index], names, classes, vars, trueLabel, falseLabel, writer);
 					switch (operators[index]) {
 						case BitOr	:
 							writer.writeln(" lor");
@@ -792,9 +836,9 @@ class MercCodeBuilder {
 				}
 				break;
 			case MercCompiler.PRTY_BITAND	:
-				printExpression(node.children[0], names, classes, vars, writer);						
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);						
 				for (int index = 1; index < operators.length; index++) {
-					printExpression(node.children[index], names, classes, vars, writer);
+					printExpression(node.children[index], names, classes, vars, trueLabel, falseLabel, writer);
 					switch (operators[index]) {
 						case BitAnd	:
 							writer.writeln(" land");
@@ -804,9 +848,9 @@ class MercCodeBuilder {
 				}
 				break;
 			case MercCompiler.PRTY_SHIFT	:
-				printExpression(node.children[0], names, classes, vars, writer);						
+				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);						
 				for (int index = 1; index < operators.length; index++) {
-					printExpression(node.children[index], names, classes, vars, writer);
+					printExpression(node.children[index], names, classes, vars, trueLabel, falseLabel, writer);
 					writer.writeln(" l2i");
 					switch (operators[index]) {
 						case Shl	:
@@ -824,7 +868,302 @@ class MercCodeBuilder {
 				break;
 		}
 	}
-	
+
+	static void printComparisonExpression(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final int trueLabel, final int falseLabel, final CharDataOutput writer) throws IOException, SyntaxException {
+		final LexemaSubtype[]	operators = (LexemaSubtype[])node.cargo;
+		final Class<?>			firstClass = inferenceExpressionType(node.children[0]); 
+
+		printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
+		if (long.class.isAssignableFrom(firstClass)) {
+			switch (operators[1]) {
+				case LT : case LE : case GT : case GE : case EQ : case NE : case IS :
+					printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
+					writer.writeln(" lcmp");
+					break;
+				case InList	:
+					printRangedValuesList(node.children[1],long.class,names,classes,vars,0,0,writer);
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_INLIST));
+					break;
+				default :
+					throw new SyntaxException(node.row,node.col,"Operation ["+operators[1]+"] is not supported for the given types");
+			}
+		}
+		else if (double.class.isAssignableFrom(firstClass)) {
+			switch (operators[1]) {
+				case LT : case LE : case GT : case GE : case EQ : case NE : case IS :
+					printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
+					writer.writeln(" dcmp");
+					break;
+				case InList	:
+					printRangedValuesList(node.children[1],double.class,names,classes,vars,0,0,writer);
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_INLIST));
+					break;
+				default :
+					throw new SyntaxException(node.row,node.col,"Operation ["+operators[1]+"] is not supported for the given types");
+			}
+		}
+		else if (char[].class.isAssignableFrom(firstClass)) {
+			switch (operators[1]) {
+				case LT : case LE : case GT : case GE : case EQ : case NE : case IS : 
+					printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
+					writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMergProgram._compare_([C[C)I");
+					break;
+				case LIKE	:
+					printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
+					writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMergProgram._like_([C[C)I");
+				case InList	:
+					printRangedValuesList(node.children[1],char[].class,names,classes,vars,0,0,writer);
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_STRING_INLIST));
+					break;
+				default :
+					throw new SyntaxException(node.row,node.col,"Operation ["+operators[1]+"] is not supported for the given types");
+			}
+		}
+		else if (boolean.class.isAssignableFrom(firstClass)) {
+			switch (operators[1]) {
+				case LT : case LE : case GT : case GE : case EQ : case NE : case IS :
+					printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
+					writer.writeln(" isub");
+					break;
+				case InList	:
+					printRangedValuesList(node.children[1],boolean.class,names,classes,vars,0,0,writer);
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_BOOLEAN_INLIST));
+					break;
+				default :
+					throw new SyntaxException(node.row,node.col,"Operation ["+operators[1]+"] is not supported for the given types");
+			}
+		}
+		else if (Size.class.isAssignableFrom(firstClass)) {
+			switch (operators[1]) {
+				case LT : case LE : case GT : case GE : case EQ : case NE : case IS :
+					printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
+					writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMergProgram._compare_(Lchav1961/merc/api/Size;Lchav1961/merc/api/Size;)I");
+					break;
+				case InList	:
+					printRangedValuesList(node.children[1],Size.class,names,classes,vars,0,0,writer);
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_OBJECT_INLIST));
+					break;
+				default :
+					throw new SyntaxException(node.row,node.col,"Operation ["+operators[1]+"] is not supported for the given types");
+			}
+		}
+		else {
+			switch (operators[1]) {
+				case EQ : case NE :
+					printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
+					try{writer.write(" invokevirtual ").writeln(CompilerUtils.buildMethodCall(firstClass.getMethod("equals",Object.class)));
+					} catch (NoSuchMethodException | SecurityException e) {
+					}
+					break;
+				case InList	:
+					printRangedValuesList(node.children[1],firstClass,names,classes,vars,0,0,writer);
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_OBJECT_INLIST));
+					break;
+				default :
+					throw new SyntaxException(node.row,node.col,"Operation ["+operators[1]+"] is not supported for the given types");
+			}
+		}
+		if (trueLabel == 0 && falseLabel == 0) {
+			final int	label = vars.getUniqueLabel(); 
+					
+			switch (operators[1]) {
+				case LT		:
+					writer.write(" ifge cmp_f").write(label).writeln();
+					break;
+				case LE		:
+					writer.write(" ifgt cmp_f").write(label).writeln();
+					break;
+				case GT		:
+					writer.write(" ifle cmp_f").write(label).writeln();
+					break;
+				case GE		:
+					writer.write(" iflt cmp_f").write(label).writeln();
+					break;
+				case EQ		:
+					writer.write(" ifne cmp_f").write(label).writeln();
+					break;
+				case NE		:
+					writer.write(" ifeq cmp_f").write(label).writeln();
+					break;
+				case IS		:
+					writer.write(" ifeq cmp_f").write(label).writeln();
+					break;
+				case LIKE	:
+					writer.write(" ifne cmp_f").write(label).writeln();
+					break;
+				case InList	:
+					writer.write(" ifne cmp_f").write(label).writeln();
+					break;
+			}
+			writer.writeln(" ldc 1");
+			writer.write(" goto cmp_t").writeln(label);
+			writer.write("cmp_f").write(label).writeln(": ldc 0");
+			writer.write("cmp_t").write(label).writeln(":");
+		}
+		else if (trueLabel != 0 && falseLabel == 0) {
+			switch (operators[1]) {
+				case LT		:
+					writer.write(" iflt sx_").write(trueLabel).writeln();
+					writer.write(" goto sx_").write(falseLabel).writeln();
+					break;
+				case LE		:
+					writer.write(" ifle sx_").write(trueLabel).writeln();
+					writer.write(" goto sx_").write(falseLabel).writeln();
+					break;
+				case GT		:
+					writer.write(" ifgt sx_").write(trueLabel).writeln();
+					writer.write(" goto sx_").write(falseLabel).writeln();
+					break;
+				case GE		:
+					writer.write(" ifge sx_").write(trueLabel).writeln();
+					writer.write(" goto sx_").write(falseLabel).writeln();
+					break;
+				case EQ		:
+					writer.write(" ifeq sx_").write(trueLabel).writeln();
+					writer.write(" goto sx_").write(falseLabel).writeln();
+					break;
+				case NE		:
+					writer.write(" ifne sx_").write(trueLabel).writeln();
+					writer.write(" goto sx_").write(falseLabel).writeln();
+					break;
+				case IS		:
+					writer.write(" ifeq sx_").write(trueLabel).writeln();
+					writer.write(" goto sx_").write(falseLabel).writeln();
+					break;
+				case LIKE	:
+					writer.write(" ifeq sx_").write(trueLabel).writeln();
+					writer.write(" goto sx_").write(falseLabel).writeln();
+					break;
+				case InList	:
+					writer.write(" ifeq sx_").write(trueLabel).writeln();
+					writer.write(" goto sx_").write(falseLabel).writeln();
+					break;
+			}
+		}
+		else if (trueLabel == 0 && falseLabel != 0) {
+			switch (operators[1]) {
+				case LT		:
+					writer.write(" ifge sx_").write(falseLabel).writeln();
+					break;
+				case LE		:
+					writer.write(" ifgt sx_").write(falseLabel).writeln();
+					break;
+				case GT		:
+					writer.write(" ifle sx_").write(falseLabel).writeln();
+					break;
+				case GE		:
+					writer.write(" iflt sx_").write(falseLabel).writeln();
+					break;
+				case EQ		:
+					writer.write(" ifne sx_").write(falseLabel).writeln();
+					break;
+				case NE		:
+					writer.write(" ifeq sx_").write(falseLabel).writeln();
+					break;
+				case IS		:
+					writer.write(" ifne sx_").write(falseLabel).writeln();
+					break;
+				case LIKE	:
+					writer.write(" ifne sx_").write(falseLabel).writeln();
+					break;
+				case InList	:
+					writer.write(" ifne sx_").write(falseLabel).writeln();
+					break;
+			}
+		}
+		else {
+			switch (operators[1]) {
+				case LT		:
+					writer.write(" iflt sx_").write(trueLabel).writeln();
+					break;
+				case LE		:
+					writer.write(" ifle sx_").write(trueLabel).writeln();
+					break;
+				case GT		:
+					writer.write(" ifgt sx_").write(trueLabel).writeln();
+					break;
+				case GE		:
+					writer.write(" ifge sx_").write(trueLabel).writeln();
+					break;
+				case EQ		:
+					writer.write(" ifeq sx_").write(trueLabel).writeln();
+					break;
+				case NE		:
+					writer.write(" ifne sx_").write(trueLabel).writeln();
+					break;
+				case IS		:
+					writer.write(" ifeq sx_").write(trueLabel).writeln();
+					break;
+				case LIKE	:
+					writer.write(" ifeq sx_").write(trueLabel).writeln();
+					break;
+				case InList	:
+					writer.write(" ifeq sx_").write(trueLabel).writeln();
+					break;
+			}
+		}
+	}	
+
+	private static void printRangedValuesList(final MercSyntaxTreeNode node, final Class<?> awaited, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final int trueLabel, final int falseLabel, final CharDataOutput writer) throws IOException, SyntaxException {
+		final int	arraySize = 2 * node.children.length;
+
+		writer.write(" ldc ").writeln(arraySize);
+		if (long.class.isAssignableFrom(awaited)) {
+			writer.writeln(" newarray long");
+		}
+		else if (double.class.isAssignableFrom(awaited)) {
+			writer.writeln(" newarray double");
+		}
+		else if (boolean.class.isAssignableFrom(awaited)) {
+			writer.writeln(" newarray boolean");
+		}
+		else {
+			writer.write(" anewarray ").writeln(CompilerUtils.buildClassPath(awaited));
+		}
+		for (int index = 0, maxIndex = node.children.length; index < maxIndex; index++) {
+			writer.writeln(" dup");
+			if (node.children[index].getType() == MercSyntaxTreeNodeType.Range) {
+				writer.writeln(" dup");
+				writer.write(" ldc ").writeln(2*index);
+				printExpression(node.children[index].children[0],names,classes,vars,0,0,writer);
+				printStoreArrayCommand(awaited,writer);
+				writer.write(" ldc ").writeln(2*index+1);
+				printExpression(node.children[index].children[1],names,classes,vars,0,0,writer);
+				printStoreArrayCommand(awaited,writer);
+			}
+			else {
+				writer.writeln(" dup");
+				writer.write(" ldc ").writeln(2*index);
+				writer.writeln(" swap");
+				writer.write(" ldc ").writeln(2*index+1);
+				printExpression(node.children[index],names,classes,vars,0,0,writer);
+				if (long.class.isAssignableFrom(awaited) || double.class.isAssignableFrom(awaited)) {
+					writer.writeln(" dup2_x2");
+				}
+				else {
+					writer.writeln(" dup_x2");
+				}
+				printStoreArrayCommand(awaited,writer);
+				printStoreArrayCommand(awaited,writer);
+			}
+		}
+	}
+
+	private static void printStoreArrayCommand(Class<?> awaited, CharDataOutput writer) throws IOException {
+		if (long.class.isAssignableFrom(awaited)) {
+			writer.writeln(" lastore");
+		}
+		else if (double.class.isAssignableFrom(awaited)) {
+			writer.writeln(" dastore");
+		}
+		else if (boolean.class.isAssignableFrom(awaited)) {
+			writer.writeln(" iastore");
+		}
+		else {
+			writer.writeln(" aastore");
+		}
+	}
+
 	static void printPredefinedName(final MercSyntaxTreeNode node, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final CharDataOutput writer) throws IOException {
 		switch ((LexemaSubtype)node.cargo) {
 			case Robo		:
@@ -901,10 +1240,6 @@ class MercCodeBuilder {
 				break;
 			case LongReturn:
 				break;
-			case BitInv: case PostDec: case PostInc: case PreDec: case PreInc: case Negation	:
-				return inferenceExpressionType(node.children[0]);
-			case Not:
-				return boolean.class;
 			case Null:
 				break;
 			case OrdinalBinary:
@@ -924,6 +1259,14 @@ class MercCodeBuilder {
 					case MercCompiler.PRTY_AND		:
 						return boolean.class;
 					case MercCompiler.PRTY_OR		:
+						return boolean.class;
+				}
+				break;
+			case OrdinalUnary:
+				switch (LexemaSubtype.values()[(int)node.value]) {
+					case BitInv: case PostDec: case PostInc: case PreDec: case PreInc: case Neg	:
+						return inferenceExpressionType(node.children[0]);
+					case Not:
 						return boolean.class;
 				}
 				break;

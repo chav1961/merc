@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ BasicMercProgramTest.class, MercCodeBuilderTest.class, MercCompilerTest.class, MercOptimizerTest.class,
-		MercReposTest.class, MercTotalTest.class, VarDescriptorTest.class })
+		MercReposTest.class, MercTotalTest.class, VarDescriptorTest.class, InternalUtilsTest.class })
 public class AllTests {
 
 }

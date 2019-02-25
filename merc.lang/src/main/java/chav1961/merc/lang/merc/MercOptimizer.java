@@ -29,7 +29,6 @@ import chav1961.purelib.basic.exceptions.SyntaxException;
 class MercOptimizer {
 	private static final Set<Class<?>>					POINT_CLASSES = new HashSet<>();
 	private static final Map<LexemaSubtype,Class<?>>	PREDEFINED_CLASSES = new HashMap<>();
-	private static final Map<Class<?>,Class<?>>			RESOLVED_4_VALUE = new HashMap<>();
 	private static final Map<Class<?>,LexemaSubtype>				CONVERSION_TYPE = new HashMap<>();
 	private static final Map<Class<?>,TypeClassification>			ORDINAL_TYPE_CLASSIFICATOR = new HashMap<>();
 	private static final Set<Class<?>>								ORDINAL_TYPE_GETTER = new HashSet<>();
@@ -48,15 +47,6 @@ class MercOptimizer {
 		POINT_CLASSES.add(Track.class);
 		
 		PREDEFINED_CLASSES.put(LexemaSubtype.World, World.class);
-		
-		RESOLVED_4_VALUE.put(BooleanKeeper.class,boolean.class);
-		RESOLVED_4_VALUE.put(DoubleKeeper.class,double.class);
-		RESOLVED_4_VALUE.put(LongKeeper.class,long.class);
-		RESOLVED_4_VALUE.put(StringKeeper.class,char[].class);
-		RESOLVED_4_VALUE.put(AreaKeeper.class,Area.class);
-		RESOLVED_4_VALUE.put(PointKeeper.class,Point.class);
-		RESOLVED_4_VALUE.put(SizeKeeper.class,Size.class);
-		RESOLVED_4_VALUE.put(TrackKeeper.class,Track.class);
 		
 		CONVERSION_TYPE.put(long.class,LexemaSubtype.Int);
 		CONVERSION_TYPE.put(double.class,LexemaSubtype.Real);
@@ -96,49 +86,6 @@ class MercOptimizer {
 				else {
 					return convertValueTypeTo(node,preferredClass,repo,staticInitials);
 				}
-			case PostDec : case PostInc : case PreDec : case PreInc :
-				if (preferredClass == null) {
-					final Class<?>	resolved = processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials);
-					
-					if (resolved != LongKeeper.class && resolved != DoubleKeeper.class) {
-						throw new SyntaxException(node.row,node.col,"Non left-part operand in the operation"); 
-					}
-					else {
-						return resolveType4Value(resolved);
-					}
-				}
-				else {
-					Class<?>	resolved = processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials);
-					
-					if (resolved != LongKeeper.class && resolved != DoubleKeeper.class) {
-						throw new SyntaxException(node.row,node.col,"Non left-part operand in the operation"); 
-					}
-					else {
-						resolved = resolveType4Value(resolved);
-						
-						if (resolved != preferredClass) {
-							insertConversion(node,resolved,preferredClass);
-						}
-						return preferredClass;
-					}
-				}
-			case BitInv : 
-				if (preferredClass == null) {
-					final Class<?>	inner = processTypeConversions(node.children[0],long.class,returnedClass,repo,staticInitials);
-					
-					if (inner != long.class) {
-						insertConversion(node,inner,long.class);
-					}
-					return long.class;
-				}
-				else {
-					final Class<?>	inner = processTypeConversions(node.children[0],long.class,returnedClass,repo,staticInitials);
-					
-					if (inner != preferredClass) {
-						insertConversion(node,inner,preferredClass);
-					}
-					return preferredClass;
-				}
 			case BoolConst:
 				if (preferredClass == null) {
 					return boolean.class;
@@ -155,7 +102,7 @@ class MercOptimizer {
 				}
 				return null;
 			case Function:
-				final Class<?>	returned = resolveType4Value((Class<?>)((MercSyntaxTreeNode)((MercSyntaxTreeNode)node.cargo).cargo).cargo);
+				final Class<?>	returned = InternalUtils.resolveType4Value((Class<?>)((MercSyntaxTreeNode)((MercSyntaxTreeNode)node.cargo).cargo).cargo);
 				
 				for (MercSyntaxTreeNode item : node.children) {
 					processTypeConversions(item,null,returned,repo,staticInitials); 
@@ -182,7 +129,7 @@ class MercOptimizer {
 				return ((VarDescriptor)node.cargo).getNameType();
 			case Conversion:
 				if (preferredClass == null) {
-					return resolveType4Value((Class<?>)node.cargo);
+					return InternalUtils.resolveType4Value((Class<?>)node.cargo);
 				}
 				else {
 					return convertValueTypeTo(node.children[0],preferredClass,repo,staticInitials);
@@ -267,45 +214,6 @@ class MercOptimizer {
 				return null;
 			case LongReturn:
 				return processTypeConversions(node.children[0],returnedClass,returnedClass,repo,staticInitials); 
-			case Negation:
-				if (preferredClass == null) {
-					final Class<?>	inner = processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials);
-					
-					if (RESOLVED_4_VALUE.containsKey(inner)) {
-						return processTypeConversions(node.children[0],RESOLVED_4_VALUE.get(inner),returnedClass,repo,staticInitials);
-					}
-					else {
-						return inner;
-					}
-				}
-				else {
-					final Class<?>	resolved = resolveType4Value(processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials));
-					final Class<?>	inner = processTypeConversions(node.children[0],resolved,returnedClass,repo,staticInitials);
-					
-					if (inner != preferredClass) {
-						insertConversion(node,inner,preferredClass);
-					}
-					return preferredClass;
-				}
-			case Not:
-				if (preferredClass == null) {
-					final Class<?>	inner = processTypeConversions(node.children[0],boolean.class,returnedClass,repo,staticInitials);
-					
-					if (RESOLVED_4_VALUE.containsKey(inner)) {
-						return processTypeConversions(node.children[0],RESOLVED_4_VALUE.get(inner),returnedClass,repo,staticInitials);
-					}
-					else {
-						return inner;
-					}
-				}
-				else {
-					final Class<?>	inner = processTypeConversions(node.children[0],boolean.class,returnedClass,repo,staticInitials);
-					
-					if (inner != preferredClass) {
-						insertConversion(node,inner,preferredClass);
-					}
-					return preferredClass;
-				}
 			case Null:
 				return preferredClass;
 			case OrdinalBinary:
@@ -320,7 +228,7 @@ class MercOptimizer {
 							final List<Class<?>>	mulClasses = new ArrayList<>();
 							
 							for (MercSyntaxTreeNode item : node.children) {
-								mulClasses.add(resolveType4Value(processTypeConversions(item,null,returnedClass,repo,staticInitials)));
+								mulClasses.add(InternalUtils.resolveType4Value(processTypeConversions(item,null,returnedClass,repo,staticInitials)));
 							}
 							final Class<?>			mulRequired = InternalUtils.extractDominatingType(mulClasses.toArray(new Class[mulClasses.size()]));
 							
@@ -329,7 +237,7 @@ class MercOptimizer {
 							}
 							return mulRequired;
 						case MercCompiler.PRTY_COMPARISON	:
-							final Class<?>	leftClass = resolveType4Value(processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials));
+							final Class<?>	leftClass = InternalUtils.resolveType4Value(processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials));
 
 							if ((leftClass == Point.class || leftClass == Area.class) && ((LexemaSubtype[])node.cargo)[1] == LexemaSubtype.InList) {
 								processTypeConversions(node.children[1],Track.class,returnedClass,repo,staticInitials);
@@ -360,8 +268,8 @@ class MercOptimizer {
 						case MercCompiler.PRTY_COMPARISON	:
 							Class<?>	leftClass = processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials);
 							
-							if (RESOLVED_4_VALUE.containsKey(leftClass)) {
-								leftClass = insertValueGetter(node.children[0],leftClass,repo);
+							if (InternalUtils.RESOLVED_4_VALUE.containsKey(leftClass)) {
+								leftClass = InternalUtils.insertValueGetter(node.children[0],repo);
 							}	
 							if ((leftClass == Point.class || leftClass == Area.class) && ((LexemaSubtype[])node.cargo)[1] == LexemaSubtype.InList) {
 								processTypeConversions(node.children[1],Track.class,returnedClass,repo,staticInitials);
@@ -384,6 +292,92 @@ class MercOptimizer {
 						default : throw new UnsupportedOperationException("Prty=["+node.value+"] is not supported yet");
 					}
 				}
+			case OrdinalUnary:
+				switch (LexemaSubtype.values()[(int)node.value]) {
+					case PostDec : case PostInc : case PreDec : case PreInc :
+						if (preferredClass == null) {
+							final Class<?>	resolved = processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials);
+							
+							if (resolved != LongKeeper.class && resolved != DoubleKeeper.class) {
+								throw new SyntaxException(node.row,node.col,"Non left-part operand in the operation"); 
+							}
+							else {
+								return InternalUtils.resolveType4Value(resolved);
+							}
+						}
+						else {
+							Class<?>	resolved = processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials);
+							
+							if (resolved != LongKeeper.class && resolved != DoubleKeeper.class) {
+								throw new SyntaxException(node.row,node.col,"Non left-part operand in the operation"); 
+							}
+							else {
+								resolved = InternalUtils.resolveType4Value(resolved);
+								
+								if (resolved != preferredClass) {
+									insertConversion(node,resolved,preferredClass);
+								}
+								return preferredClass;
+							}
+						}
+					case BitInv : 
+						if (preferredClass == null) {
+							final Class<?>	inner = processTypeConversions(node.children[0],long.class,returnedClass,repo,staticInitials);
+							
+							if (inner != long.class) {
+								insertConversion(node,inner,long.class);
+							}
+							return long.class;
+						}
+						else {
+							final Class<?>	inner = processTypeConversions(node.children[0],long.class,returnedClass,repo,staticInitials);
+							
+							if (inner != preferredClass) {
+								insertConversion(node,inner,preferredClass);
+							}
+							return preferredClass;
+						}
+					case Neg :
+						if (preferredClass == null) {
+							final Class<?>	inner = processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials);
+							
+							if (InternalUtils.RESOLVED_4_VALUE.containsKey(inner)) {
+								return processTypeConversions(node.children[0],InternalUtils.RESOLVED_4_VALUE.get(inner),returnedClass,repo,staticInitials);
+							}
+							else {
+								return inner;
+							}
+						}
+						else {
+							final Class<?>	resolved = InternalUtils.resolveType4Value(processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials));
+							final Class<?>	inner = processTypeConversions(node.children[0],resolved,returnedClass,repo,staticInitials);
+							
+							if (inner != preferredClass) {
+								insertConversion(node,inner,preferredClass);
+							}
+							return preferredClass;
+						}
+					case Not:
+						if (preferredClass == null) {
+							final Class<?>	inner = processTypeConversions(node.children[0],boolean.class,returnedClass,repo,staticInitials);
+							
+							if (InternalUtils.RESOLVED_4_VALUE.containsKey(inner)) {
+								return processTypeConversions(node.children[0],InternalUtils.RESOLVED_4_VALUE.get(inner),returnedClass,repo,staticInitials);
+							}
+							else {
+								return inner;
+							}
+						}
+						else {
+							final Class<?>	inner = processTypeConversions(node.children[0],boolean.class,returnedClass,repo,staticInitials);
+							
+							if (inner != preferredClass) {
+								insertConversion(node,inner,preferredClass);
+							}
+							return preferredClass;
+						}
+					default :
+				};
 			case Pipe:
 				for (MercSyntaxTreeNode item : ((MercSyntaxTreeNode[])node.cargo)) {
 					processTypeConversions(item,null,returnedClass,repo,staticInitials); 
@@ -405,10 +399,10 @@ class MercOptimizer {
 			case Print:
 				for (MercSyntaxTreeNode item : node.children) {
 					final Class<?>	sourceClass = processTypeConversions(item,null,returnedClass,repo,staticInitials);
-					final Class<?>	possibleValue = resolveType4Value(sourceClass);
+					final Class<?>	possibleValue = InternalUtils.resolveType4Value(sourceClass);
 					
 					if (possibleValue != sourceClass) {
-						insertValueGetter(item,possibleValue,repo);
+						InternalUtils.insertValueGetter(item,repo);
 					}
 				}
 				return null;
@@ -598,11 +592,17 @@ class MercOptimizer {
 			case BoolConst : case IntConst : case RealConst : case StrConst : case Null : case RefConst:
 				return true;
 			case AllocatedVariable : case IndicedName : case InstanceField : case Assign :
-			case PostDec : case PostInc : case PreDec : case PreInc : case PredefinedName :
-			case Call : case StandaloneName :
+			case PredefinedName : case Call : case StandaloneName :
 				return false;
-			case Negation : case BitInv : case Not :
-				return isConstantValue(node.children[0]);
+			case OrdinalUnary:
+				switch (LexemaSubtype.values()[(int)node.value]) {
+					case PostDec : case PostInc : case PreDec : case PreInc :
+						return false; 
+					case Neg : case BitInv : case Not :
+						return isConstantValue(node.children[0]);
+					default : 
+						throw new IllegalArgumentException();
+				}
 			case Conversion : case List : case Range : case OrdinalBinary:
 				for (MercSyntaxTreeNode item : node.children) {
 					if (!isConstantValue(item)) {
@@ -624,23 +624,6 @@ class MercOptimizer {
 		switch (node.getType()) {
 			case BoolConst : case IntConst : case RealConst : case StrConst : case Null : case RefConst:
 				return node;
-			case Negation : 
-				child = buildConstantValue(node.children[0]);
-				if (child.getType() == MercSyntaxTreeNodeType.RealConst) {
-					child.value = Double.doubleToLongBits(-Double.longBitsToDouble(child.value));
-				}
-				else {
-					child.value = -child.value;
-				}
-				return child;
-			case BitInv : 
-				child = buildConstantValue(node.children[0]);
-				child.value = ~child.value;
-				return child;
-			case Not :
-				child = buildConstantValue(node.children[0]);
-				child.value = 1 - child.value;
-				return child;
 			case OrdinalBinary :
 				switch ((int)node.value) {
 					case MercCompiler.PRTY_BITAND	:
@@ -816,6 +799,27 @@ class MercOptimizer {
 						return node;
 					default : throw new UnsupportedOperationException("Node priority ["+node.value+"] is not supported yet");
 				}
+			case OrdinalUnary :
+				switch (LexemaSubtype.values()[(int)node.value]) {
+					case Neg : 
+						child = buildConstantValue(node.children[0]);
+						if (child.getType() == MercSyntaxTreeNodeType.RealConst) {
+							child.value = Double.doubleToLongBits(-Double.longBitsToDouble(child.value));
+						}
+						else {
+							child.value = -child.value;
+						}
+						return child;
+					case BitInv : 
+						child = buildConstantValue(node.children[0]);
+						child.value = ~child.value;
+						return child;
+					case Not :
+						child = buildConstantValue(node.children[0]);
+						child.value = 1 - child.value;
+						return child;
+					default : throw new UnsupportedOperationException("Node value ["+node.value+"] is not supported yet");
+				}
 			case Conversion :
 				return node;
 			default :
@@ -895,8 +899,8 @@ class MercOptimizer {
 				else {
 					Class<?>	standalone = (((VarDescriptor)node.cargo).getNameType());
 					
-					if (RESOLVED_4_VALUE.containsKey(standalone)) {
-						standalone = insertValueGetter(node,standalone,repo);
+					if (InternalUtils.RESOLVED_4_VALUE.containsKey(standalone)) {
+						standalone = InternalUtils.insertValueGetter(node,repo);
 					}
 					if (standalone != preferredClass) {
 						insertConversion(node,standalone,preferredClass);
@@ -919,27 +923,5 @@ class MercOptimizer {
 		else {
 			throw new UnsupportedOperationException("Node type ["+node.getType()+"] is not supported yet");
 		}
-	}
-	
-	static Class<?> resolveType4Value(final Class<?> sourceClass) {
-		final Class<?>	converted = RESOLVED_4_VALUE.get(sourceClass);
-		
-		return converted != null ? converted : sourceClass;
-	}
-
-	static Class<?> insertValueGetter(final MercSyntaxTreeNode node, final Class<?> preferredClass, final MercClassRepo repo) throws SyntaxException {
-		final Class<?>		varType = ((VarDescriptor)node.cargo).getNameType();
-		final VarDescriptor	desc = repo.byClass(varType);
-		final long			getValueId = repo.getNames().seekName("getValue");
-		
-		for (VarDescriptor item : desc.contentFields()) {
-			if (item.getNameId() == getValueId) {
-				final MercSyntaxTreeNode	variable = new MercSyntaxTreeNode(node);
-
-				node.assignCall(node.row,node.col,getValueId,item,variable);
-				return ((VarDescriptor)node.cargo).getNameType(); 
-			}
-		}
-		throw new SyntaxException(node.row,node.col,"Variable doesn't contain getValue() method");
 	}
 }

@@ -22,8 +22,18 @@ import chav1961.purelib.basic.exceptions.SyntaxException;
 
 public class InternalUtils {
 	private static final Map<Class<?>,Map<Class<?>,Class<?>>>		RESOLVED_DOMINATOR = new HashMap<>();
+	static final Map<Class<?>,Class<?>>			RESOLVED_4_VALUE = new HashMap<>();
 	
 	static {
+		RESOLVED_4_VALUE.put(BooleanKeeper.class,boolean.class);
+		RESOLVED_4_VALUE.put(DoubleKeeper.class,double.class);
+		RESOLVED_4_VALUE.put(LongKeeper.class,long.class);
+		RESOLVED_4_VALUE.put(StringKeeper.class,char[].class);
+		RESOLVED_4_VALUE.put(AreaKeeper.class,Area.class);
+		RESOLVED_4_VALUE.put(PointKeeper.class,Point.class);
+		RESOLVED_4_VALUE.put(SizeKeeper.class,Size.class);
+		RESOLVED_4_VALUE.put(TrackKeeper.class,Track.class);
+		
 		Map<Class<?>,Class<?>>	target = new HashMap<>();
 		
 		target.put(long.class,long.class);
@@ -157,8 +167,6 @@ public class InternalUtils {
 					return ((VarDescriptor)node.cargo).getNameTrueType();
 				case Assign	:
 					return resolveNodeType(node.children[0]);
-				case BitInv	:
-					return resolveNodeType(node.children[0]);
 				case BoolConst	:
 					return boolean.class;
 				case Call	:
@@ -188,10 +196,6 @@ public class InternalUtils {
 					return ((VarDescriptor)node.cargo).getNameTrueType();
 				case LongReturn	:
 					return ((VarDescriptor)node.cargo).getNameTrueType();
-				case Negation	:
-					return resolveNodeType(node.children[0]);
-				case Not	:
-					return boolean.class;
 				case Null	:
 					return Object.class;
 				case OrdinalBinary	:
@@ -200,8 +204,8 @@ public class InternalUtils {
 					return void.class;
 				case Pipe	:
 					return void.class;
-				case PostDec : case PostInc : case PreDec : case PreInc :
-					return resolveNodeType(node.children[0]);
+				case OrdinalUnary	:
+					return ((VarDescriptor)node.cargo).getNameTrueType();
 				case PredefinedName	:
 					return ((VarDescriptor)node.cargo).getNameTrueType();
 				case RealConst	:
@@ -241,5 +245,49 @@ public class InternalUtils {
 			}
 		}
 		return result;
+	}
+	
+	public static void toRValue(final MercSyntaxTreeNode source, final MercClassRepo repo) throws SyntaxException {
+		final Class<?>	clazz = resolveNodeType(source);
+		
+		if (RESOLVED_4_VALUE.containsKey(clazz)) {
+			insertValueGetter(source,repo);
+		}
+	}
+	
+	public static Class<?> insertValueGetter(final MercSyntaxTreeNode node, final MercClassRepo repo) throws SyntaxException {
+		final Class<?>		varType = ((VarDescriptor)node.cargo).getNameType();
+		final VarDescriptor	desc = repo.byClass(varType);
+		final long			getValueId = repo.getNames().seekName("getValue");
+		
+		for (VarDescriptor item : desc.contentFields()) {
+			if (item.getNameId() == getValueId) {
+				final MercSyntaxTreeNode	variable = new MercSyntaxTreeNode(node);
+
+				node.assignCall(node.row,node.col,getValueId,item,variable);
+				return ((VarDescriptor)node.cargo).getNameType(); 
+			}
+		}
+		throw new SyntaxException(node.row,node.col,"Variable doesn't contain getValue() method");
+	}
+	
+	public static Class<?> subtype2Class(final LexemaSubtype nameType) {
+		switch (nameType) {
+			case Int	: return LongKeeper.class;
+			case Real	: return DoubleKeeper.class;
+			case Str	: return StringKeeper.class;
+			case Bool	: return BooleanKeeper.class;
+			case Point	: return PointKeeper.class;
+			case Area	: return AreaKeeper.class;
+			case Track	: return TrackKeeper.class;
+			case Size	: return SizeKeeper.class;
+			default : throw new UnsupportedOperationException("Subtype ["+nameType+"] is not supported yet"); 
+		}
+	}
+
+	public static Class<?> resolveType4Value(final Class<?> sourceClass) {
+		final Class<?>	converted = InternalUtils.RESOLVED_4_VALUE.get(sourceClass);
+		
+		return converted != null ? converted : sourceClass;
 	}
 }
