@@ -460,12 +460,12 @@ loop:				for (MercSyntaxTreeNode item : children) {
 		children = array.clone();
 	}
 
-	void assignUnary(final int row, final int col, final MercSyntaxTreeNodeType subtype, final MercSyntaxTreeNode node) {
+	void assignUnary(final int row, final int col, final LexemaSubtype oper, final VarDescriptor desc, final MercSyntaxTreeNode node) {
 		this.row = row;
 		this.col = col;
-		type = subtype;
-		value = -1;
-		cargo = null;
+		type = MercSyntaxTreeNodeType.OrdinalUnary;
+		value = oper.ordinal();
+		cargo = desc;
 		children = new MercSyntaxTreeNode[]{node};
 	}
 
@@ -520,11 +520,6 @@ loop:				for (MercSyntaxTreeNode item : children) {
 				sb.append(prefix).append(children[0].toString(prefix+STAIRWAY_STEP,names))
 				  .append(prefix).append("<---\n")
 				  .append(children[1].toString(prefix+STAIRWAY_STEP,names));
-				sb.append(prefix).append(")\n");
-				break;
-			case BitInv		:
-				sb.append(prefix).append("~ (\n");
-				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append(")\n");
 				break;
 			case BoolConst	:
@@ -653,16 +648,6 @@ loop:				for (MercSyntaxTreeNode item : children) {
 				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
 				sb.append(prefix).append("end return\n");
 				break;
-			case Negation	:
-				sb.append(prefix).append("- (\n");
-				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
-				sb.append(prefix).append(")\n");
-				break;
-			case Not		:
-				sb.append(prefix).append("not (\n");
-				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
-				sb.append(prefix).append(")\n");
-				break;
 			case Null	:
 				sb.append(prefix).append("null\n");
 				break;
@@ -675,6 +660,45 @@ loop:				for (MercSyntaxTreeNode item : children) {
 					sb.append(children[index].toString(prefix+STAIRWAY_STEP,names));
 				}
 				sb.append(prefix).append(")\n");
+				break;
+			case OrdinalUnary:
+				switch (LexemaSubtype.values()[(int)value]) {
+					case BitInv		:
+						sb.append(prefix).append("~ (\n");
+						sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+						sb.append(prefix).append(")\n");
+						break;
+					case Neg		:
+						sb.append(prefix).append("- (\n");
+						sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+						sb.append(prefix).append(")\n");
+						break;
+					case Not		:
+						sb.append(prefix).append("not (\n");
+						sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+						sb.append(prefix).append(")\n");
+						break;
+					case PostDec	:
+						sb.append(prefix).append("(\n");
+						sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+						sb.append(prefix).append(") --\n");
+						break;
+					case PostInc	:
+						sb.append(prefix).append("(\n");
+						sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+						sb.append(prefix).append(") ++\n");
+						break;
+					case PreDec	:
+						sb.append(prefix).append("-- (\n");
+						sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+						sb.append(prefix).append(")\n");
+						break;
+					case PreInc	:
+						sb.append(prefix).append("++ (\n");
+						sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
+						sb.append(prefix).append(")\n");
+						break;
+				}
 				break;
 			case Pipe	:
 				sb.append(prefix).append("pipe:\n");
@@ -692,28 +716,8 @@ loop:				for (MercSyntaxTreeNode item : children) {
 				sb.append(((MercSyntaxTreeNode[])cargo)[1].toString(prefix+STAIRWAY_STEP+STAIRWAY_STEP,names));
 				sb.append(prefix).append("end pipe\n");
 				break;
-			case PostDec	:
-				sb.append(prefix).append("(\n");
-				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
-				sb.append(prefix).append(") --\n");
-				break;
-			case PostInc	:
-				sb.append(prefix).append("(\n");
-				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
-				sb.append(prefix).append(") ++\n");
-				break;
 			case PredefinedName:
 				sb.append(prefix).append(cargo).append('\n');
-				break;
-			case PreDec	:
-				sb.append(prefix).append("-- (\n");
-				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
-				sb.append(prefix).append(")\n");
-				break;
-			case PreInc	:
-				sb.append(prefix).append("++ (\n");
-				sb.append(children[0].toString(prefix+STAIRWAY_STEP,names));
-				sb.append(prefix).append(")\n");
 				break;
 			case Print	:
 				sb.append(prefix).append("print\n");

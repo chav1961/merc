@@ -4,7 +4,7 @@ enum LexemaSubtype {
 	Int, Real, Str, Bool, Point, Area, Track, Size,
 	Robo, World, Rt, Market, Teleport,		
 	Neg, // prty=1 - negation
-	Inc, Dec,	// prty=2
+	Inc, Dec, PreInc, PreDec, PostInc, PostDec,	// prty=2
 	BitInv,		// prty=3
 	BitAnd, 	// prty=4
 	BitOr, BitXor,	// prty=5

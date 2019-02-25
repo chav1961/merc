@@ -6,10 +6,14 @@ import chav1961.merc.api.AreaKeeper;
 import chav1961.merc.api.BooleanKeeper;
 import chav1961.merc.api.DoubleKeeper;
 import chav1961.merc.api.LongKeeper;
+import chav1961.merc.api.Point;
 import chav1961.merc.api.PointKeeper;
+import chav1961.merc.api.Size;
 import chav1961.merc.api.SizeKeeper;
 import chav1961.merc.api.StringKeeper;
+import chav1961.merc.api.Track;
 import chav1961.merc.api.TrackKeeper;
+import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.purelib.basic.CharUtils;
 
 public class BasicMercProgram {
@@ -20,6 +24,86 @@ public class BasicMercProgram {
 	protected static int _concat_(final char[] source, final char[] target, final int before) {
 		System.arraycopy(source,0,target,before-source.length,source.length);
 		return before - source.length;
+	}
+	
+	protected static int _compare_(final char[] left, final char[] right) {
+		int		result;
+		
+		for (int index = 0, maxIndex = Math.min(left.length,right.length); index < maxIndex; index++) {
+			if ((result = left[index] - right[index]) != 0) {
+				return result;
+			}
+		}
+		return left.length-right.length;
+	}
+
+	protected static int _compare_(final Size left, final Size right) {
+		return left.compareTo(right);
+	}
+	
+	protected static int _inList_(final long value, final long[] content) {
+		for (int index = 0, maxIndex = content.length; index < maxIndex; index+=2) {
+			if (value >= content[index] && value <= content[index+1]) {
+				return 0;
+			}
+		}
+		return -1;
+	}
+	
+	protected static int _inList_(final double value, final double[] content) {
+		for (int index = 0, maxIndex = content.length; index < maxIndex; index+=2) {
+			if (value >= content[index] && value <= content[index+1]) {
+				return 0;
+			}
+		}
+		return -1;
+	}
+
+	protected static int _inList_(final char[] value, final char[][] content) {
+		for (int index = 0, maxIndex = content.length; index < maxIndex; index+=2) {
+			if (_compare_(value,content[index]) >= 0 && _compare_(value,content[index+1]) <= 0) {
+				return 0;
+			}
+		}
+		return -1;
+	}
+
+	protected static int _inList_(final boolean value, final boolean[] content) {
+		for (int index = 0, maxIndex = content.length; index < maxIndex; index++) {
+			if (value == content[index]) {
+				return 0;
+			}
+		}
+		return -1;
+	}
+
+	protected static int _inList_(final Point value, final Track[] content) {
+		for (int index = 0, maxIndex = content.length; index < maxIndex; index++) {
+			if (value.equals(content[index])) {
+				return 0;
+			}
+		}
+		return -1;
+	}
+	
+	protected static int _inList_(final Object value, final Object[] content) {
+		for (int index = 0, maxIndex = content.length; index < maxIndex; index++) {
+			if (value.equals(content[index])) {
+				return 0;
+			}
+		}
+		return -1;
+	}
+
+	protected static int _like_(final char[] left, final char[] right) {
+		int		result;
+		
+		for (int index = 0, maxIndex = Math.min(left.length,right.length); index < maxIndex; index++) {
+			if ((result = left[index] - right[index]) != 0) {
+				return result;
+			}
+		}
+		return left.length-right.length;
 	}
 	
 	protected static AreaKeeper _newAreaKeeper_() {
@@ -68,5 +152,17 @@ public class BasicMercProgram {
 
 	protected static final char[] _toStr_(final boolean value) {
 		return value ? TRUE.clone() : FALSE.clone();
+	}
+	
+	protected static long _incDec_(final LongKeeper keeper, final int mode) throws MercContentException {
+		final long	result = keeper.getValue()+1;
+		keeper.setValue(result);
+		return result;
+	}
+
+	protected static double _incDec_(final DoubleKeeper keeper, final int mode) throws MercContentException {
+		final double	result = keeper.getValue()+1;
+		keeper.setValue(result);
+		return result;
 	}
 }

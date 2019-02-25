@@ -73,7 +73,7 @@ public class MercCodeBuilderTest {
 		Assert.assertEquals("-20 ", execute(uniqueName++, null,(out)->{
 			try{MercCodeBuilder.printPrintOperator(
 					new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Print,-1,null
-							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Negation,0,null,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.IntConst,20,null))
+							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary,LexemaSubtype.Neg.ordinal(),null,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.IntConst,20,null))
 					),
 					names,classes,vars,out);
 			} catch (IOException | SyntaxException e) {
@@ -83,7 +83,7 @@ public class MercCodeBuilderTest {
 		Assert.assertEquals("-12.5 ", execute(uniqueName++, null,(out)->{
 			try{MercCodeBuilder.printPrintOperator(
 					new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Print,-1,null
-							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Negation,0,null,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.RealConst,Double.doubleToLongBits(12.5),null))
+							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary,LexemaSubtype.Neg.ordinal(),null,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.RealConst,Double.doubleToLongBits(12.5),null))
 					),
 					names,classes,vars,out);
 			} catch (IOException | SyntaxException e) {
@@ -93,7 +93,7 @@ public class MercCodeBuilderTest {
 		Assert.assertEquals("-1 ", execute(uniqueName++, null,(out)->{
 			try{MercCodeBuilder.printPrintOperator(
 					new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Print,-1,null
-							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BitInv,0,null,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.IntConst,0,null))
+							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary,LexemaSubtype.BitInv.ordinal(),null,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.IntConst,0,null))
 					),
 					names,classes,vars,out);
 			} catch (IOException | SyntaxException e) {
@@ -103,7 +103,7 @@ public class MercCodeBuilderTest {
 		Assert.assertEquals("false ", execute(uniqueName++, null,(out)->{
 			try{MercCodeBuilder.printPrintOperator(
 					new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Print,-1,null
-							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Not,0,null,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BoolConst,1,null))
+							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary,LexemaSubtype.Not.ordinal(),null,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BoolConst,1,null))
 					),
 					names,classes,vars,out);
 			} catch (IOException | SyntaxException e) {
@@ -113,7 +113,7 @@ public class MercCodeBuilderTest {
 		Assert.assertEquals("true ", execute(uniqueName++, null,(out)->{
 			try{MercCodeBuilder.printPrintOperator(
 					new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Print,-1,null
-							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Not,0,null,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BoolConst,0,null))
+							,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.OrdinalUnary,LexemaSubtype.Not.ordinal(),null,new MercSyntaxTreeNode(MercSyntaxTreeNodeType.BoolConst,0,null))
 					),
 					names,classes,vars,out);
 			} catch (IOException | SyntaxException e) {
