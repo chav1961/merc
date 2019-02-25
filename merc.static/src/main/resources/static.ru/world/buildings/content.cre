@@ -2,7 +2,7 @@
 
 {{/images/building.jpg}} Здания и сооружения являются основой Вашей [[./station.cre|станции]]. Существует большое количество разновидностей зданий, доступных игроку в зависимости от его уровня. Построив то или иное здание на территории станции, и подключив его ко всем необходимым коммуникациям, Вы получаете в распоряжение соответствующую функциональность этого здания. Строить здания (за исключением [[#хранилища ресурсов|хранилищ]] ресурсов) можно только на территории станции.
 
-Строительство любого здания начинается с подготовки фундамента, на котором будет смонтированы компоненты здания. Фундамент готовится с помощью универсального [[../robots/robo.cre|робота]], в распоряжении которого имеется метод prepareBasement (а, начиная с уровня **5** - и метод prepareBasement2x2). На предварительно подготовленном фундаменте необходимо затем смонтировать все компоненты здания. Для этого их необходимо приобрести в меркурианском [[../externals/market.cre|супермаркете]] (методы buy() супермаркета), а после доставки компонент на посадочную площадку - перенести и установить их на нужные места (метод mount() универсального робота), согласно чертежам здания. Неправильная установка компонент здания приводит к **немедленному аварийному** завершению работу программы.
+Строительство любого здания начинается с подготовки фундамента, на котором будет смонтированы компоненты здания. Фундамент готовится с помощью универсального [[../robots/robo.cre|робота]], в распоряжении которого имеется метод prepareBasement (а, начиная с уровня **5** - и метод prepareBasement2x2). На предварительно подготовленном фундаменте необходимо затем смонтировать все компоненты здания. Для этого их необходимо приобрести в меркурианском [[../externals/market.cre|супермаркете]] (методы buy() супермаркета), а после доставки компонент на посадочную площадку - перенести и установить их на нужные места (метод mount() универсального робота), согласно чертежам здания. Неправильная установка компонент здания приводит к **немедленному аварийному** завершению работы программы.
 
 Как только будет смонтирован последний необходимый компонент, здание становится //готовым// к работе. Как правило, большинству зданий для работы требуется еще и подключение к [[../pipes/content.cre|коммуникациям]] (почти наверняка - к энергосети, и, возможно - к различным трубопроводам). После подключения коммуникаций здание начнет выполнять полезную работу, ради которой его и строили. Практически все здания станции имеют программный интерфейс для контроля и управления работой здания. До **10** уровня игрока пользоваться этими интерфейсами может только универсальный робот (методы logon()/logoff()), а, начиная с **10** уровня - здание вычислительного центра, если Вы проложите от него [[|сигнальный кабель]] или [[./wifi.cre|беспроводную линию связи]] до соответствующего здания.
 
@@ -13,7 +13,7 @@
 Ниже приведен список зданий, доступный в игре. Список сгруппирован по разделам:
 * [[#энергоустановки и средства коммуникации|энергоустановки]] и средства коммуникации
 * [[#хранилища ресурсов|хранилища]] ресурсов
-* здания [[#здания первичной обработки сырья|первичной обработки сырья]]
+* здания [[#первичная обработка сырья|первичной обработки сырья]]
 * здания [[#здания вторичной обработки сырья|вторичной обработки сырья]]
 * здания выпуска [[#здания выпуска готовых изделий|готовых изделий]]
 * здания [[#здания специального назначения|специального назначения]]
@@ -26,10 +26,11 @@
 | **1** |{{/images/mini/powerstation.png}} PowerStation | [[./powerstation.cre|Солнечная электростанция]] |
 | **2** |{{/images/mini/radiotower.png}} RadioTower | [[./radiotower.cre|Радиовышка]] |
 | **10** |{{/images/mini/wifi.png}} WiFi | [[./wifi.cre|Беспроводная линия связи]] |
+| **10** |{{/images/mini/wifi.png}} WiFi | [[./satellitetower.cre|Спутниковая линия связи]] |
 
 == Хранилища ресурсов
 
-Хранилища ресурсов - единственный вид зданий, которые можно строить за территорией Вашей станции. Хранилища ресурсов представлены в программе следующими зданиями:
+Хранилища ресурсов - единственный вид зданий, которые можно строить //за// территорией Вашей станции. Хранилища ресурсов представлены в программе следующими зданиями:
 
 |=Уровень игрока |= Наименование здания |= Назначение|
 | **5** |{{/images/mini/waterholder.png}} WaterTank | [[./waterholder.cre|Водяной резервуар]] |
@@ -41,12 +42,12 @@
 | **10** |{{/images/mini/nitriccidtank.png}} NitricAcidTank | [[./nitricacidholder.cre|Резервуар азотной кислоты]] |
 | **10** |{{/images/mini/hydrochloricacidtank.png}} HydroChloricAcidTank | [[./hydrochloricacidholder.cre|Резервуар соляной кислоты]] |
 
-== Здания первичной обработки сырья
+== Первичная обработка сырья
 
-Здания первичной обработки сырья представлены в программе следующими зданиями:
+Первичная обработка сырья представлена в программе следующими зданиями:
 
 |=Уровень игрока |= Наименование здания |= Назначение|
-| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Обогатительная фабрика]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} Concentrator | [[./concentrator.cre|Обогатительный завод]] |
 | **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех водородной металлургии]] |
 | **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех электрометаллургии]] |
 | **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех электролитического рафинирования]] |
@@ -71,6 +72,7 @@
 | **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства кремния]] |
 | **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства гидразина]] |
 | **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства перхлоратов]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех производства кристаллов]] |
 
 == Здания выпуска готовых изделий
 
@@ -83,9 +85,10 @@
 | **5** |{{/images/mini/solarbatteryfactory.png}} SolarBatteryFactory | [[./transformatorfactory.cre|Завод по производству солнечных батарей]] |
 | **5** |{{/images/mini/solidrocketfactory.png}} SolidRocketFactory | [[./transformatorfactory.cre|Завод по производству твердотопливных ракет]] |
 | **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Завод по производству жидкотопливных ракет]] |
-| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Завод по производству электроники]] |
-| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Завод по производству роботов]] |
-| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Завод по производству подвижного состава]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} ChipFactory | [[./transformatorfactory.cre|Завод по производству электроники]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} RobotFactory | [[./transformatorfactory.cre|Завод по производству роботов]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LocomotiveFactory | [[./transformatorfactory.cre|Завод по производству подвижного состава]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} LocomotiveFactory | [[./transformatorfactory.cre|Завод по производству лазеров]] |
 
 
 == Здания специального назначения
@@ -93,5 +96,12 @@
 Здания специального назначения представлены в программе следующими зданиями:
 
 |=Уровень игрока |= Наименование здания |= Назначение|
-| **5** |{{/images/mini/watertank.png}} WaterTank | Водяной резервуар |
-
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} Flag | [[./transformatorfactory.cre|Флаг]] 
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} MeteoritLaser | [[./transformatorfactory.cre|Метеоритный лазер]] 
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} Observatory | [[./transformatorfactory.cre|Астрономическая обсерватория]] 
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} SeismicStation | [[./transformatorfactory.cre|Сейсмическая станция]] 
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} SouvenirsFactory | [[./transformatorfactory.cre|Мастерская меркурианских сувениров]] 
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} Elevator | [[./transformatorfactory.cre|Грузовой лифт]] 
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} Bridge | [[./transformatorfactory.cre|Мост]] 
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} Tunnel | [[./transformatorfactory.cre|Туннель]] 
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} Tunnel | [[./transformatorfactory.cre|Стартовый стол]] 
