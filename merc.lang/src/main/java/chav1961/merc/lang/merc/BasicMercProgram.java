@@ -79,7 +79,7 @@ public class BasicMercProgram {
 
 	protected static int _inList_(final Point value, final Track[] content) {
 		for (int index = 0, maxIndex = content.length; index < maxIndex; index++) {
-			if (value.equals(content[index])) {
+			if (content[index].isInside(value)) {
 				return 0;
 			}
 		}
@@ -87,12 +87,17 @@ public class BasicMercProgram {
 	}
 	
 	protected static int _inList_(final Object value, final Object[] content) {
-		for (int index = 0, maxIndex = content.length; index < maxIndex; index++) {
-			if (value.equals(content[index])) {
-				return 0;
-			}
+		if (value instanceof Point && content instanceof Track[]) { 
+			return _inList_((Point)value,(Track[])content);
 		}
-		return -1;
+		else {
+			for (int index = 0, maxIndex = content.length; index < maxIndex; index++) {
+				if (value.equals(content[index])) {
+					return 0;
+				}
+			}
+			return -1;
+		}
 	}
 
 	protected static int _like_(final char[] left, final char[] right) {
@@ -154,15 +159,73 @@ public class BasicMercProgram {
 		return value ? TRUE.clone() : FALSE.clone();
 	}
 	
-	protected static long _incDec_(final LongKeeper keeper, final int mode) throws MercContentException {
-		final long	result = keeper.getValue()+1;
-		keeper.setValue(result);
-		return result;
+	protected static LongKeeper _incDec_(final LongKeeper keeper, final int mode) throws MercContentException {
+		final LongKeeper	temp;
+		
+		switch (mode) {
+			case 0 : 
+				keeper.setValue(keeper.getValue()+1); 
+				return keeper;
+			case 1 : 
+				temp = new LongKeeper();
+				temp.setValue(keeper.getValue());
+				keeper.setValue(keeper.getValue()+1);
+				return temp;
+			case 2 : 
+				keeper.setValue(keeper.getValue()-1); 
+				return keeper;
+			case 3 : 
+				temp = new LongKeeper();
+				temp.setValue(keeper.getValue());
+				keeper.setValue(keeper.getValue()-1); 
+				return temp;
+			default : throw new MercContentException("Illegal mode ["+mode+"] to increment/decrement");
+		}
 	}
 
-	protected static double _incDec_(final DoubleKeeper keeper, final int mode) throws MercContentException {
-		final double	result = keeper.getValue()+1;
-		keeper.setValue(result);
-		return result;
+	protected static DoubleKeeper _incDec_(final DoubleKeeper keeper, final int mode) throws MercContentException {
+		final DoubleKeeper	temp;
+		
+		switch (mode) {
+			case 0 : 
+				keeper.setValue(keeper.getValue()+1); 
+				return keeper;
+			case 1 : 
+				temp = new DoubleKeeper();
+				temp.setValue(keeper.getValue());
+				keeper.setValue(keeper.getValue()+1);
+				return temp;
+			case 2 : 
+				keeper.setValue(keeper.getValue()-1); 
+				return keeper;
+			case 3 : 
+				temp = new DoubleKeeper();
+				temp.setValue(keeper.getValue());
+				keeper.setValue(keeper.getValue()-1); 
+				return temp;
+			default : throw new MercContentException("Illegal mode ["+mode+"] to increment/decrement");
+		}
+	}
+
+	protected static char[] _trunc_(final char[] source) {
+		int	count = 0, start = 0, end = source.length - 1;
+		
+		for (int index = 0; index <= end; index++, count++, start++) {
+			if (source[index] > ' ') {
+				break;
+			}
+		}
+
+		for (int index = end; index > start; index--, count++, end--) {
+			if (source[index] > ' ') {
+				break;
+			}
+		}
+		if (count == 0) {
+			return source;
+		}
+		else {
+			return Arrays.copyOfRange(source,start,end+1);
+		}
 	}
 }

@@ -52,6 +52,9 @@ class MercCodeBuilder {
 
 	private static final Method			PRODUCE_LONG_INCDEC;
 	private static final Method			PRODUCE_DOUBLE_INCDEC;
+	private static final Method			PRODUCE_CHAR_TRUNC;
+	private static final Method			PRODUCE_CHAR_COMPARE;
+	private static final Method			PRODUCE_CHAR_LIKE;
 	
 	private static final Method			AREA_KEEPER_SETVALUE;
 	private static final Method			BOOLEAN_KEEPER_SETVALUE;
@@ -97,6 +100,9 @@ class MercCodeBuilder {
 
 			PRODUCE_LONG_INCDEC = BasicMercProgram.class.getDeclaredMethod("_incDec_",LongKeeper.class,int.class);
 			PRODUCE_DOUBLE_INCDEC = BasicMercProgram.class.getDeclaredMethod("_incDec_",DoubleKeeper.class,int.class);
+			PRODUCE_CHAR_TRUNC = BasicMercProgram.class.getDeclaredMethod("_trunc_",char[].class);
+			PRODUCE_CHAR_COMPARE = BasicMercProgram.class.getDeclaredMethod("_compare_",char[].class,char[].class);
+			PRODUCE_CHAR_LIKE = BasicMercProgram.class.getDeclaredMethod("_like_",char[].class,char[].class);
 			
 			AREA_KEEPER_SETVALUE = AreaKeeper.class.getMethod("setValue",Area.class);
 			BOOLEAN_KEEPER_SETVALUE = BooleanKeeper.class.getMethod("setValue",boolean.class);
@@ -634,7 +640,7 @@ class MercCodeBuilder {
 					writer.writeln(" lxor");
 				}
 				else {
-					throw new IOException(); 
+					throw new SyntaxException(node.row,node.col,"Bit inversion is not applicable for the given data type ["+inferenceExpressionType(node.children[0])+"]"); 
 				}
 				break;
 			case Neg	:
@@ -646,7 +652,7 @@ class MercCodeBuilder {
 					writer.writeln(" lneg");
 				}
 				else {
-					throw new IOException(); 
+					throw new SyntaxException(node.row,node.col,"Negation is not applicable for the given data type ["+inferenceExpressionType(node.children[0])+"]"); 
 				}
 				break;
 			case Not		:
@@ -656,67 +662,67 @@ class MercCodeBuilder {
 					writer.writeln(" ixor");
 				}
 				else {
-					throw new IOException(); 
+					throw new SyntaxException(node.row,node.col,"Logical NOT is not applicable for the given data type ["+inferenceExpressionType(node.children[0])+"]"); 
 				}
 				break;
 			case PostDec	:
 				infer = InternalUtils.resolveType4Value(inferenceExpressionType(node.children[0]));
 				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
-				if (double.class.isAssignableFrom(infer)) {
+				if (long.class.isAssignableFrom(infer)) {
 					writer.writeln(" ldc 3");
 					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_INCDEC));
 				}
-				else if (long.class.isAssignableFrom(infer)) {
+				else if (double.class.isAssignableFrom(infer)) {
 					writer.writeln(" ldc 3");
 					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_INCDEC));
 				}
 				else {
-					throw new IOException(); 
+					throw new SyntaxException(node.row,node.col,"Decrement is not applicable for the given data type ["+inferenceExpressionType(node.children[0])+"]"); 
 				}
 				break;
 			case PostInc	:
 				infer = InternalUtils.resolveType4Value(inferenceExpressionType(node.children[0]));
 				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
-				if (double.class.isAssignableFrom(infer)) {
+				if (long.class.isAssignableFrom(infer)) {
 					writer.writeln(" ldc 1");
 					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_INCDEC));
 				}
-				else if (long.class.isAssignableFrom(infer)) {
+				else if (double.class.isAssignableFrom(infer)) {
 					writer.writeln(" ldc 1");
 					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_INCDEC));
 				}
 				else {
-					throw new IOException(); 
+					throw new SyntaxException(node.row,node.col,"Increment is not applicable for the given data type ["+inferenceExpressionType(node.children[0])+"]"); 
 				}
 				break;
 			case PreDec	:
 				infer = InternalUtils.resolveType4Value(inferenceExpressionType(node.children[0]));
 				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
-				if (double.class.isAssignableFrom(infer)) {
+				if (long.class.isAssignableFrom(infer)) {
 					writer.writeln(" ldc 2");
 					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_INCDEC));
 				}
-				else if (long.class.isAssignableFrom(infer)) {
+				else if (double.class.isAssignableFrom(infer)) {
 					writer.writeln(" ldc 2");
 					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_INCDEC));
 				}
 				else {
-					throw new IOException(); 
+					throw new SyntaxException(node.row,node.col,"Decrement is not applicable for the given data type ["+inferenceExpressionType(node.children[0])+"]"); 
 				}
 				break;
 			case PreInc	:
 				infer = InternalUtils.resolveType4Value(inferenceExpressionType(node.children[0]));
 				printExpression(node.children[0], names, classes, vars, trueLabel, falseLabel, writer);
-				if (double.class.isAssignableFrom(infer)) {
+				if (long.class.isAssignableFrom(infer)) {
 					writer.writeln(" ldc 0");
 					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_LONG_INCDEC));
 				}
-				else if (long.class.isAssignableFrom(infer)) {
+				else if (double.class.isAssignableFrom(infer)) {
 					writer.writeln(" ldc 0");
 					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_DOUBLE_INCDEC));
 				}
 				else {
-					throw new IOException(); 
+					throw new SyntaxException(node.row,node.col,"Increment is not applicable for the given data type ["+inferenceExpressionType(node.children[0])+"]"); 
 				}
 				break;
 		}
@@ -727,6 +733,30 @@ class MercCodeBuilder {
 		final Class<?>			firstClass = inferenceExpressionType(node.children[0]); 
 		
 		switch ((int)node.value) {
+			case MercCompiler.PRTY_OR	:
+				if (trueLabel == 0 && falseLabel == 0) {
+					writer.writeln(" ldc 0");
+					for (int index = 0; index < operators.length; index++) {
+						printExpression(node.children[index], names, classes, vars, trueLabel, falseLabel, writer);
+						writer.writeln(" ior");
+					}
+				}
+				else {
+					throw new UnsupportedOperationException();
+				}
+				break;
+			case MercCompiler.PRTY_AND	:
+				if (trueLabel == 0 && falseLabel == 0) {
+					writer.writeln(" ldc 1");
+					for (int index = 0; index < operators.length; index++) {
+						printExpression(node.children[index], names, classes, vars, trueLabel, falseLabel, writer);
+						writer.writeln(" iand");
+					}
+				}
+				else {
+					throw new UnsupportedOperationException();
+				}
+				break;
 			case MercCompiler.PRTY_COMPARISON:
 				printComparisonExpression(node,names,classes,vars,trueLabel,falseLabel,writer);
 				break;
@@ -736,8 +766,13 @@ class MercCodeBuilder {
 					writer.writeln(" ldc 0");
 					writer.writeln(" istore arr_len");
 
-					for (MercSyntaxTreeNode item : node.children) {
+					for (int index = 0; index < node.children.length; index++) {
+						final MercSyntaxTreeNode item = node.children[index];
+						
 						printExpression(item, names, classes, vars, trueLabel, falseLabel, writer);
+						if (operators[index] == LexemaSubtype.Sub) {
+							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_CHAR_TRUNC));
+						}
 						writer.writeln(" dup");
 						writer.writeln(" arraylength");
 						writer.writeln(" iload arr_len");
@@ -781,6 +816,9 @@ class MercCodeBuilder {
 								else if (double.class.isAssignableFrom(firstClass)) {
 									writer.writeln(" dsub");
 								}
+								else {
+									throw new SyntaxException(node.row,node.col,"Substitution is not applicable for the given data type ["+inferenceExpressionType(node.children[index])+"]"); 
+								}
 								break;
 							default :
 						}
@@ -799,6 +837,9 @@ class MercCodeBuilder {
 							else if (double.class.isAssignableFrom(firstClass)) {
 								writer.writeln(" dmul");
 							}
+							else {
+								throw new SyntaxException(node.row,node.col,"Multiplication is not applicable for the given data type ["+inferenceExpressionType(node.children[index])+"]"); 
+							}
 							break;
 						case Div	:
 							if (long.class.isAssignableFrom(firstClass)) {
@@ -807,6 +848,9 @@ class MercCodeBuilder {
 							else if (double.class.isAssignableFrom(firstClass)) {
 								writer.writeln(" ddiv");
 							}
+							else {
+								throw new SyntaxException(node.row,node.col,"Dividion is not applicable for the given data type ["+inferenceExpressionType(node.children[index])+"]"); 
+							}
 							break;
 						case Rem	:
 							if (long.class.isAssignableFrom(firstClass)) {
@@ -814,6 +858,9 @@ class MercCodeBuilder {
 							}
 							else if (double.class.isAssignableFrom(firstClass)) {
 								writer.writeln(" drem");
+							}
+							else {
+								throw new SyntaxException(node.row,node.col,"Remainder is not applicable for the given data type ["+inferenceExpressionType(node.children[index])+"]"); 
 							}
 							break;
 						default :
@@ -892,7 +939,7 @@ class MercCodeBuilder {
 			switch (operators[1]) {
 				case LT : case LE : case GT : case GE : case EQ : case NE : case IS :
 					printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
-					writer.writeln(" dcmp");
+					writer.writeln(" dcmpg");
 					break;
 				case InList	:
 					printRangedValuesList(node.children[1],double.class,names,classes,vars,0,0,writer);
@@ -906,11 +953,11 @@ class MercCodeBuilder {
 			switch (operators[1]) {
 				case LT : case LE : case GT : case GE : case EQ : case NE : case IS : 
 					printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
-					writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMergProgram._compare_([C[C)I");
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_CHAR_COMPARE));
 					break;
 				case LIKE	:
 					printExpression(node.children[1], names, classes, vars, trueLabel, falseLabel, writer);
-					writer.writeln(" invokestatic chav1961.merc.lang.merc.BasicMergProgram._like_([C[C)I");
+					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_CHAR_LIKE));
 				case InList	:
 					printRangedValuesList(node.children[1],char[].class,names,classes,vars,0,0,writer);
 					writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_STRING_INLIST));

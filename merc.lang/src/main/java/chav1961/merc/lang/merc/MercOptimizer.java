@@ -126,7 +126,12 @@ class MercOptimizer {
 						processTypeConversions(node.children[index+1],parameters[index].getNameTrueType(),returnedClass,repo,staticInitials);
 					}
 				}
-				return ((VarDescriptor)node.cargo).getNameType();
+				if (preferredClass == null || preferredClass == ((VarDescriptor)node.cargo).getNameType()) {
+					return ((VarDescriptor)node.cargo).getNameType();
+				}
+				else {
+					return convertValueTypeTo(node,preferredClass,repo,staticInitials);
+				}
 			case Conversion:
 				if (preferredClass == null) {
 					return InternalUtils.resolveType4Value((Class<?>)node.cargo);
@@ -224,18 +229,40 @@ class MercOptimizer {
 								processTypeConversions(item,long.class,returnedClass,repo,staticInitials); 
 							}
 							return long.class;
-						case MercCompiler.PRTY_MUL : case MercCompiler.PRTY_ADD	:
+						case MercCompiler.PRTY_MUL :
 							final List<Class<?>>	mulClasses = new ArrayList<>();
 							
 							for (MercSyntaxTreeNode item : node.children) {
 								mulClasses.add(InternalUtils.resolveType4Value(processTypeConversions(item,null,returnedClass,repo,staticInitials)));
 							}
 							final Class<?>			mulRequired = InternalUtils.extractDominatingType(mulClasses.toArray(new Class[mulClasses.size()]));
-							
-							for (MercSyntaxTreeNode item : node.children) {
-								processTypeConversions(item,mulRequired,returnedClass,repo,staticInitials); 
+
+							if (mulRequired == long.class || mulRequired == double.class) {
+								for (MercSyntaxTreeNode item : node.children) {
+									processTypeConversions(item,mulRequired,returnedClass,repo,staticInitials); 
+								}
+							}
+							else {
+								throw new SyntaxException(node.row,node.col,"Illegal types in the multiplications. Only numeric types are available"); 
 							}
 							return mulRequired;
+						case MercCompiler.PRTY_ADD	:
+							final List<Class<?>>	addClasses = new ArrayList<>();
+							 
+							for (MercSyntaxTreeNode item : node.children) {
+								addClasses.add(InternalUtils.resolveType4Value(processTypeConversions(item,null,returnedClass,repo,staticInitials)));
+							}
+							final Class<?>			addRequired = InternalUtils.extractDominatingType(addClasses.toArray(new Class[addClasses.size()]));
+							
+							if (addRequired == long.class || addRequired == double.class || addRequired == char[].class) {
+								for (MercSyntaxTreeNode item : node.children) {
+									processTypeConversions(item,addRequired,returnedClass,repo,staticInitials); 
+								}
+							}
+							else {
+								throw new SyntaxException(node.row,node.col,"Illegal types in the multiplications. Only numeric types are available"); 
+							}
+							return addRequired;
 						case MercCompiler.PRTY_COMPARISON	:
 							final Class<?>	leftClass = InternalUtils.resolveType4Value(processTypeConversions(node.children[0],null,returnedClass,repo,staticInitials));
 

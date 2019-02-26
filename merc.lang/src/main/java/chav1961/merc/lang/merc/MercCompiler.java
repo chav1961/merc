@@ -388,7 +388,8 @@ class MercCompiler {
 						Utils.copyStream(rdr,writer);
 					}
 					
-					try(final Writer			wr = writer.clone(jos)) {//new PrintWriter(System.err)) {
+					try(final Writer			wr = writer.clone(jos)) {
+//					try(final Writer			wr = new PrintWriter(System.err)) {
 						final CharDataOutput	out = new WriterCharDataOutput(wr);
 						
 						MercCodeBuilder.printHead(root,names,classes,vars,out);
@@ -599,13 +600,40 @@ class MercCompiler {
 							
 							pos = buildListSyntaxTree(lexemas, pos+1, names, classes, vars, false, initial);
 							if (lexemas[pos].type == LexemaType.Close) {
-								final VarDescriptor	desc = new VarDescriptorImpl(allocation[0]++,nameId,InternalUtils.subtype2Class(nameType),false,isVar,0); 
+								final Class<?>		varClass = InternalUtils.subtype2Class(nameType);
+								final VarDescriptor	desc = new VarDescriptorImpl(allocation[0]++,nameId,varClass,false,isVar,0); 
 								
 								if (useVar) {
 									vars.addParameter(desc);
 								}
 								else {
 									vars.addLocalVar(desc);
+								}
+								switch (InternalUtils.defineSimplifiedType(varClass)) {
+									case AreaType	:
+										break;
+									case BooleanType:
+										MercOptimizer.processTypeConversions(initial,boolean.class,null,classes,null);
+										break;
+									case DoubleType	:
+										MercOptimizer.processTypeConversions(initial,double.class,null,classes,null);
+										break;
+									case LongType	:
+										MercOptimizer.processTypeConversions(initial,long.class,null,classes,null);
+										break;
+									case PointType	:
+										break;
+									case SizeType	:
+										break;
+									case StringType	:
+										MercOptimizer.processTypeConversions(initial,char[].class,null,classes,null);
+										break;
+									case TrackType	:
+										break;
+									case OtherType	:
+										break;
+									default:
+										break;
 								}
 								parm.assignVarDefinition(lexemas[current].row,lexemas[current].col,nameId,desc,initial);
 								pos++;
