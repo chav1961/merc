@@ -96,6 +96,12 @@ public class MercExpressionsTest {
 		Assert.assertEquals("true \n",execute("var x : bool(true); print x == true"));
 		Assert.assertEquals("false \n",execute("var x : bool(true); print x != true"));
 	}
+
+	@Test
+	public void pointTest() throws ScriptException, MercContentException, MercEnvironmentException, InstantiationException, IllegalAccessException, IOException {
+		Assert.assertEquals("Point [x=10, y=10] \n",execute("var x : point(10,10); print x"));
+		Assert.assertEquals("Point [x=10, y=10] \n",execute("var x : point(10,10); print x.x"));
+	}
 	
 	private String execute(final String source) {
 		final ScriptEngineManager	mgr = new ScriptEngineManager();

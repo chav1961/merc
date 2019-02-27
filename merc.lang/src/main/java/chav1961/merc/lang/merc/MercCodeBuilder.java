@@ -5,6 +5,7 @@ package chav1961.merc.lang.merc;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.nio.channels.UnsupportedAddressTypeException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +61,7 @@ class MercCodeBuilder {
 	private static final Method			BOOLEAN_KEEPER_SETVALUE;
 	private static final Method			DOUBLE_KEEPER_SETVALUE;
 	private static final Method			LONG_KEEPER_SETVALUE;
-	private static final Method			POINT_KEEPER_SETVALUE;
+	private static final Method			POINT_KEEPER_SETVALUE_POINT;
 	private static final Method			SIZE_KEEPER_SETVALUE;
 	private static final Method			STRING_KEEPER_SETVALUE;
 	private static final Method			TRACK_KEEPER_SETVALUE;
@@ -108,7 +109,7 @@ class MercCodeBuilder {
 			BOOLEAN_KEEPER_SETVALUE = BooleanKeeper.class.getMethod("setValue",boolean.class);
 			DOUBLE_KEEPER_SETVALUE = DoubleKeeper.class.getMethod("setValue",double.class);
 			LONG_KEEPER_SETVALUE = LongKeeper.class.getMethod("setValue",long.class);
-			POINT_KEEPER_SETVALUE = PointKeeper.class.getMethod("setValue",Point.class);
+			POINT_KEEPER_SETVALUE_POINT = PointKeeper.class.getMethod("setValue",Point.class);
 			SIZE_KEEPER_SETVALUE = SizeKeeper.class.getMethod("setValue",Size.class);
 			STRING_KEEPER_SETVALUE = StringKeeper.class.getMethod("setValue",char[].class);
 			TRACK_KEEPER_SETVALUE = TrackKeeper.class.getMethod("setValue",Track.class);
@@ -210,8 +211,22 @@ class MercCodeBuilder {
 							writer.writeln(CompilerUtils.buildMethodCall(PRODUCE_POINT_KEEPER));
 							if (entity.children.length != 0) {
 								writer.writeln(" dup");
-								printExpression(entity.children[0], names, classes, vars, 0, 0, writer);
-								writer.writeln(CompilerUtils.buildMethodCall(POINT_KEEPER_SETVALUE));
+								if (entity.children[0].children.length == 1) {
+									throw new UnsupportedOperationException();
+								}
+								else if (entity.children[0].children.length == 2) {
+									writer.write(" new ").writeln(CompilerUtils.buildClassPath(Point.class));
+									writer.writeln(" dup");
+									printExpression(entity.children[0].children[0], names, classes, vars, 0, 0, writer);
+									writer.writeln(" l2i");
+									printExpression(entity.children[0].children[1], names, classes, vars, 0, 0, writer);
+									writer.writeln(" l2i");
+									writer.writeln(CompilerUtils.buildConstructorCall(POINT_CONSTRUCTOR_II));
+									writer.writeln(CompilerUtils.buildMethodCall(POINT_KEEPER_SETVALUE_POINT));
+								}
+								else {
+									throw new SyntaxException(node.row,node.col,"Illegal arguments for initial values.");
+								}
 							}
 							break;
 						case SizeType	:

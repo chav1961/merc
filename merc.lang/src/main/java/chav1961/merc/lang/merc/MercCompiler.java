@@ -944,11 +944,71 @@ class MercCompiler {
 			final MercSyntaxTreeNode	owner = new MercSyntaxTreeNode(node);
 			final MercSyntaxTreeNode	field = new MercSyntaxTreeNode();
 			
-			pos = buildNameSyntaxTree(lexemas, pos+1, names, classes, vars, field);
+			pos = buildChainedNameSyntaxTree(lexemas, pos+1, names, classes, vars, field);
 			node.assignField(lexemas[current].row,lexemas[current].col,null,owner,field);
 		}
 		return pos;
 	}
+
+	static int buildChainedNameSyntaxTree(final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names, final MercClassRepo classes, final MercNameRepo vars, final MercSyntaxTreeNode node) throws SyntaxException {
+		int 	pos = current;
+		long	nameId = lexemas[pos].intval;
+		
+		node.assignName(lexemas[current].row,lexemas[current].col,nameId);
+		if ((node.cargo = vars.getName(nameId)) == null) {
+			throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Name ["+names.getName(nameId)+"] is not defined yet. Use 'var' before");
+		}
+		else {
+			if (lexemas[pos+1].type == LexemaType.OpenB) {
+				final MercSyntaxTreeNode	indices = new MercSyntaxTreeNode();
+				
+				pos = buildListSyntaxTree(lexemas, pos+2, names, classes, vars, false, indices);
+				if (lexemas[pos].type == LexemaType.CloseB) {
+					node.assignNameIndiced(lexemas[current].row,lexemas[current].col,nameId,(VarDescriptor)node.cargo,indices);
+					pos++;
+				}
+				else {
+					throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Missing ']'!");
+				}
+			}
+			else {
+				pos++;
+			}
+			if (lexemas[pos].type == LexemaType.Open) {
+				if (!((VarDescriptor)node.cargo).isMethod()) {
+					throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Name ["+names.getName(nameId)+"] is not a method/fuction");
+				}
+				else {
+					final MercSyntaxTreeNode	call = new MercSyntaxTreeNode(node);	
+					final MercSyntaxTreeNode	parms = new MercSyntaxTreeNode();
+					
+					if (lexemas[pos+1].type == LexemaType.Close) {
+						node.assignCall(lexemas[current].row,lexemas[current].col,nameId,(VarDescriptor)node.cargo,call);
+						pos += 2;
+					}
+					else {
+						pos = buildListSyntaxTree(lexemas, pos+1, names, classes, vars, false, parms);
+						if (lexemas[pos].type == LexemaType.Close) {
+							node.assignCall(lexemas[current].row,lexemas[current].col,nameId,(VarDescriptor)node.cargo,call,parms);
+							pos++;
+						}
+						else {
+							throw new SyntaxException(lexemas[pos].row,lexemas[pos].row,"Missing ')'!");
+						}
+					}
+				}
+			}
+		}
+		if (lexemas[pos].type == LexemaType.Dot) {
+			final MercSyntaxTreeNode	owner = new MercSyntaxTreeNode(node);
+			final MercSyntaxTreeNode	field = new MercSyntaxTreeNode();
+			
+			pos = buildChainedNameSyntaxTree(lexemas, pos+1, names, classes, vars, field);
+			node.assignField(lexemas[current].row,lexemas[current].col,null,owner,field);
+		}
+		return pos;
+	}
+	
 	
 	static int buildExpressionSyntaxTree(final int level, final Lexema[] lexemas, final int current, final SyntaxTreeInterface<?> names,final MercClassRepo classes, final MercNameRepo vars, final MercSyntaxTreeNode node) throws SyntaxException {
 		int	pos = current;
