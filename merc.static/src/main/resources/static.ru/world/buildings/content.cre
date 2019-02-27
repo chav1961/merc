@@ -47,7 +47,7 @@
 Первичная обработка сырья представлена в программе следующими зданиями:
 
 |=Уровень игрока |= Наименование здания |= Назначение|
-| **5** |{{/images/mini/liquidfuelrocketfactory.png}} Concentrator | [[./concentrator.cre|Обогатительный завод]] |
+| **5** |{{/images/mini/liquidfuelrocketfactory.png}} Concentrator | [[./concentrator.cre|Обогатительная фабрика]] |
 | **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех водородной металлургии]] |
 | **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех электрометаллургии]] |
 | **5** |{{/images/mini/liquidfuelrocketfactory.png}} LiquidFuelRocketFactory | [[./transformatorfactory.cre|Цех электролитического рафинирования]] |

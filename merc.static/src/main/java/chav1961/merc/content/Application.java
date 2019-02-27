@@ -45,6 +45,8 @@ import chav1961.purelib.ui.swing.useful.JStateString;
 
 public class Application extends JFrame implements LocaleChangeListener {
 	private static final long 		serialVersionUID = -3061028320843379171L;
+
+	public static final String		ARG_HELP_PORT = "helpport";
 	
 	public static final String		APPLICATION_TITLE = "Application.title";
 	public static final String		MESSAGE_FILE_LOADED = "Application.message.fileLoaded";
@@ -240,7 +242,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 	
 	public static void main(String[] args) {
 		try{final ArgParser						parser = new ApplicationArgParser().parse(args);
-			final int							helpPort = parser.isTyped("helpport") ? getFreePort() : parser.getValue("hepport", int.class);
+			final int							helpPort = !parser.isTyped(ARG_HELP_PORT) ? getFreePort() : parser.getValue(ARG_HELP_PORT, int.class);
 			final SubstitutableProperties		props = new SubstitutableProperties(Utils.mkProps(
 																	 NanoServiceFactory.NANOSERVICE_PORT, ""+helpPort
 																	,NanoServiceFactory.NANOSERVICE_ROOT, "fsys:file:/mercury/merc/merc.static/src/main/resources"
@@ -281,7 +283,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 	
 	static class ApplicationArgParser extends ArgParser {
 		public ApplicationArgParser() {
-			super(new IntegerArg("helpport",false,"help system port",0));
+			super(new IntegerArg(ARG_HELP_PORT,false,"help system port",0));
 		}
 	}
 }
