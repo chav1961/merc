@@ -12,6 +12,7 @@ import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.api.interfaces.front.EntityClassDescription;
 import chav1961.merc.api.interfaces.front.EntityStateDescriptor;
 import chav1961.merc.api.interfaces.front.StateChangedListener;
+import chav1961.merc.api.interfaces.front.World;
 import chav1961.purelib.basic.exceptions.PrintingException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.streams.JsonStaxParser;
@@ -46,6 +47,8 @@ public class GeometryTest {
 														@Override public Entity fireStateChanged(EntityStateDescriptor previousState, int changes) throws MercEnvironmentException {return null;}
 														@Override public void redraw() {}
 														@Override public long getRedrawCount() {return 0;}
+														@Override public World getWorld() throws MercEnvironmentException {return null;}
+														@Override public void setWorld(World world) throws MercEnvironmentException {}
 													};
 	
 	@Test

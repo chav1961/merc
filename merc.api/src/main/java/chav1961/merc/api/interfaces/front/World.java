@@ -451,4 +451,12 @@ public interface World extends DrawableEntity<WorldState> {
 	 * @throws MercEnvironmentException
 	 */
 	PaymentPanel getPaymentPanel() throws MercEnvironmentException;
+
+	/**
+	 * <p>Invoke scheduled action</p> 
+	 * @param runnable action to invoke
+	 * @param gameTimeDelay time delay before invoking
+	 * @throws MercEnvironmentException
+	 */
+	void invokeLater(final Runnable runnable, final long gameTimeDelay) throws MercEnvironmentException;
 }

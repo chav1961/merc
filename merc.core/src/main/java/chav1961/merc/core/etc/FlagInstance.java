@@ -7,6 +7,7 @@ import chav1961.merc.api.exceptions.MercEnvironmentException;
 import chav1961.merc.api.interfaces.front.ControlInterface;
 import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.api.interfaces.front.EntityClassDescription;
+import chav1961.merc.api.interfaces.front.World;
 import chav1961.merc.core.AbstractEntity;
 
 public class FlagInstance extends AbstractEntity<FlagState> {

@@ -1,13 +1,20 @@
 package chav1961.merc.api.interfaces.world;
 
 import chav1961.merc.api.interfaces.front.ResourceClass;
+import chav1961.merc.api.interfaces.front.ResourceType;
 
 public interface ResourceDescriptorInterface {
 	/**
-	 * <p>Get resource type was detected</p>
-	 * @return resource type. If missing, ResourceType.None will be returned
+	 * <p>Get resource class was detected</p>
+	 * @return resource type. If missing, ResourceClass.None will be returned
 	 */
-	ResourceClass getResourceType();
+	ResourceClass getResourceClass();
+	
+	/**
+	 * <p>Get resource type was detected</p>
+	 * @return resourceType. If missing, ResourceType.None will be returned
+	 */
+	ResourceType getResourceType();
 	
 	/**
 	 * <p>Get mill subtype to use this resources</p>

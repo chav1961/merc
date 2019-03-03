@@ -11,7 +11,9 @@ import chav1961.merc.api.interfaces.front.ControlInterface;
 import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.api.interfaces.front.ResourceClass;
 import chav1961.merc.api.interfaces.front.ResourceDescription;
+import chav1961.merc.api.interfaces.front.ResourceType;
 import chav1961.merc.api.interfaces.front.TickableEntity;
+import chav1961.merc.api.interfaces.front.World;
 import chav1961.merc.api.interfaces.world.ResourceDescriptorInterface;
 import chav1961.merc.core.AbstractEntity;
 
@@ -26,6 +28,7 @@ public class TeleportInstance extends AbstractEntity<TeleportState> implements T
 	
     boolean							mode1 = false, mode2 = false, mode3 = true;
 	private final TeleportControl	control = new TeleportControl(this);
+	private World					world = null;
 	
 	TeleportInstance(final Teleport description) {
 		super(Constants.TELEPORT_INSTANCE_UUID,description,TeleportState.Ready);
@@ -80,26 +83,19 @@ public class TeleportInstance extends AbstractEntity<TeleportState> implements T
 	public void tick() throws MercContentException {
 		control.tick();
 	}
-	
-	public ResourceDescriptorInterface getResourceForPoint(final Point point) {
-		return new ResourceDescriptorInterface() {
-			@Override
-			public ResourceClass getResourceType() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public String getMillType() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public float getApproxAmount() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		};
+
+	@Override
+	public World getWorld() throws MercEnvironmentException {
+		return world;
+	}
+
+	@Override
+	public void setWorld(final World world) throws MercEnvironmentException {
+		this.world = world;
+	}
+
+	public ResourceDescriptorInterface getResourceForPoint(Point anyThing) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

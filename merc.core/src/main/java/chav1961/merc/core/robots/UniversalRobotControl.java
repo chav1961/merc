@@ -125,9 +125,11 @@ public class UniversalRobotControl implements ControlInterface<UniversalRobotSta
 	@Override
 	public MessageInterface receiveMessage(final boolean wait) throws MercContentException {
 		validateLevel(1);
-		for (Entity<?> item : instance.getWorld().content(EntityClass.Buildings,"")) {
-			
-			return null;
+		try{for (Entity<?> item : instance.getWorld().content(EntityClass.Buildings,"")) {
+				
+				return null;
+			}
+		} catch (MercEnvironmentException e) {
 		}
 		throw new MercContentException("You have no Radio towers to send/receive messages. Build at lest one RadioTower firstly");
 	}

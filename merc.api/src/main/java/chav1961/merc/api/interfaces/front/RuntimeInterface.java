@@ -65,38 +65,154 @@ public interface RuntimeInterface {
 	@MerLan
 	public interface TeleportInterface {
 		/**
-		 * <p>Get resource cost</p>
+		 * <p>Get list of resource connected to the teleport from the world</p>
+		 * @return list of resource connected. Can be empty but not null.
+		 */
+		@MerLan
+		ResourceDescription[] connectedResources();
+		
+		/**
+		 * <p>Get all available resources cost</p>
 		 * @return all registered resource cost. Can be empty but not null
 		 */
 		@MerLan
-		Iterable<CostInterface<ResourceDescription>> getResourceCost();
+		CostInterface<ResourceDescription>[] getResourceCost();
 		
 		/**
 		 * <p>Get resource cost</p>
 		 * @param resourceClass resource class to get cost for. Can't be null
 		 * @return all registered resource cost with the given class. Can be empty but not null
+		 * @throws MercContentException
 		 */
 		@MerLan
-		Iterable<CostInterface<ResourceDescription>> getResourceCost(ResourceClass resourceClass);
+		CostInterface<ResourceDescription>[] getResourceCost(ResourceClass resourceClass) throws MercContentException;
 		
 		/**
 		 * <p>Get resource cost</p>
-		 * @param resourceClass resource class to get cost for. Can't be null
-		 * @param resourceSubclass resource subclass to get cost for. Can't be nether null nor empty
+		 * @param resourceType resource type to get cost for. Can't be nether null nor empty
 		 * @return resource cost. If missing, return null
 		 */
 		@MerLan
-		CostInterface<ResourceDescription> getResourceCost(ResourceClass resourceClass, String resourceSubclass);
+		CostInterface<ResourceDescription> getResourceCost(ResourceType resourceType) throws MercContentException;
+
+		/**
+		 * <p>Get resource amount bought thru the teleport</p>
+		 * @param resourceType resource type to get amount for
+		 * @return amount bought.
+		 */
+		@MerLan
+		float getAmountBought(ResourceType resourceType) throws MercContentException;
+
+		/**
+		 * <p>Get resource sum bought thru the teleport</p>
+		 * @param resourceType resource type to get sum for
+		 * @return sum bought.
+		 */
+		@MerLan
+		float getSumBought(ResourceType resourceType) throws MercContentException;
+
+		/**
+		 * <p>Get total sum bought thru the teleport</p>
+		 * @return total sum bought
+		 */
+		@MerLan
+		float getTotalSumBought();
+		
+		/**
+		 * <p>Get resource amount sold thru the teleport</p>
+		 * @param resourceType resource type to get amount for
+		 * @return amount sold
+		 */
+		@MerLan
+		float getAmountSold(ResourceType resourceType) throws MercContentException;
+
+		/**
+		 * <p>Get resource sum sold thru the teleport</p>
+		 * @param resourceType resource type to get amount for
+		 * @return sum sold
+		 */
+		@MerLan
+		float getSumSold(ResourceType resourceType) throws MercContentException;
+		
+		/**
+		 * <p>Get total sum sold thru the teleport</p>
+		 * @return total sum sold
+		 */
+		@MerLan
+		float getTotalSumSold();
+		
+		/**
+		 * <p>Lock automatic transmission of the resource</p>
+		 * @param resource resource to lock transmission
+		 * @throws MercContentException
+		 */
+		@MerLan
+		void lockResourceTransmission(ResourceType resource) throws MercContentException;
+		
+		/**
+		 * <p>Weather resource transmission is locked</p>
+		 * @param resource resource to test transmission locking
+		 * @return true if locked
+		 * @throws MercContentException
+		 */
+		@MerLan
+		boolean isResourceTransmissionLocked(ResourceType resource) throws MercContentException;
+		
+		/**
+		 * <p>Unlock automatic transmission of the resource</p>
+		 * @param resource resource to unlock transmission
+		 * @throws MercContentException
+		 */
+		@MerLan
+		void unlockResourceTransmission(ResourceType resource) throws MercContentException;
+
+		/**
+		 * <p>Lock automatic receiving of the resource</p>
+		 * @param resource resource to lock receiving
+		 * @throws MercContentException
+		 */
+		@MerLan
+		void lockResourceReceiving(ResourceType resource) throws MercContentException;
+		
+		/**
+		 * <p>Weather resource receiving is locked</p>
+		 * @param resource resource to test transmission locking
+		 * @return true if locked
+		 * @throws MercContentException
+		 */
+		@MerLan
+		boolean isResourceReceivingLocked(ResourceType resource) throws MercContentException;
+		
+		/**
+		 * <p>Unlock automatic receiving of the resource</p>
+		 * @param resource resource to unlock receiving
+		 * @throws MercContentException
+		 */
+		@MerLan
+		void unlockResourceReceiving(ResourceType resource) throws MercContentException;
+
+		/**
+		 * <p>Register connection of the given resource pipe</p>
+		 * @param resource resource type for pipe connected
+		 * @throws MercContentException
+		 */
+		void registerConnection(ResourceType resource) throws MercContentException;
+
+		/**
+		 * <p>Unregister connection of the given resource pipe</p>
+		 * @param resource resource type for pipe disconnected
+		 * @throws MercContentException
+		 */
+		void unregisterConnection(ResourceType resource) throws MercContentException;
 		
 		/**
 		 * <p>Buy resource</p>
-		 * @param resource resource descriptor</p>
+		 * @param resource resource type
 		 * @param quantity resource quantity. Must be positive.
 		 * @return outcome sum
 		 * @throws MercContentException if used account doesn't have enough money to buy
 		 */
-		@MerLan
-		float buyResource(ResourceDescription resource, float quantity) throws MercContentException;
+		float buyResource(ResourceType resource, float quantity) throws MercContentException;
 		
 		/**
 		 * <p>Sell resource</p>
@@ -105,8 +221,7 @@ public interface RuntimeInterface {
 		 * @return income sum.
 		 * @throws MercContentException
 		 */
-		@MerLan
-		float sellResource(ResourceDescription resource, float quantity) throws MercContentException;
+		float sellResource(ResourceType resource, float quantity) throws MercContentException;
 	}
 	
 	/**
@@ -172,6 +287,7 @@ public interface RuntimeInterface {
 		 * <p>Get current cache amount</p>
 		 * @return current cache amount
 		 */
+		@MerLan
 		float getCacheAmount();
 		
 		/**

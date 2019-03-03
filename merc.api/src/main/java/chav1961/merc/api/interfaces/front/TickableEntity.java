@@ -13,6 +13,7 @@ public interface TickableEntity {
 	 * <p>Get entoty name</p>
 	 * @return entity name. Can be null or empty
 	 */
+	@MerLan(accessibleFrom=2)
 	String getName();
 	
 	/**
@@ -20,6 +21,7 @@ public interface TickableEntity {
 	 * @param name entity name. Can be null or empty
 	 * @throws MercContentException
 	 */
+	@MerLan(accessibleFrom=2)
 	void setName(final String name) throws MercContentException;
 	
 	/**

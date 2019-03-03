@@ -8,6 +8,7 @@ package chav1961.merc.api.interfaces.front;
  */
 @MerLan
 public enum ResourceClass {
+	None,
 	Liquid,
 	Solid,
 	Electricity

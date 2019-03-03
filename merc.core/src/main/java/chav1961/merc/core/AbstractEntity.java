@@ -10,6 +10,7 @@ import chav1961.merc.api.interfaces.front.Entity;
 import chav1961.merc.api.interfaces.front.EntityClassDescription;
 import chav1961.merc.api.interfaces.front.EntityStateDescriptor;
 import chav1961.merc.api.interfaces.front.StateChangedListener;
+import chav1961.merc.api.interfaces.front.World;
 import chav1961.purelib.basic.exceptions.PrintingException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.concurrent.LightWeightListenerList;
@@ -35,6 +36,8 @@ public abstract class AbstractEntity<State extends Enum<State>> implements Entit
 	private EntityClassDescription<State>		classDescription;
 	private State								currentState;
 	private EntityStateDescriptor<State>		previousStateDescriptor = null;
+	private World 								world;
+	
 
 	public AbstractEntity(final EntityClassDescription<State> classDescription, final State initialState) throws NullPointerException {
 		this(UUID.randomUUID(),classDescription,initialState);
@@ -325,6 +328,16 @@ public abstract class AbstractEntity<State extends Enum<State>> implements Entit
 		}
 	}
 
+	@Override
+	public World getWorld() throws MercEnvironmentException {
+		return world;
+	}
+
+	@Override
+	public void setWorld(final World world) throws MercEnvironmentException {
+		this.world = world;
+	}
+	
 	@Override
 	public void redraw() {
 		redrawCount++;

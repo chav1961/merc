@@ -21,5 +21,5 @@ public interface ResourceDescription {
 	 * @return any non-null and non-empty resource subclass. Good idea is to return simple name of the class implemented the given resource
 	 */
 	@MerLan
-	String getResourceSubclass();
+	ResourceType getResourceType();
 }

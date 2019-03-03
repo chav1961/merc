@@ -123,9 +123,22 @@ public interface Entity<State extends Enum<State>> extends EntityStateDescriptor
 	 * @return control interface. Can be null if the item is not controller programmatically
 	 * @throws MercEnvironmentException
 	 */
-	@MerLan
 	ControlInterface<State> getControlInterface() throws MercEnvironmentException;
 
+	/**
+	 * <p>Get world entity is located in<p>
+	 * @return world with entity located. CAn be null
+	 * @throws MercEnvironmentException
+	 */
+	World getWorld() throws MercEnvironmentException;
+
+	/**
+	 * <p>Set entity world</p>
+	 * @param world world to set
+	 * @throws MercEnvironmentException
+	 */
+	void setWorld(World world) throws MercEnvironmentException;
+	
 	/**
 	 * <p>Fires listeners that entity state changed</p>  
 	 * @param previousState previous entity state. Can be null

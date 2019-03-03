@@ -44,10 +44,6 @@ public class UniversalRobotInstance extends AbstractEntity<UniversalRobotState> 
 		this.world = world;
 	}
 							
-	World getWorld() {
-		return world;
-	}
-	
 	@Override
 	public Entity<?> getOwner() throws MercEnvironmentException {
 		return null;

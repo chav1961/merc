@@ -140,4 +140,10 @@ public class SwingWorld extends AbstractWorld {
 			}
 		};
 	}
+
+	@Override
+	public void invokeLater(Runnable runnable, long gameTimeDelay) throws MercEnvironmentException {
+		// TODO Auto-generated method stub
+		
+	}
 }
