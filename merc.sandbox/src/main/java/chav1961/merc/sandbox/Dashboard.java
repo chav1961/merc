@@ -12,7 +12,7 @@ import javax.swing.SwingConstants;
 import chav1961.purelib.i18n.interfaces.LocaleResource;
 import chav1961.purelib.i18n.interfaces.LocaleResourceLocation;
 import chav1961.purelib.i18n.interfaces.Localizer;
-import chav1961.purelib.ui.interfacers.Format;
+import chav1961.purelib.ui.interfaces.Format;
 
 public class Dashboard extends JPanel {
 	private static final long serialVersionUID = -2493056491796618065L;
