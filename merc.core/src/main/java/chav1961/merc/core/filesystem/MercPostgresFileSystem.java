@@ -96,6 +96,24 @@ public class MercPostgresFileSystem extends AbstractFileSystem {
 			// TODO Auto-generated method stub
 			
 		}
+
+		@Override
+		public boolean tryLock(String path, boolean sharedMode) throws IOException {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public void lock(String path, boolean sharedMode) throws IOException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void unlock(String path, boolean sharedMode) throws IOException {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	}
 }

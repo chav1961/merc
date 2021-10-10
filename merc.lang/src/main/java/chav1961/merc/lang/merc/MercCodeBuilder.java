@@ -30,9 +30,9 @@ import chav1961.purelib.basic.exceptions.PreparationException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 import chav1961.purelib.cdb.SyntaxNodeUtils;
+import chav1961.purelib.cdb.CompilerUtils;
 import chav1961.purelib.enumerations.ContinueMode;
 import chav1961.purelib.enumerations.NodeEnterMode;
-import chav1961.purelib.streams.char2byte.asm.CompilerUtils;
 
 class MercCodeBuilder {
 	private static final Method			PRODUCE_AREA_KEEPER;
@@ -347,8 +347,8 @@ class MercCodeBuilder {
 			printExpression(item,names,classes,vars,0,0,writer);
 			final Class<?>	resultClass = inferenceExpressionType(item);
 			
-			switch (Utils.defineClassType(resultClass)) {
-				case Utils.CLASSTYPE_REFERENCE	:
+			switch (CompilerUtils.defineClassType(resultClass)) {
+				case CompilerUtils.CLASSTYPE_REFERENCE	:
 					if (char[].class.isAssignableFrom(resultClass)) {
 						writer.writeln(" invokevirtual java.io.PrintWriter.print([C)V");
 					}
@@ -357,17 +357,17 @@ class MercCodeBuilder {
 						writer.writeln(" invokevirtual java.io.PrintWriter.print(Ljava/lang/String;)V");
 					}
 					break;
-				case Utils.CLASSTYPE_BYTE	: case Utils.CLASSTYPE_SHORT	: case Utils.CLASSTYPE_INT	: case Utils.CLASSTYPE_CHAR	:
+				case CompilerUtils.CLASSTYPE_BYTE : case CompilerUtils.CLASSTYPE_SHORT : case CompilerUtils.CLASSTYPE_INT : case CompilerUtils.CLASSTYPE_CHAR	:
 					writer.writeln(" i2l");
-				case Utils.CLASSTYPE_LONG	:
+				case CompilerUtils.CLASSTYPE_LONG	:
 					writer.writeln(" invokevirtual java.io.PrintWriter.print(J)V");
 					break;
-				case Utils.CLASSTYPE_FLOAT	:
+				case CompilerUtils.CLASSTYPE_FLOAT	:
 					writer.writeln(" f2d");
-				case Utils.CLASSTYPE_DOUBLE	:
+				case CompilerUtils.CLASSTYPE_DOUBLE	:
 					writer.writeln(" invokevirtual java.io.PrintWriter.print(D)V");
 					break;
-				case Utils.CLASSTYPE_BOOLEAN:
+				case CompilerUtils.CLASSTYPE_BOOLEAN:
 					writer.writeln(" invokevirtual java.io.PrintWriter.print(Z)V");
 					break;
 				default : throw new UnsupportedOperationException();

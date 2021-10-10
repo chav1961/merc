@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,8 +28,9 @@ import chav1961.merc.api.exceptions.MercEnvironmentException;
 import chav1961.merc.api.interfaces.front.World;
 import chav1961.merc.lang.merc.interfaces.CallProgram;
 import chav1961.merc.lang.merc.interfaces.CharDataOutput;
-import chav1961.purelib.basic.ClassLoaderWrapper;
 import chav1961.purelib.basic.OrdinalSyntaxTree;
+import chav1961.purelib.basic.SimpleURLClassLoader;
+import chav1961.purelib.basic.URIUtils;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
@@ -783,9 +785,9 @@ public class MercCodeBuilderTest {
 		try(final StringWriter			wr = new StringWriter();
 			final WriterCharDataOutput	out = new WriterCharDataOutput(wr)) {
 		
-			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("beforeSimple.txt").toURI())),classNameSuffix));
+			out.writeln(String.format(new String(URIUtils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("beforeSimple.txt").toURI())),classNameSuffix));
 			ins.process(out);
-			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("afterSimple.txt").toURI())),classNameSuffix));
+			out.writeln(String.format(new String(URIUtils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("afterSimple.txt").toURI())),classNameSuffix));
 			out.flush();
 			
 			try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream();
@@ -796,7 +798,7 @@ public class MercCodeBuilderTest {
 				Utils.copyStream(new StringReader(wr.toString()),asm);
 				asm.flush();
 				
-				final Class<CallProgram>	cl = (Class<CallProgram>)new ClassLoaderWrapper().createClass("chav1961.merc.lang.merc.Test"+classNameSuffix,baos.toByteArray());
+				final Class<CallProgram>	cl = (Class<CallProgram>)new SimpleURLClassLoader(new URL[0]).createClass("chav1961.merc.lang.merc.Test"+classNameSuffix,baos.toByteArray());
 				final CallProgram			instance = (CallProgram)cl.newInstance();
 				
 				try(final StringWriter		result = new StringWriter();
@@ -819,13 +821,13 @@ public class MercCodeBuilderTest {
 		try(final StringWriter			wr = new StringWriter();
 			final WriterCharDataOutput	out = new WriterCharDataOutput(wr)) {
 		
-			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("beforeFields.txt").toURI())),classNameSuffix));
+			out.writeln(String.format(new String(URIUtils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("beforeFields.txt").toURI())),classNameSuffix));
 			insFields.process(out);
-			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("insideFields1.txt").toURI())),classNameSuffix));
+			out.writeln(String.format(new String(URIUtils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("insideFields1.txt").toURI())),classNameSuffix));
 			insInits.process(out);
-			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("insideFields2.txt").toURI())),classNameSuffix));
+			out.writeln(String.format(new String(URIUtils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("insideFields2.txt").toURI())),classNameSuffix));
 			insCode.process(out);
-			out.writeln(String.format(new String(Utils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("afterFields.txt").toURI())),classNameSuffix));
+			out.writeln(String.format(new String(URIUtils.loadCharsFromURI(MercCodeBuilderTest.class.getResource("afterFields.txt").toURI())),classNameSuffix));
 			out.flush();
 			
 			try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream();
@@ -836,7 +838,7 @@ public class MercCodeBuilderTest {
 				Utils.copyStream(new StringReader(wr.toString()),asm);
 				asm.flush();
 				
-				final Class<CallProgram>	cl = (Class<CallProgram>)new ClassLoaderWrapper().createClass("chav1961.merc.lang.merc.Test"+classNameSuffix,baos.toByteArray());
+				final Class<CallProgram>	cl = (Class<CallProgram>)new SimpleURLClassLoader(new URL[0]).createClass("chav1961.merc.lang.merc.Test"+classNameSuffix,baos.toByteArray());
 				final CallProgram			instance = (CallProgram)cl.newInstance();
 				
 				try(final StringWriter		result = new StringWriter();

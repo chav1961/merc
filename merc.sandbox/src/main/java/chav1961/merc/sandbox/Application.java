@@ -26,7 +26,6 @@ import javax.swing.WindowConstants;
 
 import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.purelib.basic.ArgParser;
-import chav1961.purelib.basic.ArgParserTest;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SubstitutableProperties;
 import chav1961.purelib.basic.SystemErrLoggerFacade;
@@ -46,7 +45,6 @@ import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.nanoservice.NanoServiceFactory;
-import chav1961.purelib.ui.swing.SwingModelUtils;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JStateString;
@@ -83,7 +81,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 			parent.push(localizer);
 			localizer.addLocaleChangeListener(this);
 			
-			this.menu = SwingModelUtils.toMenuEntity(app.byUIPath(URI.create(ContentMetadataInterface.UI_SCHEME+":/model/navigation.top.mainmenu")),JMenuBar.class); 
+			this.menu = SwingUtils.toJComponent(app.byUIPath(URI.create(ContentMetadataInterface.UI_SCHEME+":/model/navigation.top.mainmenu")),JMenuBar.class); 
 			SwingUtils.assignActionListeners(this.menu,this);
 		
 			setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -226,7 +224,7 @@ public class Application extends JFrame implements LocaleChangeListener {
 				e.printStackTrace();
 				System.exit(128);
 			}
-		} catch (IOException | ConsoleCommandException | CommandLineParametersException e) {
+		} catch (IOException | CommandLineParametersException e) {
 			e.printStackTrace();
 			System.exit(128);
 		}

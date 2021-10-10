@@ -3,24 +3,25 @@ package chav1961.merc.lang.merc;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.script.ScriptEngine;
 
 import chav1961.purelib.basic.AbstractScriptEngineFactory;
+import chav1961.purelib.basic.MimeType;
+import chav1961.purelib.basic.exceptions.MimeParseException;
 
 
 public class MercScriptEngineFactory extends AbstractScriptEngineFactory {
 	public static final String	ENGINE_NAME = "MerLan";
 	public static final String	ENGINE_VERSION = "0.0.1";
-	public static final String	ENGINE_MIME_1 = "text/merlan";
-	public static final String	ENGINE_MIME_2 = "application/merlan";
+	public static final String	ENGINE_MIME_SUBTYPE = "merlan";
+	public static final String	ENGINE_MIME_1_TYPE = "text";
+	public static final String	ENGINE_MIME_2_TYPE = "application";
 	public static final String	LANGUAGE = "MerLan";
 	public static final String	LANGUAGE_VERSION = "0.1";
 	public static final String	LANGUAGE_EXT = "MerLan";
 
-	public MercScriptEngineFactory() throws MimeTypeParseException {
-		super(ENGINE_NAME, ENGINE_VERSION, Arrays.asList(new MimeType(ENGINE_MIME_1),new MimeType(ENGINE_MIME_2)), LANGUAGE, LANGUAGE_VERSION, Arrays.asList(LANGUAGE_EXT));
+	public MercScriptEngineFactory() throws MimeParseException {
+		super(ENGINE_NAME, ENGINE_VERSION, Arrays.asList(new MimeType(ENGINE_MIME_1_TYPE, ENGINE_MIME_SUBTYPE),new MimeType(ENGINE_MIME_2_TYPE, ENGINE_MIME_SUBTYPE)), LANGUAGE, LANGUAGE_VERSION, Arrays.asList(LANGUAGE_EXT));
 	}
 
 	@Override
