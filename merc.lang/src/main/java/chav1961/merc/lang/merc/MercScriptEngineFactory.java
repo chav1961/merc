@@ -1,5 +1,6 @@
 package chav1961.merc.lang.merc;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,6 +60,12 @@ public class MercScriptEngineFactory extends AbstractScriptEngineFactory {
 
 	@Override
 	public ScriptEngine getScriptEngine() {
-		return new MercScriptEngine(this);
+		try {
+			return new MercScriptEngine(this);
+		} catch (IllegalArgumentException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

@@ -19,7 +19,7 @@ class MercScriptEngine extends AbstractScriptEngine {
 	private final List<Lexema>		lexemas = new ArrayList<>();
 	private SyntaxTreeInterface<?>	names;
 	
-	MercScriptEngine(final ScriptEngineFactory factory) {
+	MercScriptEngine(final ScriptEngineFactory factory) throws IllegalArgumentException, IOException {
 		super(factory);
 	}
 

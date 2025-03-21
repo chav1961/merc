@@ -20,8 +20,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import chav1961.purelib.basic.ArgParser;
+import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SubstitutableProperties;
-import chav1961.purelib.basic.SystemErrLoggerFacade;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.CommandLineParametersException;
 import chav1961.purelib.basic.exceptions.ConsoleCommandException;
@@ -31,13 +31,11 @@ import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.i18n.LocalizerFactory;
-import chav1961.purelib.i18n.PureLibLocalizer;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
-import chav1961.purelib.nanoservice.NanoServiceFactory;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JStateString;
@@ -242,29 +240,20 @@ public class Application extends JFrame implements LocaleChangeListener {
 	public static void main(String[] args) {
 		try{final ArgParser						parser = new ApplicationArgParser().parse(args);
 			final int							helpPort = !parser.isTyped(ARG_HELP_PORT) ? getFreePort() : parser.getValue(ARG_HELP_PORT, int.class);
-			final SubstitutableProperties		props = new SubstitutableProperties(Utils.mkProps(
-																	 NanoServiceFactory.NANOSERVICE_PORT, ""+helpPort
-																	,NanoServiceFactory.NANOSERVICE_ROOT, "fsys:file:/mercury/merc/merc.static/src/main/resources"
-																	,NanoServiceFactory.NANOSERVICE_CREOLE_PROLOGUE_URI, Application.class.getResource("prolog.cre").toString() 
-																	,NanoServiceFactory.NANOSERVICE_CREOLE_EPILOGUE_URI, Application.class.getResource("epilog.cre").toString() 
-																	));
 		
-			try(final LoggerFacade				logger = new SystemErrLoggerFacade();
+			try(final LoggerFacade				logger = PureLibSettings.CURRENT_LOGGER;
 				final InputStream				is = Application.class.getResourceAsStream("application.xml");
-				final Localizer					localizer = new PureLibLocalizer();
-				final NanoServiceFactory		service = new NanoServiceFactory(logger,props)) {
+				final Localizer					localizer = PureLibSettings.PURELIB_LOCALIZER) {
 				final ContentMetadataInterface	xda = ContentModelFactory.forXmlDescription(is);
 				final CountDownLatch			latch = new CountDownLatch(1);
 					
 				new Application(xda,localizer,helpPort,latch).setVisible(true);
-				service.start();
 				latch.await();
-				service.stop();
 			} catch (IOException | EnvironmentException | InterruptedException  e) {
 				e.printStackTrace();
 				System.exit(129);
 			}
-		} catch (ConsoleCommandException | CommandLineParametersException e) {
+		} catch (CommandLineParametersException e) {
 			e.printStackTrace();
 			System.exit(128);
 		} catch (IOException | ContentException e) {

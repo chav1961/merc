@@ -28,7 +28,6 @@ import chav1961.merc.api.exceptions.MercContentException;
 import chav1961.purelib.basic.ArgParser;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SubstitutableProperties;
-import chav1961.purelib.basic.SystemErrLoggerFacade;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.CommandLineParametersException;
 import chav1961.purelib.basic.exceptions.ConsoleCommandException;
@@ -38,13 +37,11 @@ import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.i18n.LocalizerFactory;
-import chav1961.purelib.i18n.PureLibLocalizer;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
-import chav1961.purelib.nanoservice.NanoServiceFactory;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JStateString;
@@ -209,17 +206,14 @@ public class Application extends JFrame implements LocaleChangeListener {
 			final int							helpPort = parser.isTyped("helpport") ? getFreePort() : parser.getValue("hepport", int.class);
 			final SubstitutableProperties		props = new SubstitutableProperties(Utils.mkProps("nanoservicePort",""+helpPort,"nanoserviceRoot","fsys:fsys:jar:/mercury/merc/merc.static/target/merc.static.0.0.1-SNAPSHOT.jar"));
 			
-			try(final LoggerFacade				logger = new SystemErrLoggerFacade();
+			try(final LoggerFacade				logger = PureLibSettings.CURRENT_LOGGER;
 				final InputStream				is = Application.class.getResourceAsStream("application.xml");
-				final Localizer					localizer = new PureLibLocalizer();
-				final NanoServiceFactory		service = new NanoServiceFactory(logger,props)) {
+				final Localizer					localizer = PureLibSettings.PURELIB_LOCALIZER) {
 				final ContentMetadataInterface 	metadata = ContentModelFactory.forXmlDescription(is);				
 				final CountDownLatch			latch = new CountDownLatch(1);
 				
 				new Application(metadata,localizer,helpPort,latch).setVisible(true);
-				service.start();
 				latch.await();
-				service.stop();
 			} catch (EnvironmentException | ContentException | InterruptedException e) {
 				e.printStackTrace();
 				System.exit(128);
