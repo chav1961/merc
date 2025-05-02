@@ -6,14 +6,14 @@ import org.junit.Test;
 import chav1961.merc.api.Point;
 import chav1961.merc.api.PointKeeper;
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
-import chav1961.purelib.basic.OrdinalSyntaxTree;
+import chav1961.purelib.basic.AndOrTree;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 
 public class MercReposTest {
 
 	@Test
 	public void classRepoTest() {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		final MercClassRepo					repo = new MercClassRepo(names,0);
 		
 		Assert.assertEquals(MercClassRepo.BUILTIN.length+4,repo.size());
@@ -40,7 +40,7 @@ public class MercReposTest {
 
 	@Test
 	public void nameRepoTest() {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		final MercNameRepo					repo = new MercNameRepo();
 		
 		Assert.assertEquals(1,repo.currentDepth());

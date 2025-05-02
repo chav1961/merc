@@ -11,7 +11,7 @@ import chav1961.merc.api.LongKeeper;
 import chav1961.merc.lang.merc.MercScriptEngine.Lexema;
 import chav1961.merc.lang.merc.interfaces.LexemaType;
 import chav1961.merc.lang.merc.interfaces.VarDescriptor;
-import chav1961.purelib.basic.OrdinalSyntaxTree;
+import chav1961.purelib.basic.AndOrTree;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 
@@ -38,7 +38,7 @@ public class MercCompilerTest {
 	
 	@Test
 	public void parserTest() throws SyntaxException, IOException {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		
 		Assert.assertEquals(LexemaType.If,callParser("if",false,names)[0].type);
 		Assert.assertEquals(LexemaType.Then,callParser("then",false,names)[0].type);
@@ -140,7 +140,7 @@ public class MercCompilerTest {
 
 	@Test
 	public void buildNameSyntaxTreeTest() throws SyntaxException, IOException {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		final long							xName = names.placeName("x",null), yName = names.placeName("y",null), zName = names.placeName("z",null);				
@@ -198,7 +198,7 @@ public class MercCompilerTest {
 
 	@Test
 	public void buildTermSyntaxTreeTest() throws SyntaxException, IOException {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		final long							xName = names.placeName("x",null);				
@@ -247,7 +247,7 @@ public class MercCompilerTest {
 	
 	@Test
 	public void buildListSyntaxTreeTest() throws SyntaxException, IOException {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		final long							xName = names.placeName("x",null), yName = names.placeName("y",null);				
@@ -271,7 +271,7 @@ public class MercCompilerTest {
 
 	@Test
 	public void buildUnarySyntaxTreeTest() throws SyntaxException, IOException {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		final long							xName = names.placeName("x",null);				
@@ -314,7 +314,7 @@ public class MercCompilerTest {
 
 	@Test
 	public void buildBinarySyntaxTreeTest() throws SyntaxException, IOException {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		final long							xName = names.placeName("x",null), yName = names.placeName("y",null), zName = names.placeName("z",null);				
@@ -372,7 +372,7 @@ public class MercCompilerTest {
 
 	@Test
 	public void buildNameDefinitionTreeTest() throws SyntaxException, IOException {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		final int[]							allocation = new int[]{0};
@@ -397,7 +397,7 @@ public class MercCompilerTest {
 
 	@Test
 	public void buildBodyTest() throws SyntaxException, IOException {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		final int[]							allocation = new int[]{0};
@@ -452,7 +452,7 @@ public class MercCompilerTest {
 
 	@Test
 	public void buildUnitsTest() throws SyntaxException, IOException {
-		final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 		final MercClassRepo					classes = new MercClassRepo(names,0);
 		final MercNameRepo					vars = new MercNameRepo();
 		final int[]							allocation = new int[]{0};

@@ -28,7 +28,7 @@ import chav1961.merc.api.exceptions.MercEnvironmentException;
 import chav1961.merc.api.interfaces.front.World;
 import chav1961.merc.lang.merc.interfaces.CallProgram;
 import chav1961.merc.lang.merc.interfaces.CharDataOutput;
-import chav1961.purelib.basic.OrdinalSyntaxTree;
+import chav1961.purelib.basic.AndOrTree;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.URIUtils;
 import chav1961.purelib.basic.Utils;
@@ -46,7 +46,7 @@ public class MercCodeBuilderTest {
 	
 	@Test
 	public void basicTest() throws IOException, URISyntaxException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, MercContentException, MercEnvironmentException {
-		final SyntaxTreeInterface<?>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
 		final MercClassRepo				classes = new MercClassRepo(names,0);
 		final MercNameRepo				vars = new MercNameRepo();
 		final MercSyntaxTreeNode			root = new MercSyntaxTreeNode(MercSyntaxTreeNodeType.Print,-1,null
@@ -67,7 +67,7 @@ public class MercCodeBuilderTest {
 
 	@Test
 	public void unaryExpressionWithoutIncDecTest() throws IOException, URISyntaxException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, MercContentException, MercEnvironmentException {
-		final SyntaxTreeInterface<?>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
 		final MercClassRepo				classes = new MercClassRepo(names,0);
 		final MercNameRepo				vars = new MercNameRepo();
 		final long						counterId = names.placeName("counter",null);
@@ -126,7 +126,7 @@ public class MercCodeBuilderTest {
 
 	@Test
 	public void chainedBinaryExpressionTest() throws IOException, URISyntaxException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, MercContentException, MercEnvironmentException {
-		final SyntaxTreeInterface<?>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
 		final MercClassRepo				classes = new MercClassRepo(names,0);
 		final MercNameRepo				vars = new MercNameRepo();
 		final long						counterId = names.placeName("counter",null);
@@ -367,7 +367,7 @@ public class MercCodeBuilderTest {
 	
 	@Test
 	public void fieldDefinitionTest() throws IOException, URISyntaxException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, MercContentException, MercEnvironmentException {
-		final SyntaxTreeInterface<?>	names = new OrdinalSyntaxTree<>();
+		final SyntaxTreeInterface<?>	names = new AndOrTree<>();
 		final MercClassRepo				classes = new MercClassRepo(names,0);
 		final MercNameRepo				vars = new MercNameRepo();
 		final long						counterId = names.placeName("counter",null);

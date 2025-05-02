@@ -6,8 +6,8 @@ import java.util.List;
 
 import chav1961.merc.lang.merc.MercScriptEngine.Lexema;
 import chav1961.merc.lang.merc.interfaces.LexemaType;
+import chav1961.purelib.basic.AndOrTree;
 import chav1961.purelib.basic.LineByLineProcessor;
-import chav1961.purelib.basic.OrdinalSyntaxTree;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.SyntaxTreeInterface;
 import chav1961.purelib.ui.HighlightItem;
@@ -18,7 +18,7 @@ public class MercHighlighter {
 			throw new NullPointerException("Program can't be null");
 		}
 		else {
-			final SyntaxTreeInterface<Object>	names = new OrdinalSyntaxTree<>();
+			final SyntaxTreeInterface<Object>	names = new AndOrTree<>();
 			final List<Lexema>					lexemas = new ArrayList<>();
 			final char[]						content = program.replace("\r","").toCharArray();
 			
